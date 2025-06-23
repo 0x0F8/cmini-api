@@ -1,4 +1,4 @@
-export enum CminiBoard {
+export enum CminiBoardType {
     Staggered, Mini, Ortho
 }
 
@@ -15,9 +15,27 @@ export type CminiKey = {
 
 export type CminiLayout = {
     layoutHash: string;
-    boardHash: string;
-    board: CminiBoard
+    boardHashes: string[]
+    metaHashes: string[]
     keys: CminiKey[]
+}
+
+export type CminiBoardLayout = {
+    layoutHash: string;
+    boardHash: string;
+    board: CminiBoardType;
+    metaHashes: string[]
+}
+
+export type CminiMeta = {
+    name: string;
+    layoutHash: string;
+    boardHash: string;
+    metaHash: string;
+    author: string;
+    authorId: string;
+    likes: number
+    link: string;
 }
 
 export type CminiStats = {
@@ -53,25 +71,15 @@ export type CminiStats = {
     };
 };
 
+export type CminiStatsByCorpora = Map<string, CminiStats>
+
 export type CminiMetric = {
     min: number;
     max: number;
+    name: string
 }
 
-export type CminiMeta = {
-    name: string;
-    layoutHash: string;
-    boardHash: string;
-    board: CminiBoard;
-    author: string;
-    likes: number
-    link: string;
-}
-export type CminiStatsParent = Map<string, CminiStats>
-
-export type CminiGlobal = { layout: CminiLayout; stats: CminiStats; meta: CminiMeta[] }
-export type CminiGlobalWithCorpora = { layout: CminiLayout; stats: CminiStatsParent; meta: CminiMeta[] }
-export type CminiGlobalsWithCorpora = { layout: CminiLayout; stats: Map<string, CminiStatsParent>; meta: CminiMeta[] }
+export type CminiHeatmap = Map<string, number>
 
 export enum CminiMetricName {
     Alternate = 'alternate',

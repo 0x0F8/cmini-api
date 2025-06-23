@@ -132,65 +132,93 @@ def layout_to_string(ll, corpora_dirname, likes_data, metrics):
     board_num = board_to_num(ll.board)
     layout_hash = get_hash(keys_string)
     board_hash = get_hash(keys_string + str(board_num))
+    author_hash = get_hash(keys_string + str(board_num) + str(ll.user))
 
-    names_string = f'{ll.name}|{layout_hash}|{board_hash}|{board_num}|{author}|{likes}|{external_link}',
+    names_string = f'{ll.name}|{layout_hash}|{board_hash}|{author_hash}|{author}|{ll.user}|{likes}|{external_link}',
     layout_string = f'{layout_hash}|{board_hash}|{board_num}|{keys_string}',
+    
+    alternate = format_number(stats.get("alternate", 0) * 100)
+    roll_in = format_number(stats.get("roll-in", 0) * 100)
+    roll_out = format_number(stats.get("roll-out", 0) * 100)
+    oneh_in = format_number(stats.get("oneh-in", 0) * 100)
+    oneh_out = format_number(stats.get("oneh-out", 0) * 100)
+    redirect = format_number(stats.get("redirect", 0) * 100)
+    bad_redirect = format_number(stats.get("bad-redirect", 0) * 100)
+    format_number(stats.get("sfb", 0) * 100)
+    dsfb_red = format_number(stats.get("dsfb-red", 0) * 100)
+    dsfb_alt = format_number(stats.get("dsfb-alt", 0) * 100)
+    fsb = format_number(stats.get("fsb", 0) * 10)
+    hsb = format_number(stats.get("hsb", 0) * 100)
+    pinky_off = format_number(stats.get("pinky-off", 0) * 100)
+    rr = format_number(use.get("RR", 0) * 100)
+    lm = format_number(use.get("LM", 0) * 100)
+    rm = format_number(use.get("RM", 0) * 100)
+    lp = format_number(use.get("LP", 0) * 100)
+    rp = format_number(use.get("RP", 0) * 100)
+    li = format_number(use.get("LI", 0) * 100)
+    ri = format_number(use.get("RI", 0) * 100)
+    lr = format_number(use.get("LR", 0) * 100)
+    lh = format_number(use.get("LH", 0) * 100)
+    rh = format_number(use.get("RH", 0) * 100)
+    lt = format_number(use.get("LT", 0) * 100)
+    rt = format_number(use.get("RT", 0) * 100)
+
     stats_string = (
         f'{layout_hash}|',
         f'{board_hash}|',
         f'{corpora_dirname}|',
-        f'{format_number(stats.get("alternate", 0))}|',
-        f'{format_number(stats.get("roll-in", 0))}|',
-        f'{format_number(stats.get("roll-out", 0))}|',
-        f'{format_number(stats.get("oneh-in", 0))}|',
-        f'{format_number(stats.get("oneh-out", 0))}|',
-        f'{format_number(stats.get("redirect", 0))}|',
-        f'{format_number(stats.get("bad-redirect", 0))}|',
-        f'{format_number(stats.get("sfb", 0))}|',
-        f'{format_number(stats.get("dsfb-red", 0))}|',
-        f'{format_number(stats.get("dsfb-alt", 0))}|',
-        f'{format_number(stats.get("fsb", 0))}|',
-        f'{format_number(stats.get("hsb", 0))}|',
-        f'{format_number(stats.get("pinky-off", 0))}|',
-        f'{format_number(use.get("RR", 0))}|',
-        f'{format_number(use.get("LM", 0))}|',
-        f'{format_number(use.get("RM", 0))}|',
-        f'{format_number(use.get("LP", 0))}|',
-        f'{format_number(use.get("RP", 0))}|',
-        f'{format_number(use.get("LI", 0))}|',
-        f'{format_number(use.get("RI", 0))}|',
-        f'{format_number(use.get("LR", 0))}|',
-        f'{format_number(use.get("LH", 0))}|',
-        f'{format_number(use.get("RH", 0))}|',
-        f'{format_number(use.get("LT", 0))}|',
-        f'{format_number(use.get("RT", 0))}',
+        f'{alternate}|',
+        f'{roll_in}|',
+        f'{roll_out}|',
+        f'{oneh_in}|',
+        f'{oneh_out}|',
+        f'{redirect}|',
+        f'{bad_redirect}|',
+        f'{sfb}|',
+        f'{dsfb_red}|',
+        f'{dsfb_alt}|',
+        f'{fsb}|',
+        f'{hsb}|',
+        f'{pinky_off}|',
+        f'{rr}|',
+        f'{lm}|',
+        f'{rm}|',
+        f'{lp}|',
+        f'{rp}|',
+        f'{li}|',
+        f'{ri}|',
+        f'{lr}|',
+        f'{lh}|',
+        f'{rh}|',
+        f'{lt}|',
+        f'{rt}',
     )
 
-    record_metric(metrics["alternate"], stats.get("alternate", 0))
-    record_metric(metrics["roll-in"], stats.get("roll-in", 0))
-    record_metric(metrics["roll-out"], stats.get("roll-out", 0))
-    record_metric(metrics["oneh-in"], stats.get("oneh-in", 0))
-    record_metric(metrics["oneh-out"], stats.get("oneh-out", 0))
-    record_metric(metrics["redirect"], stats.get("redirect", 0))
-    record_metric(metrics["bad-redirect"], stats.get("bad-redirect", 0))
-    record_metric(metrics["sfb"], stats.get("sfb", 0))
-    record_metric(metrics["dsfb-red"], stats.get("dsfb-red", 0))
-    record_metric(metrics["dsfb-alt"], stats.get("dsfb-alt", 0))
-    record_metric(metrics["fsb"], stats.get("fsb", 0))
-    record_metric(metrics["hsb"], stats.get("hsb", 0))
-    record_metric(metrics["pinky-off"], stats.get("pinky-off", 0))
-    record_metric(metrics["RR"], use.get("RR", 0))
-    record_metric(metrics["LM"], use.get("LM", 0))
-    record_metric(metrics["RM"], use.get("RM", 0))
-    record_metric(metrics["LP"], use.get("LP", 0))
-    record_metric(metrics["RP"], use.get("RP", 0))
-    record_metric(metrics["LI"], use.get("LI", 0))
-    record_metric(metrics["RI"], use.get("RI", 0))
-    record_metric(metrics["LR"], use.get("LR", 0))
-    record_metric(metrics["LH"], use.get("LH", 0))
-    record_metric(metrics["RH"], use.get("RH", 0))
-    record_metric(metrics["LT"], use.get("LT", 0))
-    record_metric(metrics["RT"], use.get("RT", 0))
+    record_metric(metrics["alternate"], alternate)
+    record_metric(metrics["roll-in"], roll_in)
+    record_metric(metrics["roll-out"], roll_out)
+    record_metric(metrics["oneh-in"], oneh_in)
+    record_metric(metrics["oneh-out"], oneh_out)
+    record_metric(metrics["redirect"], redirect)
+    record_metric(metrics["bad-redirect"], bad_redirect)
+    record_metric(metrics["sfb"], sfb)
+    record_metric(metrics["dsfb-red"], dsfb_red)
+    record_metric(metrics["dsfb-alt"], dsfb_alt)
+    record_metric(metrics["fsb"], fsb)
+    record_metric(metrics["hsb"], hsb)
+    record_metric(metrics["pinky-off"], pinky_off)
+    record_metric(metrics["RR"], rr)
+    record_metric(metrics["LM"], lm)
+    record_metric(metrics["RM"], rm)
+    record_metric(metrics["LP"], lp)
+    record_metric(metrics["RP"], rp)
+    record_metric(metrics["LI"], li)
+    record_metric(metrics["RI"], ri)
+    record_metric(metrics["LR"], lr)
+    record_metric(metrics["LH"], lh)
+    record_metric(metrics["RH"], rh)
+    record_metric(metrics["LT"], lt)
+    record_metric(metrics["RT"], rt)
    
     # stats_string = (
     #     f'name {ll.name}\n',
@@ -224,12 +252,13 @@ def layout_to_string(ll, corpora_dirname, likes_data, metrics):
     #     f'rt {format_number(use.get("RT", 0))}\n',
     # )
 
-    return (layout_hash, board_hash, ''.join(names_string), ''.join(layout_string), ''.join(stats_string), has_stats)
+    return (layout_hash, board_hash, author_hash, ''.join(names_string), ''.join(layout_string), ''.join(stats_string), has_stats)
 
 layouts_db = open('../cmini-api/layouts.tmp.csv', 'w')
 stats_db = open('../cmini-api/stats.tmp.csv', 'w')
 names_db = open('../cmini-api/names.tmp.csv', 'w')
 metrics_db = open('../cmini-api/metrics.tmp.csv', 'w')
+heatmap_db = open('../cmini-api/heatmap.tmp.csv', 'w')
 
 likes_data = open('likes.json', 'r')
 likes = json.load(likes_data)
@@ -262,6 +291,31 @@ metrics = {
     "RT": create_metric()
 }
 
+corporae = get_dirnames('corpora')
+
+valid_chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRTSUVWXYZ1234567890!@#$%^&*()-=_+;':\",.<>/?`~"
+for corpora_dirname in corporae:
+    monograms = get_ngrams(corpora_dirname, "monograms")
+    max = 0
+    min = 10000000
+    for char, frequency in monograms.items():
+        if not char in valid_chars:
+            continue
+        if frequency < min:
+            min = frequency
+        if frequency > max:
+            max = frequency
+
+    line = f'{corpora_dirname}|'
+    for char, frequency in monograms.items():
+        if not char in valid_chars:
+            continue
+        char_code = ord(char)
+        value = (frequency - min) / (max - min)
+        line += f'{char_code},{format_number(value)}|'
+
+    heatmap_db.write(f'{line}\n')
+
 for layout_filename in get_filenames('layouts'):
     file = f'layouts/{layout_filename}'
     with open(file, 'r') as f:
@@ -285,7 +339,6 @@ for layout_filename in get_filenames('layouts'):
         keys=keys,
     )
 
-    corporae = get_dirnames('corpora')
     processed = []
     has_stats = False
     stats = []
@@ -294,7 +347,7 @@ for layout_filename in get_filenames('layouts'):
     for corpora_dirname in corporae:
         if corpora_dirname != 'monkeyracer':
             continue
-        layout_hash, board_hash, names_string, layout_string, stats_string, next_has_stats = layout_to_string(ll, corpora_dirname, likes, metrics)
+        layout_hash, board_hash, author_hash, names_string, layout_string, stats_string, next_has_stats = layout_to_string(ll, corpora_dirname, likes, metrics)
         if next_has_stats:
             has_stats = True
         if board_hash in processed or not has_stats:

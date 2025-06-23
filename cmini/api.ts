@@ -1,22 +1,29 @@
 import Fuse from "fuse.js"
 import CminiController from "./controller"
 import { SortOrder } from "../types"
-import { CminiBoard } from "./types"
+import { CminiBoardType } from "./types"
 
 export default class CminiApi {
     public static search(args: {
-        corpora: string, query?: string, board?: CminiBoard, sort?: SortOrder, sortBy?: string, minSfb?: number, maxSfb?: number, author?: string, name?: string
+        corpora: string, query?: string, board?: CminiBoardType, sort?: SortOrder, sortBy?: string, minSfb?: number, maxSfb?: number, author?: string, authorId?: string, name?: string
     }) {
-        const { corpora = 'monkeyracer', query, board, sort = SortOrder.Ascending, sortBy = 'sfb', minSfb, maxSfb, author, name } = args
-        let rows = CminiController.getManyByCorpora(corpora)
+        const { corpora = 'monkeyracer', query, board, sort = SortOrder.Ascending, sortBy = 'sfb', minSfb, maxSfb, author, name, authorId } = args
+        let rows = CminiController.getBoardLayoutsByCorpora(corpora)
 
         const hasSfb = typeof minSfb !== 'undefined' && typeof maxSfb !== 'undefined'
         const hasBoard = typeof board !== 'undefined'
-        const hasFilter = hasBoard || hasSfb
+        const hasAuthorId = typeof board !== 'undefined'
+        const hasFilter = hasBoard || hasSfb || hasAuthorId
         if (hasFilter) {
             for (let i = 0; i < rows.length; i++) {
                 const row = rows[i]
-                if (hasBoard && row.layout.board !== board) {
+                if (hasAuthorId) {
+                    const authorIdExists = row.meta.some(meta => meta.authorId === authorId)
+                    if (authorIdExists) {
+                        rows.splice(i, 1)
+                        i--
+                    }
+                } if (hasBoard && row.board !== board) {
                     rows.splice(i, 1)
                     i--
                 } else if (hasSfb && row.stats.sfb >= (minSfb) && row.stats.sfb <= (maxSfb)) {

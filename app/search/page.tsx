@@ -1,30 +1,20 @@
 import { Stack } from '@mui/material';
-import LayoutTable from '../../components/LayoutTable';
-import CminiApi from '../../cmini/api';
-import { convertQuery } from '../../util/url';
-import { SearchSchema } from '../../cmini/validators';
+import { cookies } from 'next/headers'
+import SearchForm from '../../components/SearchForm';
+import useSearchDefaults from '../../hooks/useSearchDefaults';
 
 type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>
 
 export default async function Page({ searchParams }: {
-  searchParams: SearchParams
-}) {
-  const queryObj = convertQuery(await searchParams)
-  const validation = SearchSchema.safeParse(queryObj)
-  if (validation.error) {
+    searchParams: SearchParams
+  }) {
+    const query = await searchParams
+    const cookieStore = await cookies()
+    const { defaultState, constraints } = await useSearchDefaults([query, cookieStore])
+
     return (
-      <Stack>That's an error</Stack>
+        <Stack>
+            <SearchForm defaultState={defaultState} constraints={constraints} />
+        </Stack>
     )
-  }
-
-  let data = CminiApi.search(queryObj as any)
-  const { page = 1, limit = 25 } = queryObj
-  const { totalPages, hasMore, cursor } = CminiApi.meta(data.length, page as number, limit as number)
-  data = data.slice(cursor, limit as number)
-
-  return (
-    <Stack>
-      <LayoutTable data={data} hasMore={hasMore} />
-    </Stack>
-  )
 }

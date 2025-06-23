@@ -1,27 +1,26 @@
-import { CminiGlobal } from "../cmini/types";
 import { format } from "../util/string";
 
 function LayoutRow({
   layout, stats, meta
-}: CminiGlobal) {
+}: any) {
   return (
     <tr>
       <td>{meta[0].name}</td>
       <td>{meta[0].author}</td>
-      <td>{format(stats.sfb * 100)}</td>
-      <td>{format((stats.sfs + stats.sfsAlt) * 100)}</td>
-      <td>{format(stats.fsb * 10, 2)}</td>
-      <td>{format(stats.alternate * 100, 1)}</td>
-      <td>{format((stats.rollIn + stats.rollOut) * 100, 1)}</td>
-      <td>{format((stats.redirect + stats.badRedirect) * 100, 1)}</td>
+      <td>{format(stats.sfb)}</td>
+      <td>{format((stats.sfs + stats.sfsAlt))}</td>
+      <td>{format(stats.fsb, 2)}</td>
+      <td>{format(stats.alternate, 1)}</td>
+      <td>{format((stats.rollIn + stats.rollOut), 1)}</td>
+      <td>{format((stats.redirect + stats.badRedirect), 1)}</td>
       <td>{format(stats.rollIn / stats.rollOut, 1)}</td>
-      <td>{format(stats.pinkyOff * 100, 1)}</td>
-      <td>{format(stats.leftHand * 100, 0)} - {format(stats.rightHand * 100, 0)}</td>
+      <td>{format(stats.pinkyOff, 1)}</td>
+      <td>{format(stats.leftHand, 0)} - {format(stats.rightHand, 0)}</td>
     </tr>
   )
 }
 
-export default function LayoutTable({ data, hasMore }: { data: CminiGlobal[]; hasMore: boolean }) {
+export default function LayoutTable({ data, hasMore }: { data: any; hasMore: boolean }) {
   return (
     <table>
       <tbody>

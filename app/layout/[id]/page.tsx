@@ -12,11 +12,11 @@ export default async function Page({ params } : {
   params: Promise<{ id: string }>
 }) {
   const { id } = await params
-  const data = CminiController.getOneByLayoutHash(id as string)
+  const data = CminiController.getLayoutByHash(id as string)
 
   return (
       <Stack>
-          {data!.layout.boardHash}
+          {data!.layout.boardHashes}
           {data!.layout.layoutHash}
       </Stack>
   )
