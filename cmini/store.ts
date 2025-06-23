@@ -1,25 +1,50 @@
 import fs from "fs/promises";
-import { CminiLayout, CminiMeta, CminiKey, CminiStats, CminiStatsParent, CminiMetric } from "./types";
+import { CminiLayout,  CminiKey, CminiStats, CminiStatsByCorpora, CminiMetric, CminiMeta, CminiHeatmap, CminiBoardLayout, CminiBoardType } from "./types";
 
 class CminiStore {
-  stats: Map<string, CminiStatsParent> = new Map()
-  layout: Map<string, CminiLayout> = new Map()
-  meta: Map<string, CminiMeta[]> = new Map()
+  stats: Map<string, CminiStatsByCorpora> = new Map()
+  layouts: Map<string, CminiLayout> = new Map()
+  boardLayouts: Map<string, CminiBoardLayout> = new Map()
+  meta: Map<string, CminiMeta> = new Map()
+  heatmaps: Map<string, CminiHeatmap> = new Map()
   metrics: Map<string, CminiMetric> = new Map()
   corpora: string[] = []
 
   indexes: { [key: string]: { [key: string]: string } } = {
     name: {},
-    hash: {}
+    author: {}
   }
 
-  hashToBoardHashes: Map<string, string[]> = new Map()
+  authorIdToLayoutHashes: Map<string, string[]> = new Map()
+  authorIdToBoardHashes: Map<string, string[]> = new Map()
 
   async load() {
-    await this.loadMeta()
     await this.loadLayout()
+    await this.loadMeta()
     await this.loadStats()
     await this.loadMetrics()
+    await this.loadHeatmap()
+  }
+
+  protected async loadHeatmap() {
+    const data = await fs.readFile("heatmap.csv");
+    if (!data) return;
+    for (const line of data.toString().split("\n")) {
+      const [
+        name, ...pairs
+      ] = line.split("|");
+
+      const parent = new Map<string, number>()
+      this.heatmaps.set(name, parent)
+
+      for (const pair of pairs) {
+        const [charCode, frequency] = pair.split(',')
+        if (typeof charCode === 'undefined' || charCode === '') {
+          continue
+        }
+        parent.set(charCode, Number(frequency))
+      }
+    }
   }
 
   protected async loadMetrics() {
@@ -32,8 +57,8 @@ class CminiStore {
         max
       ] = line.split("|");
 
-      const metric:CminiMetric = {
-        min:Number(min),max:Number(max)
+      const metric: CminiMetric = {
+        min: Number(min), max: Number(max), name
       }
       this.metrics.set(name, metric)
     }
@@ -47,8 +72,9 @@ class CminiStore {
         name,
         layoutHash,
         boardHash,
-        board,
+        metaHash,
         author,
+        authorId,
         likes,
         link,
       ] = line.split("|");
@@ -56,29 +82,48 @@ class CminiStore {
         continue
       }
 
-      const layout: CminiMeta = {
+      const meta: CminiMeta = {
         name,
-        layoutHash: layoutHash,
+        layoutHash,
         boardHash,
-        board: Number(board),
+        metaHash,
+        authorId,
         author,
         likes: Number(likes),
         link,
       };
 
-      if (!this.meta.has(boardHash)) {
-        this.meta.set(boardHash, [])
-      }
-      let ref = this.meta.get(boardHash)
-      ref!.push(layout)
-
-      if (!this.meta.has(layoutHash)) {
-        this.meta.set(layoutHash, [])
-      }
-      ref = this.meta.get(layoutHash)
-      ref!.push(layout)
+      this.meta.set(metaHash, meta)
 
       this.indexes.name[name] = boardHash
+      this.indexes.author[authorId] = author
+      this.indexes.author[author] = authorId
+
+      if (!this.authorIdToLayoutHashes.has(authorId)) {
+        this.authorIdToLayoutHashes.set(authorId, [])
+      }
+      const ref1 = this.authorIdToLayoutHashes.get(authorId)
+      if (!ref1!.includes(layoutHash)) {
+        ref1!.push(layoutHash)
+      }
+
+      if (!this.authorIdToBoardHashes.has(authorId)) {
+        this.authorIdToBoardHashes.set(authorId, [])
+      }
+      const ref4 = this.authorIdToBoardHashes.get(authorId)
+      if (!ref4!.includes(boardHash)) {
+        ref4!.push(boardHash)
+      }
+
+      const ref2 = this.layouts.get(layoutHash)
+      if (!ref2?.metaHashes.includes(metaHash)) {
+        ref2?.metaHashes.push(metaHash)
+      }
+
+      const ref3 = this.boardLayouts.get(boardHash)
+      if (!ref3?.metaHashes.includes(metaHash)) {
+        ref3?.metaHashes.push(metaHash)
+      }
     }
   }
 
@@ -113,13 +158,27 @@ class CminiStore {
         keys.push(key)
       }
 
-      const layout: CminiLayout = {
-        layoutHash: layoutHash,
-        boardHash,
-        board: Number(board),
-        keys
-      };
-      this.layout.set(layoutHash, layout)
+      if (!this.layouts.has(layoutHash) ) {
+        const layout: CminiLayout = {
+          layoutHash,
+          keys,
+          boardHashes: [],
+          metaHashes: []
+        };
+        this.layouts.set(layoutHash, layout)
+      }
+      const ref1 = this.layouts.get(layoutHash)
+      ref1!.boardHashes.push(boardHash)
+
+      if (!this.boardLayouts.has(boardHash) ) {
+        const layout: CminiBoardLayout = {
+          layoutHash,
+          boardHash,
+          board: Number(board) as CminiBoardType,
+          metaHashes: []
+        };
+        this.boardLayouts.set(boardHash, layout)
+      }
     }
   }
 
@@ -198,16 +257,6 @@ class CminiStore {
       }
       const ref = this.stats.get(boardHash)
       ref!.set(corpora, stats)
-
-      if (!this.hashToBoardHashes.has(layoutHash)) {
-        this.hashToBoardHashes.set(layoutHash, [])
-      }
-      const ref1 = this.hashToBoardHashes.get(layoutHash)
-      if (!ref1!.includes(boardHash)) {
-        ref1!.push(boardHash)
-      }
-
-      this.indexes.hash[boardHash] = layoutHash
 
       if (!(this.corpora.includes(corpora))) {
         this.corpora.push(corpora)

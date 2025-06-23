@@ -1,13 +1,13 @@
 import { Stack } from "@mui/material"
 import CminiController from "../../../cmini/controller"
 import { isHash } from "../../../util/crypto"
-import { CminiGlobalWithCorpora } from "../../../cmini/types"
+import { CminiMeta, CminiLayout, CminiBoardLayout, CminiStatsByCorpora, CminiBoardType } from "../../../cmini/types"
 
 export const dynamicParams = false
 
 export async function generateStaticParams() {
     const ids = CminiController.getBoardHashes()
-    const names = CminiController.getNames()
+    const names = CminiController.getLayoutNames()
     const props = ids.map(id => ({ id })).concat(names.map(id => ({ id })))
     return props
 }
@@ -17,17 +17,23 @@ export default async function Page({ params } : {
 }) {
     const { id } = await params
     const propIsHash = isHash(id)
-    let data: CminiGlobalWithCorpora | undefined
+    let data: {
+        stats: CminiStatsByCorpora;
+        meta: CminiMeta[];
+        layoutHash: string;
+        boardHash: string;
+        board: CminiBoardType;
+    }
     if (propIsHash) {
-        data = CminiController.getOneByBoardHash(id as string)
+        data = CminiController.getBoardLayoutByBoardHash(id as string)!
     } else {
-        data = CminiController.getOneByName(decodeURIComponent(id as string))
+        data = CminiController.getBoardLayoutByName(decodeURIComponent(id as string))!
     }
 
     return (
         <Stack>
-            {data!.layout.boardHash}
-            {data!.layout.layoutHash}
+            {data!.boardHash}
+            {data!.layoutHash}
         </Stack>
     )
 }

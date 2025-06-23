@@ -17,7 +17,7 @@ export async function GET(req) {
     }
 
     const { id } = queryObj
-    const row = CminiController.getOneByLayoutHash(id as string)
+    const row = CminiController.getLayoutByHash(id as string)
 
     if (!row) {
         return Response.json({
@@ -26,11 +26,7 @@ export async function GET(req) {
     }
 
     return Response.json({
-        data: {
-            layout: row.layout,
-            meta: row.meta,
-            stats: Array.from(row?.stats.entries()).map(([,v]) => v)
-        },
+        data: row,
         success: true
     })
 }

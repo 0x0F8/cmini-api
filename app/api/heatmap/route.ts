@@ -3,8 +3,7 @@ import CminiController from '../../../cmini/controller'
 import { parseQuery } from '../../../util/url';
 
 const schema = z.object({
-    name: z.string().min(1).max(32).optional(),
-    id: z.number().gte(16).lte(20).optional()
+    corpora: z.enum(CminiController.getCorpora()).optional(),
 })
 
 export async function GET(req) {
@@ -17,20 +16,17 @@ export async function GET(req) {
         })
     }
 
-    const { name, id } = queryObj
-    let rows: any;
-    if (!!name) {
-        rows = CminiController.getLayoutsByAuthorName(name as string)
-    } else if (!!id) {
-        rows = CminiController.getLayoutsByAuthorId(id as string)
-    } else {
+    const { corpora } = queryObj
+    const row = CminiController.getHeatmap(corpora as string)
+
+    if (!row) {
         return Response.json({
             success: false
         })
     }
 
     return Response.json({
-        data: rows,
+        data: row,
         success: true
     })
 }
