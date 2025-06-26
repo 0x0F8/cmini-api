@@ -1,5 +1,5 @@
 import { Stack, Typography } from "@mui/material"
-import CminiController from "../../../cmini/controller"
+import CminiController from "../../../backend/cmini/controller"
 
 export const dynamicParams = false
 

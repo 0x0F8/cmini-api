@@ -1,4 +1,4 @@
-import CminiController from '../../../../cmini/controller'
+import CminiController from '../../../../backend/cmini/controller'
 
 export async function GET() {
     return Response.json({
