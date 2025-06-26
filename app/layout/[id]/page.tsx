@@ -1,7 +1,8 @@
 import { Stack, Typography } from "@mui/material"
-import CminiController from "../../../cmini/controller"
-import Keyboard from "../../../components/Keyboard"
-import {LayoutRow} from "../../../components/LayoutTable"
+import CminiController from "../../../backend/cmini/controller"
+import Keyboard from "../../../frontend/components/Keyboard"
+import {LayoutRow} from "../../../frontend/components/LayoutTable"
+import { CminiBoardType } from "../../../backend/cmini/types"
 
 export const dynamicParams = false
 
@@ -27,7 +28,7 @@ export default async function Page({ params } : {
             {boardLayouts[0].meta[0].author}
           </Typography>
           <LayoutRow stats={stats} meta={boardLayouts[0].meta} />
-          <Keyboard keys={data?.layout.keys!} heatmap={heatmap!} config={{display:'heatmap',showDisplay: true}} />
+          <Keyboard keys={data?.layout.keys!} heatmap={heatmap!} config={{display:'heatmap', showDisplay: false, type:CminiBoardType.Staggered}} />
       </Stack>
   )
 }

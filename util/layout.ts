@@ -1,4 +1,4 @@
-import { CminiKey } from "../cmini/types"
+import { CminiKey } from "../backend/cmini/types"
 
 export function decodeKeys(input: string) {
     const keys: CminiKey[] = []

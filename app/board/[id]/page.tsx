@@ -1,7 +1,7 @@
 import { Stack } from "@mui/material"
-import CminiController from "../../../cmini/controller"
+import CminiController from "../../../backend/cmini/controller"
 import { isHash } from "../../../util/crypto"
-import { CminiMeta, CminiLayout, CminiBoardLayout, CminiStatsByCorpora, CminiBoardType } from "../../../cmini/types"
+import { CminiMeta, CminiLayout, CminiBoardLayout, CminiStatsByCorpora, CminiBoardType } from "../../../backend/cmini/types"
 
 export const dynamicParams = false
 

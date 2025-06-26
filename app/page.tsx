@@ -1,8 +1,8 @@
 import { Stack } from '@mui/material';
-import LayoutTable from '../components/LayoutTable';
-import CminiApi from '../cmini/api';
+import LayoutTable from '../frontend/components/LayoutTable';
+import CminiApi from '../backend/cmini/api';
 import { convertQuery } from '../util/url';
-import { SearchSchema } from '../cmini/validators';
+import { SearchSchema } from '../backend/cmini/validators';
 
 type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>
 

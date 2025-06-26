@@ -1,7 +1,7 @@
 import { Stack } from '@mui/material';
 import { cookies } from 'next/headers'
-import SearchForm from '../../components/SearchForm';
-import useSearchDefaults from '../../hooks/useSearchDefaults';
+import SearchForm from '../../frontend/components/SearchForm';
+import useSearchDefaults from '../../frontend/hooks/useSearchDefaults';
 
 type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>
 

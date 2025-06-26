@@ -1,6 +1,6 @@
 import { parseQuery } from '../../../util/url';
-import CminiApi from "../../../cmini/api";
-import { SearchSchema } from '../../../cmini/validators';
+import CminiApi from "../../../backend/cmini/api";
+import { SearchSchema } from '../../../backend/cmini/validators';
 
 export async function GET(req) {
     const queryObj = parseQuery(req.url!)
