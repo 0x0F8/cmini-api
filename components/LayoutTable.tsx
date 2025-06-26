@@ -1,7 +1,7 @@
 import { format } from "../util/string";
 
-function LayoutRow({
-  layout, stats, meta
+export function LayoutRow({
+  stats, meta
 }: any) {
   return (
     <tr>
@@ -20,7 +20,7 @@ function LayoutRow({
   )
 }
 
-export default function LayoutTable({ data, hasMore }: { data: any; hasMore: boolean }) {
+export default function LayoutTable({ data, hasMore = false }: { data: any; hasMore?: boolean }) {
   return (
     <table>
       <tbody>

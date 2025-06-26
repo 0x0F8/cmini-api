@@ -1,4 +1,4 @@
-import {format} from '../../util/string'
+import { format } from '../../util/string'
 
 describe('format()', () => {
     test('it should output 3 decimals', () => {

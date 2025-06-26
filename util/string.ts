@@ -13,3 +13,4 @@ export function format(num: number, decimals = 3) {
     }
     return result
 }
+
