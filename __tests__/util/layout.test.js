@@ -1,4 +1,4 @@
-import { decodeKeys, encodeKeys } from '../../util/layout'
+import { decodeKeys, encodeKeys } from '@util/layout'
 import { keysStr, keysArray } from '../data'
 
 describe('decodeKeys()', () => {
