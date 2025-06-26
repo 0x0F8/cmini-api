@@ -88,7 +88,7 @@ export default class CminiController {
     }
     return {
       layout: CminiStore.layouts.get(boardLayout.layoutHash)!,
-      boardLayouts: [CminiController.getBoardDetails(boardLayout)]
+      boardLayouts: [CminiController.getBoardLayoutDetails(boardLayout)]
     }
   }
 
@@ -104,7 +104,7 @@ export default class CminiController {
     }
   }
 
-  static getBoardDetails(board: CminiBoardLayout) {
+  static getBoardLayoutDetails(board: CminiBoardLayout) {
     const {metaHashes,...props} = board
     return {
       ...props,
@@ -118,7 +118,7 @@ export default class CminiController {
     if (!boardLayout) {
       return undefined
     }
-    return CminiController.getBoardDetails(boardLayout)
+    return CminiController.getBoardLayoutDetails(boardLayout)
   }
 
   static getLayoutByName(name: string) {
@@ -143,7 +143,7 @@ export default class CminiController {
     }
     return Array.from(CminiStore.boardLayouts.values()).map(boardLayout => {
       const layout = CminiStore.layouts.get(boardLayout.layoutHash)!
-      const {stats, ...details} = CminiController.getBoardDetails(boardLayout)
+      const {stats, ...details} = CminiController.getBoardLayoutDetails(boardLayout)
       return {
         layout,
         ...details,
@@ -169,7 +169,7 @@ export default class CminiController {
     return boardHashes.map(boardLayoutHash => {
       const boardLayout = CminiStore.boardLayouts.get(boardLayoutHash)!
       const layout = CminiStore.layouts.get(boardLayout.layoutHash)!
-      const details = CminiController.getBoardDetails(boardLayout)
+      const details = CminiController.getBoardLayoutDetails(boardLayout)
       return {
         layout,
         boardLayout: details,

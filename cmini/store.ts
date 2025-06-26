@@ -1,5 +1,6 @@
 import fs from "fs/promises";
 import { CminiLayout,  CminiKey, CminiStats, CminiStatsByCorpora, CminiMetric, CminiMeta, CminiHeatmap, CminiBoardLayout, CminiBoardType } from "./types";
+import { decodeKeys } from "../util/layout";
 
 class CminiStore {
   stats: Map<string, CminiStatsByCorpora> = new Map()
@@ -141,27 +142,10 @@ class CminiStore {
         continue
       }
 
-      const keys: CminiKey[] = []
-      for (let i = 0; i < keysStr.length; i += 7) {
-        const line = keysStr.substring(i, i + 8)
-        // 76 00 00 4
-        const charCode = parseInt(line.substring(0, 2), 16)
-        const column = parseInt(line.substring(2, 4), 16)
-        const row = parseInt(line.substring(4, 6), 16)
-        const finger = Number(line.substring(6, 7))
-        const key: CminiKey = {
-          column,
-          row,
-          key: charCode,
-          finger
-        }
-        keys.push(key)
-      }
-
       if (!this.layouts.has(layoutHash) ) {
         const layout: CminiLayout = {
           layoutHash,
-          keys,
+          keys: decodeKeys(keysStr),
           boardHashes: [],
           metaHashes: []
         };
