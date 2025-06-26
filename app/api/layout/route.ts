@@ -1,6 +1,6 @@
 import * as z from "zod/v4"; 
-import CminiController from '../../../backend/cmini/controller'
-import { parseQuery } from '../../../util/url';
+import CminiController from '@backend/cmini/controller'
+import { parseQuery } from '@util/url';
 
 const schema = z.object({
     id: z.string().length(32)

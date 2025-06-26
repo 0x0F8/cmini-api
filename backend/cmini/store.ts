@@ -1,6 +1,6 @@
-import fs from "fs/promises";
-import { CminiLayout,  CminiKey, CminiStats, CminiStatsByCorpora, CminiMetric, CminiMeta, CminiHeatmap, CminiBoardLayout, CminiBoardType } from "./types";
+import { CminiLayout, CminiStats, CminiStatsByCorpora, CminiMetric, CminiMeta, CminiHeatmap, CminiBoardLayout, CminiBoardType } from "./types";
 import { decodeKeys } from "../../util/layout";
+import { CsvLoader } from "../FileLoader";
 
 class CminiStore {
   stats: Map<string, CminiStatsByCorpora> = new Map()
@@ -28,9 +28,9 @@ class CminiStore {
   }
 
   protected async loadHeatmap() {
-    const data = await fs.readFile("heatmap.csv");
+    const data = await new CsvLoader('heatmap.csv').load()
     if (!data) return;
-    for (const line of data.toString().split("\n")) {
+    for (const line of data) {
       const [
         name, ...pairs
       ] = line.split("|");
@@ -49,9 +49,9 @@ class CminiStore {
   }
 
   protected async loadMetrics() {
-    const data = await fs.readFile("metrics.csv");
+    const data = await new CsvLoader('metrics.csv').load()
     if (!data) return;
-    for (const line of data.toString().split("\n")) {
+    for (const line of data) {
       const [
         name,
         min,
@@ -66,9 +66,9 @@ class CminiStore {
   }
 
   protected async loadMeta() {
-    const data = await fs.readFile("names.csv");
+    const data = await new CsvLoader('names.csv').load()
     if (!data) return;
-    for (const line of data.toString().split("\n")) {
+    for (const line of data) {
       const [
         name,
         layoutHash,
@@ -129,9 +129,9 @@ class CminiStore {
   }
 
   protected async loadLayout() {
-    const data = await fs.readFile("layouts.csv");
+    const data = await new CsvLoader('layouts.csv').load()
     if (!data) return;
-    for (const line of data.toString().split("\n")) {
+    for (const line of data) {
       const [
         layoutHash,
         boardHash,
@@ -167,7 +167,7 @@ class CminiStore {
   }
 
   protected async loadStats() {
-    const data = await fs.readFile("stats.csv");
+    const data = await new CsvLoader('stats.csv').load()
     if (!data) return;
     for (const line of data.toString().split("\n")) {
       const [

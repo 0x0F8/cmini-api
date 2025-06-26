@@ -1,4 +1,4 @@
-import { rgbToHex, hexToRgb, gradientValue } from '../../util/color'
+import { rgbToHex, hexToRgb, gradientValue } from '@util/color'
 
 describe('rgbToHex()', () => {
     test('it should convert rgb to hex', () => {

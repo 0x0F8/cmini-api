@@ -1,4 +1,4 @@
-import { md5 } from '../../util/crypto'
+import { md5 } from '@util/crypto'
 import { keysStr, keysHash } from '../data'
 
 describe('md5()', () => {
