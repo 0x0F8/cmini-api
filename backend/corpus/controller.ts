@@ -14,8 +14,8 @@ const corpusPaths: Record<string, Record<string, string>> = {
 }
 
 class CorporaController {
-    stores: Map<Corpora, CorporaStore> = new Map()
-    corpusToCorpora: Map<Corpus, Corpora> = new Map()
+    protected stores: Map<Corpora, CorporaStore> = new Map()
+    protected corpusToCorpora: Map<Corpus, Corpora> = new Map()
 
     protected getTranslator(corpora: Corpora) {
         switch(corpora) {

@@ -169,7 +169,7 @@ class CminiStore {
   protected async loadStats() {
     const data = await new CsvLoader('stats.csv').load()
     if (!data) return;
-    for (const line of data.toString().split("\n")) {
+    for (const line of data) {
       const [
         layoutHash,
         boardHash,
