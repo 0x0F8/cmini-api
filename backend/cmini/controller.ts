@@ -2,27 +2,27 @@
 import CminiStore from './store'
 import { CminiLayout, CminiBoardLayout } from './types'
 
-export default class CminiController {
-  static getCorpora() {
+class CminiController {
+  getCorpora() {
     return CminiStore.corpora
   }
 
-  static getMetric(name: string) {
+  getMetric(name: string) {
     return CminiStore.metrics.get(name)
   }
 
-  static getHeatmap(corpora: string) {
+  getHeatmap(corpora: string) {
     const ref = CminiStore.heatmaps.get(corpora)
     if (!ref) return undefined;
 
     return Object.fromEntries(ref.entries())
   }
 
-  static getAuthorName(id: string) {
+  getAuthorName(id: string) {
     return CminiStore.indexes.author[id]
   }
 
-  static getBoardHashes() {
+  getBoardHashes() {
     const hashes: string[] = []
     for (const corpora of Array.from(CminiStore.boardLayouts.entries())) {
       for (const item of corpora) {
@@ -35,7 +35,7 @@ export default class CminiController {
     return hashes
   }
 
-  static getLayoutHashes() {
+  getLayoutHashes() {
     const hashes: string[] = []
     for (const corpora of Array.from(CminiStore.layouts.entries())) {
       for (const item of corpora) {
@@ -48,7 +48,7 @@ export default class CminiController {
     return hashes
   }
 
-  static getLayoutNames() {
+  getLayoutNames() {
     const names: string[] = []
     for (const boardLayout of Array.from(CminiStore.boardLayouts.values())) {
       for (const metaHash of boardLayout.metaHashes) {
@@ -61,7 +61,7 @@ export default class CminiController {
     return names
   }
 
-  static getAuthorNames() {
+  getAuthorNames() {
     const names: string[] = []
     for (const meta of Array.from(CminiStore.meta.values())) {
       if (!names.includes(meta.author)) {
@@ -71,7 +71,7 @@ export default class CminiController {
     return names
   }
 
-  static getAuthorIds() {
+  getAuthorIds() {
     const names: string[] = []
     for (const meta of Array.from(CminiStore.meta.values())) {
       if (!names.includes(meta.authorId)) {
@@ -81,18 +81,18 @@ export default class CminiController {
     return names
   }
 
-  static getLayoutByBoardHash(boardHash: string) {
+  getLayoutByBoardHash(boardHash: string) {
     const boardLayout = CminiStore.boardLayouts.get(boardHash)
     if (!boardLayout) {
       return undefined
     }
     return {
       layout: CminiStore.layouts.get(boardLayout.layoutHash)!,
-      boardLayouts: [CminiController.getBoardLayoutDetails(boardLayout)]
+      boardLayouts: [this.getBoardLayoutDetails(boardLayout)]
     }
   }
 
-  static getLayoutByHash(hash: string) {
+  getLayoutByHash(hash: string) {
     const layout = CminiStore.layouts.get(hash)
     if (!layout) {
       return undefined
@@ -104,46 +104,46 @@ export default class CminiController {
     }
   }
 
-  static getBoardLayoutDetails(board: CminiBoardLayout) {
+  getBoardLayoutDetails(board: CminiBoardLayout) {
     const {metaHashes,...props} = board
     return {
       ...props,
       stats: CminiStore.stats.get(board.boardHash)!,
-      meta: CminiController.getMetas(metaHashes)!
+      meta: this.getMetas(metaHashes)!
     }
   }
 
-  static getBoardLayoutByBoardHash(boardHash:string) {
+  getBoardLayoutByBoardHash(boardHash:string) {
     const boardLayout = CminiStore.boardLayouts.get(boardHash)
     if (!boardLayout) {
       return undefined
     }
-    return CminiController.getBoardLayoutDetails(boardLayout)
+    return this.getBoardLayoutDetails(boardLayout)
   }
 
-  static getLayoutByName(name: string) {
+  getLayoutByName(name: string) {
     const boardHash = CminiStore.indexes.name[name]
     if (!boardHash) {
       return undefined
     }
-    return CminiController.getLayoutByBoardHash(boardHash)
+    return this.getLayoutByBoardHash(boardHash)
   }
 
-  static getBoardLayoutByName(name: string) {
+  getBoardLayoutByName(name: string) {
     const boardHash = CminiStore.indexes.name[name]
     if (!boardHash) {
       return undefined
     }
-    return CminiController.getBoardLayoutByBoardHash(boardHash)
+    return this.getBoardLayoutByBoardHash(boardHash)
   }
 
-  static getBoardLayoutsByCorpora(corpora: string) {
+  getBoardLayoutsByCorpora(corpora: string) {
     if (!CminiStore.corpora.includes(corpora)) {
       return []
     }
     return Array.from(CminiStore.boardLayouts.values()).map(boardLayout => {
       const layout = CminiStore.layouts.get(boardLayout.layoutHash)!
-      const {stats, ...details} = CminiController.getBoardLayoutDetails(boardLayout)
+      const {stats, ...details} = this.getBoardLayoutDetails(boardLayout)
       return {
         layout,
         ...details,
@@ -152,24 +152,24 @@ export default class CminiController {
     })
   }
 
-  static getLayoutsByAuthorName(name: string) {
+  getLayoutsByAuthorName(name: string) {
     const id = CminiStore.indexes.author[name]
     if (!id) {
       return []
     }
-    return CminiController.getLayoutsByAuthorId(id)
+    return this.getLayoutsByAuthorId(id)
   }
 
-  static getMetas(hashes: string[]) {
+  getMetas(hashes: string[]) {
     return hashes.map(hash => CminiStore.meta.get(hash)).filter(hash => (!!hash))
   }
 
-  static getLayoutsByAuthorId(id: string) {
+  getLayoutsByAuthorId(id: string) {
     const boardHashes = CminiStore.authorIdToBoardHashes.get(id) || [];
     return boardHashes.map(boardLayoutHash => {
       const boardLayout = CminiStore.boardLayouts.get(boardLayoutHash)!
       const layout = CminiStore.layouts.get(boardLayout.layoutHash)!
-      const details = CminiController.getBoardLayoutDetails(boardLayout)
+      const details = this.getBoardLayoutDetails(boardLayout)
       return {
         layout,
         boardLayout: details,
@@ -178,3 +178,6 @@ export default class CminiController {
     })
   }
 }
+
+const instance = new CminiController();
+export default instance;

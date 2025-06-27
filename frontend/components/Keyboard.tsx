@@ -148,8 +148,7 @@ export default function Keyboard({ config, keys, heatmap, theme = defaultTheme }
         setKeyboard(nextKeyboard)
     }, [keys, heatmap, theme])
 
-    const showHeatmap = () => setDisplay('heatmap')
-    const showFingermap = () => setDisplay('fingermap')
+    const toggleMap = () => display === 'heatmap' ? setDisplay('fingermap') : setDisplay('heatmap')
 
     const shouldStagger = config.type === CminiBoardType.Staggered
     const shouldShowHeatmap = display === 'heatmap'
@@ -173,16 +172,13 @@ export default function Keyboard({ config, keys, heatmap, theme = defaultTheme }
             </Stack>
             <Stack>
                 <ButtonGroup variant="text">
-                    <IconButton onClick={showHeatmap}>
-                        {shouldShowHeatmap ? <WhatshotIcon /> : <WhatshotOutlinedIcon />}
+                    <IconButton onClick={toggleMap}>
+                        {shouldShowHeatmap ? <WhatshotIcon /> : <FrontHandIcon />}
                     </IconButton>
-                    <IconButton onClick={showFingermap}>
-                       {!shouldShowHeatmap ? <FrontHandIcon /> : <FrontHandOutlinedIcon />}
+                    <IconButton onClick={() => setShowDisplay(!showDisplay)}>
+                        {showDisplay ? <VisibilityIcon /> : <VisibilityOffIcon />}
                     </IconButton>
                 </ButtonGroup>
-                <IconButton onClick={() => setShowDisplay(!showDisplay)}>
-                    {showDisplay ? <VisibilityIcon /> : <VisibilityOffIcon />}
-                </IconButton>
             </Stack>
         </Stack>
     )
