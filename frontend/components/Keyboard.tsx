@@ -2,9 +2,7 @@
 
 import { useEffect, useState } from "react";
 import WhatshotIcon from '@mui/icons-material/Whatshot';
-import WhatshotOutlinedIcon from '@mui/icons-material/WhatshotOutlined';
 import FrontHandIcon from '@mui/icons-material/FrontHand';
-import FrontHandOutlinedIcon from '@mui/icons-material/FrontHandOutlined';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import { CminiBoardType, CminiFinger, CminiKey } from "../../backend/cmini/types";

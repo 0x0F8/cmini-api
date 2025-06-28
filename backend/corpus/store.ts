@@ -33,12 +33,12 @@ export default class CorporaStore {
         }
     }
 
-    getRandom(corpus: Corpus) {
-        return this.models.get(corpus)?.getRandom()
+    getRandom(corpus: Corpus, seed?: string) {
+        return this.models.get(corpus)?.getRandom(seed)
     }
 
-    getRandoms(corpus: Corpus, count: number) {
-        return this.models.get(corpus)?.getRandoms(count)
+    getRandoms(corpus: Corpus, count: number, seed?: string) {
+        return this.models.get(corpus)?.getRandoms(count, seed)
     }
 
     getAll(corpus: Corpus) {

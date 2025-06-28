@@ -7,7 +7,7 @@ export function parseQuery(url: string): Record<string, string | undefined | num
     for (const pair of str.split('&')) {
         const [key, value] = pair.split('=')
 
-        if (value === '' || typeof value === 'undefined') {
+        if (value === 'undefined' || value === '' || typeof value === 'undefined') {
             result[key] = undefined
         } else if (value === 'true') {
             result[key] = true
@@ -25,7 +25,7 @@ export function parseQuery(url: string): Record<string, string | undefined | num
 export function convertQuery(obj: Record<string, string | string[] | undefined>): Record<string, string | undefined | number | boolean> {
     const result: Record<string, string | undefined | number | boolean> = {}
     for (const [key, value] of Object.entries(obj)) {
-        if (value === '' || typeof value === 'undefined') {
+        if (value === 'undefined' || value === '' || typeof value === 'undefined') {
             result[key] = undefined
         } else if (value === 'true') {
             result[key] = true

@@ -6,7 +6,7 @@ import PassthroughTranslator from "./translators/PassthroughTranslator";
 
 const corpusPaths: Record<string, Record<string, string>> = {
     [String(Corpora.Local)]: {
-        [Corpus.LocalAffirmations]: 'backend/corpus/data/great.json'
+        [Corpus.LocalAffirmations]: 'backend/corpus/local/affirmations.json'
     },
     [String(Corpora.MonkeyType)]: {
         [Corpus.MonkeyType1k]: '../monkeytype/frontend/static/languages/english_1k.json'
@@ -41,14 +41,14 @@ class CorporaController {
         }
     }
 
-    getRandomString(corpus: Corpus) {
+    getRandomString(corpus: Corpus, seed?: string) {
         const corpora = this.corpusToCorpora.get(corpus)!
-        return this.stores.get(corpora)?.getRandom(corpus)
+        return this.stores.get(corpora)?.getRandom(corpus, seed)
     }
 
-    getRandomStrings(corpus: Corpus, count: number) {
+    getRandomStrings(corpus: Corpus, count: number, seed?: string) {
         const corpora = this.corpusToCorpora.get(corpus)!
-        return this.stores.get(corpora)?.getRandoms(corpus, count)
+        return this.stores.get(corpora)?.getRandoms(corpus, count, seed)
     }
 
     getCorpus(corpus: Corpus) {
