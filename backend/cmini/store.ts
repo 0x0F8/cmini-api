@@ -147,7 +147,8 @@ class CminiStore {
           layoutHash,
           keys: decodeKeys(keysStr),
           boardHashes: [],
-          metaHashes: []
+          metaHashes: [],
+          encodedKeys: keysStr
         };
         this.layouts.set(layoutHash, layout)
       }

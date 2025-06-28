@@ -18,6 +18,7 @@ export type CminiLayout = {
     boardHashes: string[]
     metaHashes: string[]
     keys: CminiKey[]
+    encodedKeys: string
 }
 
 export type CminiBoardLayout = {

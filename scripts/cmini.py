@@ -1,4 +1,5 @@
 #!/bin/python
+import gzip
 from util import layout, memory, parser
 from util import analyzer, authors, corpora, links
 from util.consts import *
@@ -81,12 +82,15 @@ def finger_to_num(f):
 
 def keys_to_string(keys):
     output = ''
+    lastRow = None
     for key, data in keys.items():
         ch = (hex(ord(key))[2:]).zfill(2)
         c = hex(data.col)[2:].zfill(2)
+        delimiter = '-' if data.row != lastRow and lastRow != None else ''
+        lastRow = data.row
         r = hex(data.row)[2:].zfill(2)
         f = finger_to_num(data.finger)
-        line = f'{ch}{c}{r}{f}'
+        line = f'{delimiter}{ch}{c}{r}{f}'
         output += line
     return output
 

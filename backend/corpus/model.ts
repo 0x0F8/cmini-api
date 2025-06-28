@@ -1,4 +1,4 @@
-import { randomIndex } from "../../util/random";
+import { prng, randomValue, randomValues } from "../../util/random";
 
 export default class CorpusModel {
     protected data: string[]
@@ -23,23 +23,13 @@ export default class CorpusModel {
         return this.data
     }
 
-    getRandom() {
-        const index = randomIndex(this.data)
-        return this.data[index]
+    getRandom(seed?: string) {
+        const randomizer = typeof seed === 'string' ? prng(seed) : Math.random
+        return randomValue(this.data, randomizer)
     }
 
-    getRandoms(count: number) {
-        if (count >= this.data.length) {
-            return this.data
-        }
-        const result: number[] = []
-        const indexes = new Array(this.data.length).map((_,i) => (i))
-        
-        for (let i = 0; i < count; i++) {
-            const index = randomIndex(indexes)
-            indexes.splice(indexes.indexOf(index), 1)
-            result.push(index)
-        }
-        return result.map(i => this.data[i])
+    getRandoms(count: number, seed?: string) {
+        const randomizer = typeof seed === 'string' ? prng(seed) : Math.random
+        return randomValues(this.data, count, randomizer)
     }
 }

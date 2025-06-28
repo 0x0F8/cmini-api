@@ -1,10 +1,11 @@
 'use client'
 
-import { InputBase, InputProps } from "@mui/material";
+import { RefObject, useCallback, useEffect, useRef, useState } from "react"
+import { Box, BoxProps, InputBase } from "@mui/material";
+import { useEventListener } from 'usehooks-ts'
 import { CminiKey } from "@backend/cmini/types";
-import { KeyboardEventHandler, useCallback, useEffect, useState } from "react"
 
-const printableChars = '`1234567890-=qwertyuiop[]\\asdfghjkl;\'zxcvbnm,./~!@#$%^&*()_+QWERTYUIOP{}|ASDFGHJKL:"ZXCVBNM<>?"`'.split('').map(c => c.charCodeAt(0))
+const printableChars = '`1234567890-=qwertyuiop[]\\asdfghjkl;\'zxcvbnm,./~!@#$%^&*()_+QWERTYUIOP{}|ASDFGHJKL:"ZXCVBNM<>?"` '.split('').map(c => c.charCodeAt(0))
 const physicalKeyMap = [
     'qwertyuiop[]\\',
     'asdfghjkl;\'',
@@ -115,6 +116,8 @@ function getCharFromCode(code: string) {
             return '/'
         case 'Backquote':
             return '`'
+        case 'Space':
+            return ' '
         default:
             return code
     }
@@ -221,11 +224,11 @@ function getModifedKey(char: string) {
     }
 }
 
-export default function TypingInput({ keys, sx, defaultValue = '', autoFocus = true, ...props }: { keys: CminiKey[]; defaultValue: string; } & Omit<InputProps, 'onKeyDown' | 'onKeyUp' | 'onKeypress' | 'value' | 'defaultValue'>) {
-    const [value, setValue] = useState<string>(defaultValue)
+export default function TypingInput({ keys, expectedCharacter, allowBackspace = true, value, setValue, autoFocus = true, ...props }: { keys: CminiKey[]; expectedCharacter: string; allowBackspace?: boolean; value: string; setValue: (value:string) => void } & Omit<BoxProps, 'onKeyDown' | 'onKeyUp' | 'onKeypress' | 'value' | 'defaultValue'>) {
+    const documentRef = useRef<Document>(typeof document !== 'undefined' ? document : undefined)
     const [keyMap, setKeymap] = useState<Record<string, number>>()
 
-    const onKeyDown = useCallback((event: Parameters<KeyboardEventHandler<HTMLElement>>[0]) => {
+    const onKeyDown = useCallback((event: KeyboardEvent) => {
         event.preventDefault()
         event.stopPropagation()
 
@@ -233,36 +236,49 @@ export default function TypingInput({ keys, sx, defaultValue = '', autoFocus = t
             return
         }
 
-        if (event.code === "Backspace") {
+        if (allowBackspace && event.code === "Backspace") {
             setValue(value.slice(0, value.length - 1))
             return
         }
 
-        const keyCode = getCharFromCode(event.code).charCodeAt(0)
+        const code = getCharFromCode(event.code)
+        if (code.length > 1) {
+            return
+        }
+
+        const keyCode = code.charCodeAt(0)
         const isPrintable = printableChars.includes(keyCode)
         if (!isPrintable) {
             return
         }
-        
+
         const shouldTranslateKey = String(keyCode) in keyMap
+        let nextChar: string = ''
         if (shouldTranslateKey) {
             const translatedKeyCode = keyMap[String(keyCode)]
             const char = String.fromCharCode(translatedKeyCode)
             if (event.shiftKey) {
-                setValue(value + getModifedKey(char))
+                nextChar = getModifedKey(char)
             } else {
-                setValue(value + char)
+                nextChar = char
             }
         } else {
             const char = String.fromCharCode(keyCode)
             if (event.shiftKey) {
-                setValue(value + getModifedKey(char))
+                nextChar = getModifedKey(char)
             } else {
-                setValue(value + char)
+                nextChar = char
             }
         }
-    }, [keyMap, value])
 
+        if (nextChar !== expectedCharacter) {
+            return
+        }
+
+        setValue(value + nextChar)
+    }, [keyMap, value, expectedCharacter])
+
+    useEventListener('keydown', onKeyDown, documentRef as RefObject<Document>)
     useEffect(() => {
         const nextKeymap: Record<string, number> = {}
         for (const { row, column, key } of keys) {
@@ -274,8 +290,13 @@ export default function TypingInput({ keys, sx, defaultValue = '', autoFocus = t
         }
         setKeymap(nextKeymap)
     }, [keys])
-
+    
     return (
-        <InputBase {...props} onKeyDown={onKeyDown} value={value} autoFocus={autoFocus} sx={{ fontSize: '3em', ...sx}} />
+        <Box>
+            <Box {...props}>
+                {value}
+            </Box>
+            <Box sx={{ height: '100%', width: '2px', background: '#000', position: 'absolute', right: 0, top: 0 }}/>
+        </Box>
     )
 }
