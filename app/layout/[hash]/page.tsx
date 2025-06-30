@@ -2,7 +2,6 @@ import { Link, Stack, Typography } from "@mui/material"
 import CminiController from "@backend/cmini/controller"
 import CorpusController from "@backend/corpus/controller"
 import Keyboard from "@frontend/components/Keyboard"
-import { LayoutRow } from "@frontend/components/LayoutTable"
 import { CminiBoardType } from "@backend/cmini/types"
 import { Corpus } from "@backend/corpus/types"
 import TypingTest from "@frontend/components/TypingTest"
@@ -10,15 +9,15 @@ import TypingTest from "@frontend/components/TypingTest"
 export const dynamicParams = false
 
 export async function generateStaticParams() {
-  const ids = CminiController.getLayoutHashes()
-  return ids.map(id => ({ id }))
+  const hashes = CminiController.getLayoutHashes()
+  return hashes.map(hash => ({ hash }))
 }
 
 export default async function Page({ params }: {
-  params: Promise<{ id: string }>
+  params: Promise<{ hash: string }>
 }) {
-  const { id } = await params
-  const data = CminiController.getLayoutByHash(id as string)
+  const { hash } = await params
+  const data = CminiController.getLayoutByHash(hash as string)
   const heatmap = CminiController.getHeatmap('monkeyracer')
   const boardLayouts = data!.boardLayouts.map(b => CminiController.getBoardLayoutDetails(b))
   const stats = boardLayouts[0].stats.get('monkeyracer')

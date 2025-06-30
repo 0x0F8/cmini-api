@@ -1,6 +1,7 @@
 import { CminiLayout, CminiStats, CminiStatsByCorpora, CminiMetric, CminiMeta, CminiHeatmap, CminiBoardLayout, CminiBoardType } from "./types";
-import { decodeKeys } from "../../util/layout";
+import { calculateBoardHash, calculateLayoutHash, decodeKeys } from "@util/layout";
 import { CsvLoader } from "../FileLoader";
+import { isAppBuilding, isProduction } from "@util/nextjs";
 
 class CminiStore {
   stats: Map<string, CminiStatsByCorpora> = new Map()
@@ -13,29 +14,32 @@ class CminiStore {
   corpora: string[] = []
 
   indexes: { [key: string]: { [key: string]: string } } = {
-    name: {},
-    author: {}
+    boardNameToId: {},
+    authorNameToId: {},
+    layoutHashToId: {},
+    boardHashToId: {}
   }
 
-  authorIdToLayoutHashes: Map<string, string[]> = new Map()
-  authorIdToBoardHashes: Map<string, string[]> = new Map()
+  indexToMany: { [key: string]: { [key: string]: string[] } } = {
+    authorIdToLayoutIds: {},
+    authorIdToBoardIds: {}
+  }
 
   async load() {
     await this.loadLayout()
-    console.log('Cached layouts')
     await this.loadMeta()
-    console.log('Cached meta')
     await this.loadStats()
-    console.log('Cached stats')
     await this.loadMetrics()
-    console.log('Cached metrics')
     await this.loadHeatmap()
-    console.log('Cached heatmap')
-    await this.loadKeymap()
-    console.log('Cached keymap')
+
+    if (!isAppBuilding()) {
+      console.log('Caching keymap...')
+      await this.loadKeymap(isProduction())
+      console.log('Done.')
+    }
   }
 
-  protected async loadKeymap() {
+  protected async loadKeymap(shouldLoadAll: boolean) {
     const data = await new CsvLoader('keymap.csv').load()
     if (!data) return;
     for await (const line of data) {
@@ -50,6 +54,10 @@ class CminiStore {
       for (const id of ids.split(',')) {
         if (ref!.includes(id)) continue
         ref!.push(id)
+      }
+
+      if (!shouldLoadAll) {
+        break
       }
     }
   }
@@ -97,61 +105,68 @@ class CminiStore {
     if (!data) return;
     for await (const line of data) {
       const [
+        layoutId,
+        boardId,
+        metaId,
         name,
-        layoutHash,
-        boardHash,
-        metaHash,
         author,
         authorId,
         likes,
         link,
       ] = line.split("|");
-      if (!layoutHash) {
+      if (!layoutId) {
         continue
       }
 
       const meta: CminiMeta = {
         name,
-        layoutHash,
-        boardHash,
-        metaHash,
+        layoutId,
+        boardId,
+        metaId,
         authorId,
         author,
         likes: Number(likes),
         link,
       };
 
-      this.meta.set(metaHash, meta)
+      this.meta.set(metaId, meta)
 
-      this.indexes.name[name] = boardHash
-      this.indexes.author[authorId] = author
-      this.indexes.author[author] = authorId
+      this.indexes.boardNameToId[name] = boardId
+      this.indexes.authorNameToId[authorId] = author
+      this.indexes.authorNameToId[author] = authorId
 
-      if (!this.authorIdToLayoutHashes.has(authorId)) {
-        this.authorIdToLayoutHashes.set(authorId, [])
+      if (!(authorId in this.indexToMany.authorIdToLayoutIds)) {
+        this.indexToMany.authorIdToLayoutIds[authorId] = []
       }
-      const ref1 = this.authorIdToLayoutHashes.get(authorId)
-      if (!ref1!.includes(layoutHash)) {
-        ref1!.push(layoutHash)
-      }
-
-      if (!this.authorIdToBoardHashes.has(authorId)) {
-        this.authorIdToBoardHashes.set(authorId, [])
-      }
-      const ref4 = this.authorIdToBoardHashes.get(authorId)
-      if (!ref4!.includes(boardHash)) {
-        ref4!.push(boardHash)
+      const ref1 = this.indexToMany.authorIdToLayoutIds[authorId]
+      if (!ref1!.includes(layoutId)) {
+        ref1!.push(layoutId)
       }
 
-      const ref2 = this.layouts.get(layoutHash)
-      if (!ref2?.metaHashes.includes(metaHash)) {
-        ref2?.metaHashes.push(metaHash)
+      if (!(authorId in this.indexToMany.authorIdToBoardIds)) {
+        this.indexToMany.authorIdToBoardIds[authorId] = []
+      }
+      const ref4 = this.indexToMany.authorIdToBoardIds[authorId]
+      if (!ref4!.includes(boardId)) {
+        ref4!.push(boardId)
       }
 
-      const ref3 = this.boardLayouts.get(boardHash)
-      if (!ref3?.metaHashes.includes(metaHash)) {
-        ref3?.metaHashes.push(metaHash)
+      const ref2 = this.layouts.get(layoutId)
+      if (!ref2?.metaIds.includes(metaId)) {
+        ref2?.metaIds.push(metaId)
       }
+
+      const ref3 = this.boardLayouts.get(boardId)
+      if (!ref3?.metaIds.includes(metaId)) {
+        ref3?.metaIds.push(metaId)
+      }
+
+      const layoutHash = calculateLayoutHash(ref2!)
+      const boardHash = calculateBoardHash(ref2!, ref3!)
+      this.indexes.layoutHashToId[layoutHash] = ref2!.layoutId
+      this.indexes.boardHashToId[boardHash] = ref3!.boardId
+      this.indexes.layoutHashToId[ref2!.layoutId] = layoutHash
+      this.indexes.boardHashToId[ref3!.boardId] = boardHash
     }
   }
 
@@ -160,36 +175,36 @@ class CminiStore {
     if (!data) return;
     for await (const line of data) {
       const [
-        layoutHash,
-        boardHash,
+        layoutId,
+        boardId,
         board,
         keysStr
       ] = line.split("|");
-      if (!layoutHash) {
+      if (!layoutId) {
         continue
       }
 
-      if (!this.layouts.has(layoutHash) ) {
+      if (!this.layouts.has(layoutId) ) {
         const layout: CminiLayout = {
-          layoutHash,
+          layoutId,
           keys: decodeKeys(keysStr),
-          boardHashes: [],
-          metaHashes: [],
+          boardIds: [],
+          metaIds: [],
           encodedKeys: keysStr
         };
-        this.layouts.set(layoutHash, layout)
+        this.layouts.set(layoutId, layout)
       }
-      const ref1 = this.layouts.get(layoutHash)
-      ref1!.boardHashes.push(boardHash)
+      const ref1 = this.layouts.get(layoutId)
+      ref1!.boardIds.push(boardId)
 
-      if (!this.boardLayouts.has(boardHash) ) {
+      if (!this.boardLayouts.has(boardId) ) {
         const layout: CminiBoardLayout = {
-          layoutHash,
-          boardHash,
+          layoutId,
+          boardId,
           board: Number(board) as CminiBoardType,
-          metaHashes: []
+          metaIds: []
         };
-        this.boardLayouts.set(boardHash, layout)
+        this.boardLayouts.set(boardId, layout)
       }
     }
   }
@@ -199,8 +214,8 @@ class CminiStore {
     if (!data) return;
     for await (const line of data) {
       const [
-        layoutHash,
-        boardHash,
+        layoutId,
+        boardId,
         corpora,
         alternate,
         rollIn,
@@ -228,14 +243,14 @@ class CminiStore {
         leftThumb,
         rightThumb,
       ] = line.split("|");
-      if (!layoutHash) {
+      if (!layoutId) {
         continue
       }
 
       const stats: CminiStats = {
         corpora,
-        layoutHash: layoutHash,
-        boardHash,
+        layoutId,
+        boardId,
         alternate: Number(alternate),
         rollIn: Number(rollIn),
         rollOut: Number(rollOut),
@@ -264,10 +279,10 @@ class CminiStore {
           rightThumb: Number(rightThumb ?? 0),
         },
       };
-      if (!this.stats.has(boardHash)) {
-        this.stats.set(boardHash, new Map<string, CminiStats>())
+      if (!this.stats.has(boardId)) {
+        this.stats.set(boardId, new Map<string, CminiStats>())
       }
-      const ref = this.stats.get(boardHash)
+      const ref = this.stats.get(boardId)
       ref!.set(corpora, stats)
 
       if (!(this.corpora.includes(corpora))) {

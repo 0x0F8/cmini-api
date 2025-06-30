@@ -4,7 +4,7 @@ import { parseQuery } from '@util/url';
 
 const schema = z.object({
     name: z.string().min(1).max(32).optional(),
-    id: z.number().gte(16).lte(20).optional()
+    id: z.number().gte(1e16).lte(1e20).optional()
 })
 
 export async function GET(req) {
@@ -22,7 +22,7 @@ export async function GET(req) {
     if (!!name) {
         rows = CminiController.getBoardLayoutsByAuthorName(name as string)
     } else if (!!id) {
-        rows = CminiController.getBoardLayoutsByAuthorId(id as string)
+        rows = CminiController.getBoardLayoutsByAuthorId(String(id))
     } else {
         return Response.json({
             success: false

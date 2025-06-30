@@ -25,7 +25,7 @@ export default function LayoutTable({ data, hasMore = false }: { data: any; hasM
     <table>
       <tbody>
         <tr><td>Name</td><td>Author</td><td>SFB</td><td>SFS</td><td>Scissors</td><td>Alternate</td><td>Roll</td><td>Redir</td><td>In:out-roll</td><td>Pinky off</td><td>Hand use</td></tr>
-        {data.map(row => <LayoutRow key={row.layout.boardHash}  {...row} />)}
+        {data.map(row => <LayoutRow key={row.layout.boardId}  {...row} />)}
       </tbody>
     </table>
   )

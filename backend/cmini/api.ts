@@ -12,8 +12,8 @@ export default class CminiApi {
 
         const hasKeyQuery = typeof keyQuery !== 'undefined'
         if (hasKeyQuery) {
-            const layoutHashes = this.keySearch(keyQuery)
-            rows = rows.filter(row => layoutHashes.includes(row.layoutHash))
+            const layoutIds = this.keySearch(keyQuery)
+            rows = rows.filter(row => layoutIds.includes(row.layoutId))
         }
         if (rows.length === 0) return []
 

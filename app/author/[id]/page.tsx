@@ -19,13 +19,13 @@ export default async function Page({ params }: {
         <Stack>
             <Typography variant="h3">{name}</Typography>
             {layouts.map(({ layout, boardLayout, meta }) => (
-                <Stack key={boardLayout.boardHash}>
-                    <Typography>{layout.layoutHash}</Typography>
+                <Stack key={boardLayout.boardId}>
+                    <Typography>{layout.layoutId}</Typography>
 
                     <Stack >
                         <Typography>{meta.name}</Typography>
                         <Typography>{meta.likes}</Typography>
-                        <Typography>{boardLayout.boardHash}</Typography>
+                        <Typography>{boardLayout.boardId}</Typography>
                     </Stack>
                 </Stack>
             ))}

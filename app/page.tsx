@@ -3,6 +3,7 @@ import LayoutTable from '@frontend/components/LayoutTable';
 import CminiApi from '@backend/cmini/api';
 import { convertQuery } from '@util/url';
 import { SearchSchema } from '@backend/cmini/validators';
+import { meta } from '@util/api';
 
 type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>
 
@@ -19,12 +20,11 @@ export default async function Page({ searchParams }: {
 
   let data = CminiApi.search(queryObj as any)
   const { page = 1, limit = 25 } = queryObj
-  const { totalPages, hasMore, cursor } = CminiApi.meta(data.length, page as number, limit as number)
-  data = data.slice(cursor, limit as number)
+  const { totalPages, rows, hasMore, cursor } = meta(data, page as number, limit as number)
 
   return (
     <Stack>
-      <LayoutTable data={data} hasMore={hasMore} />
+      <LayoutTable data={rows} hasMore={hasMore} />
     </Stack>
   )
 }

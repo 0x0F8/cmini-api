@@ -1,4 +1,5 @@
-import { CminiKey } from "../backend/cmini/types"
+import { CminiBoardLayout, CminiKey, CminiLayout } from "../backend/cmini/types"
+import { md5 } from "./crypto"
 
 export function decodeKeys(input: string) {
     const keys: CminiKey[] = []
@@ -43,4 +44,12 @@ export function encodeKeys(keys: CminiKey[]) {
         output += line
     }
     return output
+}
+
+export function calculateBoardHash(layout: CminiLayout, boardLayout: CminiBoardLayout) {
+    return md5(layout.encodedKeys + boardLayout.board)
+}
+
+export function calculateLayoutHash(layout: CminiLayout) {
+    return md5(layout.encodedKeys)
 }

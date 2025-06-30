@@ -3,7 +3,8 @@ import CminiController from '@backend/cmini/controller'
 import { parseQuery } from '@util/url';
 
 const schema = z.object({
-    id: z.string().length(32)
+    hash: z.string().length(32).optional(),
+    id: z.number().gt(-1).lt(100000).optional(),
 })
 
 export async function GET(req) {
@@ -16,8 +17,14 @@ export async function GET(req) {
         })
     }
 
-    const { id } = queryObj
-    const row = CminiController.getLayoutByHash(id as string)
+    const { id, hash } = queryObj
+    let row: any = undefined
+
+    if (typeof hash !== 'undefined'){
+        row = CminiController.getLayoutByHash(hash as string)
+    } else if (typeof id !== 'undefined') {
+        row = CminiController.getLayoutById(String(id))
+    }
 
     if (!row) {
         return Response.json({

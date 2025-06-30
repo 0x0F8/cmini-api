@@ -18,25 +18,25 @@ export type CminiKey = {
 }
 
 export type CminiLayout = {
-    layoutHash: string;
-    boardHashes: string[]
-    metaHashes: string[]
+    layoutId: string;
+    boardIds: string[]
+    metaIds: string[]
     keys: CminiKey[]
     encodedKeys: string
 }
 
 export type CminiBoardLayout = {
-    layoutHash: string;
-    boardHash: string;
+    layoutId: string;
+    boardId: string;
     board: CminiBoardType;
-    metaHashes: string[]
+    metaIds: string[]
 }
 
 export type CminiMeta = {
     name: string;
-    layoutHash: string;
-    boardHash: string;
-    metaHash: string;
+    layoutId: string;
+    boardId: string;
+    metaId: string;
     author: string;
     authorId: string;
     likes: number
@@ -45,8 +45,8 @@ export type CminiMeta = {
 
 export type CminiStats = {
     corpora: string;
-    layoutHash: string;
-    boardHash: string
+    layoutId: string;
+    boardId: string
     alternate: number;
     rollIn: number;
     rollOut: number;

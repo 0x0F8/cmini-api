@@ -22,11 +22,11 @@ function getSearchConstraint(searchField: string): number[] {
 }
 
 function parseDefaults(store): SearchDefaultResult {
-    const query = store.get('query') ?? ''
-    const board = !Number.isNaN(Number(store.get('board'))) ? Number(store.get('board')) : undefined
+    const query = store.query ?? ''
+    const board = !Number.isNaN(Number(store.board)) ? Number(store.board) : undefined
 
     const sfbConstraint = getSearchConstraint('sfb')
-    const [sfbMinStr, sfbMaxStr] = (store.get('sfb') ?? '').split(',')
+    const [sfbMinStr, sfbMaxStr] = (store.sfb ?? '').split(',')
     let sfbMin = !Number.isNaN(Number(sfbMinStr)) ? Number(sfbMinStr) : DEFAULT_RANGE[0]
     let sfbMax = !Number.isNaN(Number(sfbMaxStr)) ? Number(sfbMaxStr) : DEFAULT_RANGE[1]
     if (sfbMin < sfbConstraint[0]) sfbMin = sfbConstraint[0]
