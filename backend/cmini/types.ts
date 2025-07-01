@@ -1,5 +1,5 @@
 export enum CminiBoardType {
-    Staggered, Mini, Ortho
+    None = -1, Staggered = 0, Mini = 1, Ortho = 2
 }
 
 export enum CminiFinger {

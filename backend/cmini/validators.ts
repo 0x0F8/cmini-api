@@ -3,7 +3,7 @@ import CminiController from "./controller";
 import { CminiBoardType } from "./types";
 
 export const SearchSchema = z.object({
-    corpora: z.enum(CminiController.getCorpora()).optional(),
+    corpora: z.enum(CminiController.getCorpora()),
     name: z.string().min(1).max(255).optional(),
     author: z.string().min(1).max(32).optional(),
     query: z.string().optional(),

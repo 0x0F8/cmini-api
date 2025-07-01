@@ -1,6 +1,6 @@
 import { Corpora, Corpus } from "@backend/corpus/types";
+import { CorpusApiResult } from "app/api/corpus/[corpora]/[corpus]/route";
 import useSWR from "swr";
-import { ApiData } from "types";
 
 const corpusMap = {
     [Corpus.LocalAffirmations]: `${Corpora.Local}/${Corpus.LocalAffirmations}`,
@@ -9,7 +9,10 @@ const corpusMap = {
 
 const fetcher = (args) => fetch(args).then(res => res.json())
 
-export default function useCorpus(corpus: Corpus, limit?: number, seed?: string) {
-    const { data, error, isLoading } = useSWR<ApiData<string[]>>(`/api/corpus/${corpusMap[corpus]}?limit=${limit}&seed=${seed}`, fetcher)
+export type CorpusArgs = {corpus: Corpus, limit?: number, seed?: string}
+
+export default function useCorpus({corpus,limit,seed}:CorpusArgs, shouldSubmit: boolean) {
+    const path = shouldSubmit ? `/api/corpus/${corpusMap[corpus]}?limit=${limit}&seed=${seed}` : null
+    const { data, error, isLoading } = useSWR<CorpusApiResult>(path, fetcher)
     return { corpus: data, error, isLoading }
 }

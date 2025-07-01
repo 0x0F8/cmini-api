@@ -1,7 +1,7 @@
 'use server'
 
+import {  SearchConstraints, SearchFormState } from "@frontend/feature/search/types";
 import CminiController from "../../backend/cmini/controller";
-import { SearchConstraints, SearchState } from "../components/SearchForm";
 
 const DEFAULT_RANGE = [0, 100]
 
@@ -21,19 +21,18 @@ function getSearchConstraint(searchField: string): number[] {
     }
 }
 
-function parseDefaults(store): SearchDefaultResult {
+function parseDefaults(name:string, store): SearchDefaultResult {
     const query = store.query ?? ''
     const board = !Number.isNaN(Number(store.board)) ? Number(store.board) : undefined
 
     const sfbConstraint = getSearchConstraint('sfb')
     const [sfbMinStr, sfbMaxStr] = (store.sfb ?? '').split(',')
-    let sfbMin = !Number.isNaN(Number(sfbMinStr)) ? Number(sfbMinStr) : DEFAULT_RANGE[0]
-    let sfbMax = !Number.isNaN(Number(sfbMaxStr)) ? Number(sfbMaxStr) : DEFAULT_RANGE[1]
-    if (sfbMin < sfbConstraint[0]) sfbMin = sfbConstraint[0]
-    if (sfbMax > sfbConstraint[1]) sfbMax = sfbConstraint[1]
+    let sfbMin = !Number.isNaN(Number(sfbMinStr)) ? Number(sfbMinStr) : sfbConstraint[0]
+    let sfbMax = !Number.isNaN(Number(sfbMaxStr)) ? Number(sfbMaxStr) : sfbConstraint[1]
 
     return {
-        isEmpty: query === '' && typeof board === 'undefined' && sfbMin === DEFAULT_RANGE[0] && sfbMax === DEFAULT_RANGE[1],
+        isEmpty: query === '' && typeof board === 'undefined' && sfbMin === sfbConstraint[0] && sfbMax === sfbConstraint[1],
+        source: name,
         defaultState: {
             query, board, sfb: [sfbMin, sfbMax]
         },
@@ -43,12 +42,12 @@ function parseDefaults(store): SearchDefaultResult {
     }
 }
 
-type SearchDefaultResult = { defaultState: SearchState; constraints: SearchConstraints; isEmpty: boolean }
+export type SearchDefaultResult = { defaultState: SearchFormState; constraints: SearchConstraints; isEmpty: boolean; source: string }
 
 export default async function useSearchDefaults(stores): Promise<SearchDefaultResult> {
-    let result: SearchDefaultResult & { isEmpty: boolean } | undefined = undefined
-    for (const store of stores) {
-        result = parseDefaults(store)
+    let result: SearchDefaultResult | undefined = undefined
+    for (const [name, store] of stores) {
+        result = parseDefaults(name, store)
         if (!result.isEmpty) break;
     }
     return result!

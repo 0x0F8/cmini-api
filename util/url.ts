@@ -22,6 +22,21 @@ export function parseQuery(url: string): Record<string, string | undefined | num
     return result
 }
 
+export function stringifyQuery(obj: Record<string, string | undefined | number | boolean>) {
+    return Object.entries(obj).reduce((prev, [key, value]) => {
+        let strValue = ''
+        if (typeof value !== 'undefined' && value !== null) {
+            strValue = String(value)
+        }
+
+        if (strValue && strValue.length > 0) {
+            const prefix = prev.length > 0 ? '&' : ""
+            prev += `${prefix}${key}=${strValue}`
+        }
+        return prev
+    }, '')
+}
+
 export function convertQuery(obj: Record<string, string | string[] | undefined>): Record<string, string | undefined | number | boolean> {
     const result: Record<string, string | undefined | number | boolean> = {}
     for (const [key, value] of Object.entries(obj)) {

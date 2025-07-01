@@ -1,4 +1,4 @@
-import { format } from "../../util/string";
+import { format } from "@util/string";
 
 export function LayoutRow({
   stats, meta

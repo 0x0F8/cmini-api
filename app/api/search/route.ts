@@ -1,7 +1,18 @@
 import { parseQuery } from '@util/url';
 import { meta } from '@util/api';
-import CminiApi from "../../../backend/cmini/api";
+import CminiApi from "@backend/cmini/api";
 import { SearchSchema } from '@backend/cmini/validators';
+import { ApiDataPaginated } from 'types';
+import { CminiBoardType, CminiLayout, CminiMeta, CminiStats } from '@backend/cmini/types';
+
+export type SearchApiResult = ApiDataPaginated<{
+    stats: CminiStats;
+    meta: CminiMeta[];
+    layoutId: string;
+    boardId: string;
+    board: CminiBoardType;
+    layout: CminiLayout;
+}>
 
 export async function GET(req) {
     const queryObj = parseQuery(req.url!)

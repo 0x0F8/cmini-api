@@ -3,6 +3,9 @@ import { parseQuery } from "@util/url";
 import CorpusController from "@backend/corpus/controller";
 import { Corpus } from "@backend/corpus/types";
 import { Corpora } from "@backend/corpus/types";
+import { ApiData } from "types";
+
+export type CorpusApiResult = ApiData<string[]>
 
 const querySchema = z.object({
     limit: z.number().lte(1000).gt(0).optional(),

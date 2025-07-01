@@ -12,9 +12,17 @@ export function isProduction() {
     return process.env.NODE_ENV === 'production'
 }
 
-export function objectFromCookies(cookies: ReadonlyRequestCookies) {
+export function objectFromCookies(cookies: ReadonlyRequestCookies, prefix?: string, delimiter = '-') {
     return cookies.getAll().reduce((prev,current) => {
-        prev[current.name] = current.value
+        if (typeof prefix !== 'undefined') {
+            if (current.name.startsWith(prefix + delimiter)) {
+                const name = current.name.substring(current.name.indexOf(delimiter) + 1)
+                prev[name] = current.value
+            }
+        } else {
+            prev[current.name] = current.value
+        }
+        
         return prev
     },{})
 }
