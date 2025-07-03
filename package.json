@@ -5,7 +5,8 @@
     "start": "next start",
     "lint": "next lint",
     "test": "jest",
-    "test:watch": "jest --watch"
+    "test:watch": "jest --watch",
+    "prepare": "husky install"
   },
   "dependencies": {
     "@emotion/cache": "^11.14.0",
@@ -33,9 +34,15 @@
     "@types/jest": "^30.0.0",
     "@types/node": "^24.0.3",
     "@types/react": "19.1.8",
+    "husky": "^9.1.7",
     "jest": "^30.0.2",
     "jest-environment-jsdom": "^30.0.2",
+    "lint-staged": "^16.1.2",
+    "prettier": "^3.6.2",
     "ts-node": "^10.9.2",
     "typescript": "5.8.3"
+  },
+  "lint-staged": {
+    "*.{js,jsx,sass,css,md,ts,tsx}": "prettier --write"
   }
 }
