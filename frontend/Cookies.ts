@@ -1,12 +1,12 @@
-import Cookies from 'js-cookie'
+import Cookies from "js-cookie";
 
 const cookies = Cookies.withConverter({
-    write: function (value, name) {
-        return value
-    },
-    read: function (value, name) {
-        return value
-      }
-})
+  write: function (value, name) {
+    return value;
+  },
+  read: function (value, name) {
+    return value;
+  },
+});
 
-export default cookies
+export default cookies;

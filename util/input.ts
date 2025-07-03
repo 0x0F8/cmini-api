@@ -319,7 +319,7 @@ export function getPrintableChars(
     alphaLower: true,
     alphaUpper: true,
     punc: true,
-  }
+  },
 ) {
   const cnumber = "1234567890";
   const calphaLower = "qwertyuiopzxcvbnmasdfghjkl";

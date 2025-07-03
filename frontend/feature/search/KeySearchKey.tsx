@@ -46,7 +46,7 @@ export default function KeySearchKey({
         ref.current.blur();
       }
     },
-    [ref, ref.current, selected]
+    [ref, ref.current, selected],
   );
 
   useEffect(() => {

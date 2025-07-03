@@ -1,5 +1,5 @@
-type PassthroughCorpus = string[]
+type PassthroughCorpus = string[];
 
 export default function translate(data: PassthroughCorpus): string[] {
-    return data
+  return data;
 }

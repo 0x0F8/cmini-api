@@ -18,8 +18,8 @@ v:sd|h:tj
 GOALS
 2-4 chars per combination
 xx, xxx, xxxx, x, x
-               x  x
-                  x
+x x
+x
 
 sd+sdw - dedupe used combinations
 sd+sh - disallow impossible used characters

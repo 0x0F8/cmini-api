@@ -19,13 +19,13 @@ export type KeySearchState = {
   getHandGroups: (hand: KeySearchHandConstraint) => KeySearchKeyGroupProps[];
   getKeyGroup: (
     hand: KeySearchHandConstraint,
-    index: number
+    index: number,
   ) => KeySearchKeyGroupProps;
   isProposedEditValid: (
     value: string,
     hand: KeySearchHandConstraint,
     groupIndex: number,
-    keyIndex: number
+    keyIndex: number,
   ) => boolean;
 };
 
@@ -33,26 +33,26 @@ type SetKeySearchState = {
   setKeyGroup: (
     hand: KeySearchHandConstraint,
     groupIndex: number,
-    state: Partial<KeySearchKeyGroupProps>
+    state: Partial<KeySearchKeyGroupProps>,
   ) => void;
   setKey: (
     hand: KeySearchHandConstraint,
     groupIndex: number,
     keyIndex: number,
-    state: Partial<KeySearchKeyProps>
+    state: Partial<KeySearchKeyProps>,
   ) => void;
   createKeyGroup: (hand: KeySearchHandConstraint) => void;
   deleteKeyGroup: (hand: KeySearchHandConstraint, groupIndex: number) => void;
   deleteKey: (
     hand: KeySearchHandConstraint,
     groupIndex: number,
-    keyIndex: number
+    keyIndex: number,
   ) => void;
   createKey: (hand: KeySearchHandConstraint, groupIndex: number) => void;
   selectKey: (
     hand: KeySearchHandConstraint,
     groupIndex: number,
-    keyIndex: number
+    keyIndex: number,
   ) => void;
   deselectKey: () => void;
   setEditing: (editing: boolean) => void;
@@ -117,8 +117,8 @@ const forEachKey = (
       isLastKey: boolean;
       isFirstGroup: boolean;
       isLastGroup: boolean;
-    }
-  ) => void
+    },
+  ) => void,
 ) => {
   for (const currentHand of [
     KeySearchHandConstraint.Either,
@@ -184,7 +184,7 @@ const transformKeyQuery = (state: KeySearchState) => {
       handToken += command + letters + delimiter;
     }
 
-    let groupToken = ""
+    let groupToken = "";
     if (handToken.length > 0) {
       groupToken = currentHand === KeySearchHandConstraint.Right ? "|" : "";
       groupToken += handToken;
@@ -242,7 +242,7 @@ const calculateFormValidity = (state: KeySearchState) => {
 const KeySearchStateProvider = ({ children }: { children: ReactNode }) => {
   const [keySearchState, setKeySearchState] = useState(defaultState);
   const setKeySearchStateImmutable = (
-    callback: (draft: WritableDraft<KeySearchState>) => void
+    callback: (draft: WritableDraft<KeySearchState>) => void,
   ) => setKeySearchState(produce(callback));
 
   const getHandGroups = (hand: KeySearchHandConstraint) => keySearchState[hand];
@@ -264,7 +264,7 @@ const KeySearchStateProvider = ({ children }: { children: ReactNode }) => {
         draft.valid = calculateFormValidity(draft);
       });
     },
-    []
+    [],
   );
 
   const deleteKey = useCallback(
@@ -274,7 +274,7 @@ const KeySearchStateProvider = ({ children }: { children: ReactNode }) => {
         draft.valid = calculateFormValidity(draft);
       });
     },
-    []
+    [],
   );
 
   const createKey = useCallback(
@@ -285,33 +285,45 @@ const KeySearchStateProvider = ({ children }: { children: ReactNode }) => {
       });
       selectLastKey(hand, groupIndex);
     },
-    []
+    [],
   );
 
-  const selectLastKey = useCallback((hand: KeySearchHandConstraint, groupIndex = -1) => {
-    setKeySearchStateImmutable((draft) => {
-      draft.editing = true;
-      draft.valid = false;
-      forEachKey(
-        draft,
-        (
-          key,
-          currentHand,
-          currentGroupIndex,
-          currentKeyIndex,
-          { isLastKey, isLastGroup }
-        ) => {
-          if (isLastKey && groupIndex === -1 && isLastGroup && hand === currentHand) {
-            key.selected = true;
-          } else if (isLastKey && groupIndex === currentGroupIndex && hand === currentHand) {
-            key.selected = true;
-          } else {
-            key.selected = false;
-          }
-        }
-      );
-    });
-  }, []);
+  const selectLastKey = useCallback(
+    (hand: KeySearchHandConstraint, groupIndex = -1) => {
+      setKeySearchStateImmutable((draft) => {
+        draft.editing = true;
+        draft.valid = false;
+        forEachKey(
+          draft,
+          (
+            key,
+            currentHand,
+            currentGroupIndex,
+            currentKeyIndex,
+            { isLastKey, isLastGroup },
+          ) => {
+            if (
+              isLastKey &&
+              groupIndex === -1 &&
+              isLastGroup &&
+              hand === currentHand
+            ) {
+              key.selected = true;
+            } else if (
+              isLastKey &&
+              groupIndex === currentGroupIndex &&
+              hand === currentHand
+            ) {
+              key.selected = true;
+            } else {
+              key.selected = false;
+            }
+          },
+        );
+      });
+    },
+    [],
+  );
 
   const selectKey = useCallback(
     (hand: KeySearchHandConstraint, groupIndex: number, keyIndex: number) => {
@@ -330,11 +342,11 @@ const KeySearchStateProvider = ({ children }: { children: ReactNode }) => {
             } else {
               key.selected = false;
             }
-          }
+          },
         );
       });
     },
-    []
+    [],
   );
 
   const isProposedEditValid = useCallback(
@@ -342,14 +354,14 @@ const KeySearchStateProvider = ({ children }: { children: ReactNode }) => {
       value: string,
       hand: KeySearchHandConstraint,
       groupIndex: number,
-      keyIndex: number
+      keyIndex: number,
     ) => {
       const groupRef = keySearchState[hand][groupIndex];
       const doesValueExistInGroup =
         groupRef.values.filter((key) => key.value === value).length > 0;
       return !doesValueExistInGroup;
     },
-    [keySearchState]
+    [keySearchState],
   );
 
   const deselectKey = useCallback(() => {
@@ -359,7 +371,7 @@ const KeySearchStateProvider = ({ children }: { children: ReactNode }) => {
         draft,
         (key, currentHand, currentGroupIndex, currentKeyIndex) => {
           key.selected = false;
-        }
+        },
       );
       draft.valid = calculateFormValidity(draft);
     });
@@ -369,7 +381,7 @@ const KeySearchStateProvider = ({ children }: { children: ReactNode }) => {
     (
       hand: KeySearchHandConstraint,
       groupIndex: number,
-      state: Partial<KeySearchKeyGroupProps>
+      state: Partial<KeySearchKeyGroupProps>,
     ) => {
       setKeySearchStateImmutable((draft) => {
         if (typeof state.orientation !== "undefined") {
@@ -385,7 +397,7 @@ const KeySearchStateProvider = ({ children }: { children: ReactNode }) => {
         draft.valid = calculateFormValidity(draft);
       });
     },
-    []
+    [],
   );
 
   const setKey = useCallback(
@@ -393,7 +405,7 @@ const KeySearchStateProvider = ({ children }: { children: ReactNode }) => {
       hand: KeySearchHandConstraint,
       groupIndex: number,
       keyIndex: number,
-      state: Partial<KeySearchKeyProps>
+      state: Partial<KeySearchKeyProps>,
     ) => {
       setKeySearchStateImmutable((draft) => {
         const keyRef = draft[hand][groupIndex].values[keyIndex];
@@ -411,7 +423,7 @@ const KeySearchStateProvider = ({ children }: { children: ReactNode }) => {
         draft.valid = calculateFormValidity(draft);
       });
     },
-    []
+    [],
   );
 
   const setEditing = useCallback(
@@ -424,7 +436,7 @@ const KeySearchStateProvider = ({ children }: { children: ReactNode }) => {
           draft.valid = calculateFormValidity(draft);
         }
       }),
-    []
+    [],
   );
 
   return (

@@ -54,17 +54,17 @@ export default function KeySearchKeyGroup({
             ? Orientation.Vertical
             : Orientation.Horizontal,
       }),
-    [hand, groupIndex, orientation, values.length]
+    [hand, groupIndex, orientation, values.length],
   );
 
   const onAddGroup = useCallback(() => createKeyGroup(hand), [hand]);
   const onDeleteKey = useCallback(
     () => deleteKey(hand, groupIndex, values.length - 1),
-    [hand, groupIndex, values.length]
+    [hand, groupIndex, values.length],
   );
   const onAddKey = useCallback(
     () => createKey(hand, groupIndex),
-    [hand, groupIndex]
+    [hand, groupIndex],
   );
   const onEdit = useCallback(
     (value: string, keyIndex: number) => {
@@ -76,7 +76,7 @@ export default function KeySearchKeyGroup({
         setKey(hand, groupIndex, keyIndex, { value, error: true });
       }
     },
-    [isProposedEditValid, hand, groupIndex]
+    [isProposedEditValid, hand, groupIndex],
   );
 
   const canToggleOrientation = values.length > 1;
@@ -98,9 +98,7 @@ export default function KeySearchKeyGroup({
         [style["editing"]]: editing,
       })}
     >
-      <Stack
-        className={style["key-group-wrapper"]}
-      >
+      <Stack className={style["key-group-wrapper"]}>
         {values.map((props, keyIndex) => (
           <KeySearchKey
             key={keyIndex}

@@ -1,16 +1,17 @@
-import MonkeyTypeTranslator from "./translators/MonkeyTypeTranslator"
-import PassthroughTranslator from "./translators/PassthroughTranslator"
+import MonkeyTypeTranslator from "./translators/MonkeyTypeTranslator";
+import PassthroughTranslator from "./translators/PassthroughTranslator";
 
-export type Translator = typeof MonkeyTypeTranslator | typeof PassthroughTranslator
+export type Translator =
+  | typeof MonkeyTypeTranslator
+  | typeof PassthroughTranslator;
 
 export enum Corpora {
-    Local = 'local',
-    MonkeyType = 'monkeytype'
+  Local = "local",
+  MonkeyType = "monkeytype",
 }
 
 export enum Corpus {
-    LocalAffirmations = 'affirmations',
+  LocalAffirmations = "affirmations",
 
-    MonkeyType1k = 'english-1k'
+  MonkeyType1k = "english-1k",
 }
-

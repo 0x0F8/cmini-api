@@ -9,7 +9,7 @@ export default function CorporaSelect({ corporas }: { corporas: string[] }) {
     (event) => {
       setCorpora(event.target.value);
     },
-    [setCorpora]
+    [setCorpora],
   );
 
   return (

@@ -13,7 +13,7 @@ export type CorpusArgs = { corpus: Corpus; limit?: number; seed?: string };
 
 export default function useCorpus(
   { corpus, limit, seed }: CorpusArgs,
-  shouldSubmit: boolean
+  shouldSubmit: boolean,
 ) {
   const path = shouldSubmit
     ? `/api/corpus/${corpusMap[corpus]}?limit=${limit}&seed=${seed}`

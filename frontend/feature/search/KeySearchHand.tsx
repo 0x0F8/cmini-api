@@ -60,7 +60,7 @@ export default function KeySearchHand({
   const onAddGroup = useCallback(() => createKeyGroup(hand), [hand]);
   const onDeleteGroup = useCallback(
     (groupIndex: number) => deleteKeyGroup(hand, groupIndex),
-    [hand]
+    [hand],
   );
   const canAddGroup = groups.length <= 3;
 
@@ -103,7 +103,7 @@ export default function KeySearchHand({
         flexDirection="row"
         justifyContent="center"
         alignItems="center"
-        sx={{minWidth:50,minHeight:50}}
+        sx={{ minWidth: 50, minHeight: 50 }}
       >
         <HandIdentifier hand={hand} />
       </Stack>

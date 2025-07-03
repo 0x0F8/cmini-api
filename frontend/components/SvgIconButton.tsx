@@ -14,7 +14,7 @@ export default function SvgIconButton({
 } & Omit<SvgIconProps, "onClick">) {
   const onClickInternal = useCallback(
     () => enabled && onClick && onClick(),
-    [enabled, onClick]
+    [enabled, onClick],
   );
   return (
     <Icon

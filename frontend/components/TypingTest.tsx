@@ -24,15 +24,15 @@ export default function TypingTest({
   const [userValue, setUserValue] = useState<string>(defaultUserValue);
   const [seed, setSeed] = useState<string>("default");
   const [expectedValue, setExpectedValue] = useState<string>(
-    defaultTestValue + " " + defaultWords.join(" ")
+    defaultTestValue + " " + defaultWords.join(" "),
   );
   const [expectedCharacter, setExpectedCharacter] = useState<string>(
-    defaultWords[0][0]
+    defaultWords[0][0],
   );
 
   const { corpus, error, isLoading } = useCorpus(
     { corpus: Corpus.MonkeyType1k, limit: 50, seed },
-    true
+    true,
   );
 
   useEffect(() => {
@@ -43,8 +43,8 @@ export default function TypingTest({
       setSeed(
         randomString(
           4,
-          "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"
-        )
+          "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890",
+        ),
       );
       setUserValue(defaultUserValue);
       setExpectedValue(defaultTestValue + corpus.data.join(" "));

@@ -22,7 +22,7 @@ export default async function Page({
   const searchResultDefault =
     searchFormDefaults?.source === "query"
       ? CminiApi.search(
-          transformSearchFormToApiArgs(searchFormDefaults.defaultState)
+          transformSearchFormToApiArgs(searchFormDefaults.defaultState),
         )
       : undefined;
 

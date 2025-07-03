@@ -39,7 +39,7 @@ function parseDefaults(name: string, store): SearchDefaultResult {
     ? Number(sfbMaxStr)
     : sfbConstraint[1];
 
-    const keyQuery = store.keyQuery ?? ""
+  const keyQuery = store.keyQuery ?? "";
 
   return {
     isEmpty:
@@ -53,7 +53,7 @@ function parseDefaults(name: string, store): SearchDefaultResult {
       query,
       board,
       sfb: [sfbMin, sfbMax],
-      keyQuery
+      keyQuery,
     },
     constraints: {
       sfb: sfbConstraint,
@@ -62,14 +62,14 @@ function parseDefaults(name: string, store): SearchDefaultResult {
 }
 
 export type SearchDefaultResult = {
-  defaultState: SearchFormState & {keyQuery:string};
+  defaultState: SearchFormState & { keyQuery: string };
   constraints: SearchConstraints;
   isEmpty: boolean;
   source: string;
 };
 
 export default async function useSearchDefaults(
-  stores
+  stores,
 ): Promise<SearchDefaultResult> {
   let result: SearchDefaultResult | undefined = undefined;
   for (const [name, store] of stores) {

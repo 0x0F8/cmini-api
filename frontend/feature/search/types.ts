@@ -29,7 +29,6 @@ export type SearchFormState = {
   sfb: number[];
 };
 
-
 export enum KeySearchHandConstraint {
   Left = "left",
   Right = "right",

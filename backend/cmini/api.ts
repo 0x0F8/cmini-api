@@ -51,7 +51,7 @@ export default class CminiApi {
 
         if (hasAuthorId && !shouldFilter) {
           const authorIdExists = row.meta.some(
-            (meta) => meta.authorId === authorId
+            (meta) => meta.authorId === authorId,
           );
           if (authorIdExists) {
             shouldFilter = true;
@@ -76,14 +76,15 @@ export default class CminiApi {
             [createdAfter, isAfter, row.meta[0].createdAt],
             [modifiedAfter, isAfter, row.meta[0].modifiedAt],
           ]) {
-            if (typeof value === 'undefined') continue
+            if (typeof value === "undefined") continue;
             const target = fromUnixTime(Number(rowDate));
             const comparer = fromUnixTime(Number(value));
             const isComparerValid = isDate(comparer!);
-            const isFiltered = isComparerValid && (dateCheck as Function)(target, comparer!);
+            const isFiltered =
+              isComparerValid && (dateCheck as Function)(target, comparer!);
             if (isFiltered) {
               shouldFilter = true;
-              break
+              break;
             }
           }
         }
