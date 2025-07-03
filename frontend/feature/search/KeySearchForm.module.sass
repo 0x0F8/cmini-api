@@ -1,0 +1,60 @@
+.key-search-group
+    position: relative
+    min-width: 125px
+    min-height: 125px
+    
+    &.horizontal .key-group-wrapper
+        flex-direction: row
+    &.vertical .key-group-wrapper
+        flex-direction: column
+    
+    &.horizontal .key-group-wrapper .key-search-key
+        border-right-style: none
+    &.vertical .key-group-wrapper .key-search-key
+        border-bottom-style: none
+
+    &.horizontal .key-group-wrapper .key-search-key:first-child
+        border-top-left-radius: 4px
+        border-bottom-left-radius: 4px
+
+    &.horizontal .key-group-wrapper .key-search-key:last-child
+        border-top-right-radius: 4px
+        border-bottom-right-radius: 4px
+        border-right-style: solid
+    
+    &.vertical .key-group-wrapper .key-search-key:first-child
+        border-top-left-radius: 4px
+        border-top-right-radius: 4px
+
+    &.vertical .key-group-wrapper .key-search-key:last-child
+        border-bottom-left-radius: 4px
+        border-bottom-right-radius: 4px
+        border-bottom-style: solid
+
+    &:not(.adjacent) .key-search-key
+        border-radius: 4px
+    
+    &.editing  .key-search-key
+        opacity: 0.3
+
+.orientation-button
+    position: absolute
+    width: 8px
+    height: 8px
+    top: 0
+    right: 0
+    transform: rotate(45deg)
+
+.key-search-key
+    border: 1px solid black
+    width: 30px
+    height: 30px
+    cursor: pointer
+    opacity: 1
+    border-radius: 0
+
+    &.selected
+        opacity: 1 !important
+
+    &.error
+        border-color: red

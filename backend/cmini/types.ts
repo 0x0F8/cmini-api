@@ -41,6 +41,8 @@ export type CminiMeta = {
     authorId: string;
     likes: number
     link: string;
+    createdAt: string
+    modifiedAt: string
 }
 
 export type CminiStats = {

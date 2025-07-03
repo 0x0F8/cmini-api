@@ -1,113 +1,123 @@
-import { CminiLayout, CminiStats, CminiStatsByCorpora, CminiMetric, CminiMeta, CminiHeatmap, CminiBoardLayout, CminiBoardType } from "./types";
-import { calculateBoardHash, calculateLayoutHash, decodeKeys } from "@util/layout";
+import {
+  CminiLayout,
+  CminiStats,
+  CminiStatsByCorpora,
+  CminiMetric,
+  CminiMeta,
+  CminiHeatmap,
+  CminiBoardLayout,
+  CminiBoardType,
+} from "./types";
+import {
+  calculateBoardHash,
+  calculateLayoutHash,
+  decodeKeys,
+} from "@util/layout";
 import { CsvLoader } from "../FileLoader";
 import { isAppBuilding, isProduction } from "@util/nextjs";
 
-class CminiStore {
-  stats: Map<string, CminiStatsByCorpora> = new Map()
-  layouts: Map<string, CminiLayout> = new Map()
-  boardLayouts: Map<string, CminiBoardLayout> = new Map()
-  meta: Map<string, CminiMeta> = new Map()
-  heatmaps: Map<string, CminiHeatmap> = new Map()
-  metrics: Map<string, CminiMetric> = new Map()
-  keymap: Map<string, string[]> = new Map()
-  corpora: string[] = []
+class CminiStoreClass {
+  stats: Map<string, CminiStatsByCorpora> = new Map();
+  layouts: Map<string, CminiLayout> = new Map();
+  boardLayouts: Map<string, CminiBoardLayout> = new Map();
+  meta: Map<string, CminiMeta> = new Map();
+  heatmaps: Map<string, CminiHeatmap> = new Map();
+  metrics: Map<string, CminiMetric> = new Map();
+  keymap: Map<string, string[]> = new Map();
+  corpora: string[] = [];
 
   indexes: { [key: string]: { [key: string]: string } } = {
     boardNameToId: {},
     authorNameToId: {},
     layoutHashToId: {},
-    boardHashToId: {}
-  }
+    boardHashToId: {},
+  };
 
   indexToMany: { [key: string]: { [key: string]: string[] } } = {
     authorIdToLayoutIds: {},
-    authorIdToBoardIds: {}
-  }
+    authorIdToBoardIds: {},
+  };
 
   async load() {
-    await this.loadLayout()
-    await this.loadMeta()
-    await this.loadStats()
-    await this.loadMetrics()
-    await this.loadHeatmap()
+    await this.loadLayout();
+    await this.loadMeta();
+    await this.loadStats();
+    await this.loadMetrics();
+    await this.loadHeatmap();
 
     if (!isAppBuilding()) {
-      console.log('Caching keymap...')
-      await this.loadKeymap(isProduction())
-      console.log('Done.')
+      const descriptor = isProduction() ? " minimized" : "";
+      console.log(`Caching${descriptor} keymap...`);
+      await this.loadKeymap(isProduction());
+      console.log("Done.");
     }
   }
 
-  protected async loadKeymap(shouldLoadAll: boolean) {
-    const data = await new CsvLoader('keymap.csv').load()
+  protected async loadKeymap(shouldLoadAll = true) {
+    const data = await new CsvLoader("keymap.csv").load();
     if (!data) return;
     for await (const line of data) {
-      const [
-        key, ids
-      ] = line.split("¶");
+      const [key, ids] = line.split("¶");
 
       if (!this.keymap.has(key)) {
-        this.keymap.set(key, [])
+        this.keymap.set(key, []);
       }
-      const ref = this.keymap.get(key)
-      for (const id of ids.split(',')) {
-        if (ref!.includes(id)) continue
-        ref!.push(id)
+      const ref = this.keymap.get(key);
+      for (const id of ids.split(",")) {
+        if (ref!.includes(id)) continue;
+        ref!.push(id);
       }
 
       if (!shouldLoadAll) {
-        break
+        break;
       }
     }
   }
 
   protected async loadHeatmap() {
-    const data = await new CsvLoader('heatmap.csv').load()
+    const data = await new CsvLoader("heatmap.csv").load();
     if (!data) return;
     for await (const line of data) {
-      const [
-        name, ...pairs
-      ] = line.split("|");
+      const [name, ...pairs] = line.split("|");
 
-      const parent = new Map<string, number>()
-      this.heatmaps.set(name, parent)
+      const parent = new Map<string, number>();
+      this.heatmaps.set(name, parent);
 
       for (const pair of pairs) {
-        const [charCode, frequency] = pair.split(',')
-        if (typeof charCode === 'undefined' || charCode === '') {
-          continue
+        const [charCode, frequency] = pair.split(",");
+        if (typeof charCode === "undefined" || charCode === "") {
+          continue;
         }
-        parent.set(charCode, Number(frequency))
+        parent.set(charCode, Number(frequency));
       }
     }
   }
 
   protected async loadMetrics() {
-    const data = await new CsvLoader('metrics.csv').load()
+    const data = await new CsvLoader("metrics.csv").load();
     if (!data) return;
     for await (const line of data) {
-      const [
-        name,
-        min,
-        max
-      ] = line.split("|");
+      const [name, min, max] = line.split("|");
 
       const metric: CminiMetric = {
-        min: Number(min), max: Number(max), name
-      }
-      this.metrics.set(name, metric)
+        min: Number(min),
+        max: Number(max),
+        name,
+      };
+      this.metrics.set(name, metric);
     }
   }
 
   protected async loadMeta() {
-    const data = await new CsvLoader('names.csv').load()
+    const data = await new CsvLoader("meta.csv").load();
     if (!data) return;
     for await (const line of data) {
       const [
         layoutId,
         boardId,
         metaId,
+        createdAt,
+        modifiedAt,
         name,
         author,
         authorId,
@@ -115,7 +125,7 @@ class CminiStore {
         link,
       ] = line.split("|");
       if (!layoutId) {
-        continue
+        continue;
       }
 
       const meta: CminiMeta = {
@@ -124,93 +134,90 @@ class CminiStore {
         boardId,
         metaId,
         authorId,
+        createdAt,
+        modifiedAt,
         author,
         likes: Number(likes),
         link,
       };
 
-      this.meta.set(metaId, meta)
+      this.meta.set(metaId, meta);
 
-      this.indexes.boardNameToId[name] = boardId
-      this.indexes.authorNameToId[authorId] = author
-      this.indexes.authorNameToId[author] = authorId
+      this.indexes.boardNameToId[name] = boardId;
+      this.indexes.authorNameToId[authorId] = author;
+      this.indexes.authorNameToId[author] = authorId;
 
       if (!(authorId in this.indexToMany.authorIdToLayoutIds)) {
-        this.indexToMany.authorIdToLayoutIds[authorId] = []
+        this.indexToMany.authorIdToLayoutIds[authorId] = [];
       }
-      const ref1 = this.indexToMany.authorIdToLayoutIds[authorId]
+      const ref1 = this.indexToMany.authorIdToLayoutIds[authorId];
       if (!ref1!.includes(layoutId)) {
-        ref1!.push(layoutId)
+        ref1!.push(layoutId);
       }
 
       if (!(authorId in this.indexToMany.authorIdToBoardIds)) {
-        this.indexToMany.authorIdToBoardIds[authorId] = []
+        this.indexToMany.authorIdToBoardIds[authorId] = [];
       }
-      const ref4 = this.indexToMany.authorIdToBoardIds[authorId]
+      const ref4 = this.indexToMany.authorIdToBoardIds[authorId];
       if (!ref4!.includes(boardId)) {
-        ref4!.push(boardId)
+        ref4!.push(boardId);
       }
 
-      const ref2 = this.layouts.get(layoutId)
+      const ref2 = this.layouts.get(layoutId);
       if (!ref2?.metaIds.includes(metaId)) {
-        ref2?.metaIds.push(metaId)
+        ref2?.metaIds.push(metaId);
       }
 
-      const ref3 = this.boardLayouts.get(boardId)
+      const ref3 = this.boardLayouts.get(boardId);
       if (!ref3?.metaIds.includes(metaId)) {
-        ref3?.metaIds.push(metaId)
+        ref3?.metaIds.push(metaId);
       }
 
-      const layoutHash = calculateLayoutHash(ref2!)
-      const boardHash = calculateBoardHash(ref2!, ref3!)
-      this.indexes.layoutHashToId[layoutHash] = ref2!.layoutId
-      this.indexes.boardHashToId[boardHash] = ref3!.boardId
-      this.indexes.layoutHashToId[ref2!.layoutId] = layoutHash
-      this.indexes.boardHashToId[ref3!.boardId] = boardHash
+      const layoutHash = calculateLayoutHash(ref2!);
+      const boardHash = calculateBoardHash(ref2!, ref3!);
+      this.indexes.layoutHashToId[layoutHash] = ref2!.layoutId;
+      this.indexes.boardHashToId[boardHash] = ref3!.boardId;
+      this.indexes.layoutHashToId[ref2!.layoutId] = layoutHash;
+      this.indexes.boardHashToId[ref3!.boardId] = boardHash;
     }
   }
 
   protected async loadLayout() {
-    const data = await new CsvLoader('layouts.csv').load()
+    const data = await new CsvLoader("layouts.csv").load();
     if (!data) return;
     for await (const line of data) {
-      const [
-        layoutId,
-        boardId,
-        board,
-        keysStr
-      ] = line.split("|");
+      const [layoutId, boardId, board, keysStr] = line.split("|");
       if (!layoutId) {
-        continue
+        continue;
       }
 
-      if (!this.layouts.has(layoutId) ) {
+      if (!this.layouts.has(layoutId)) {
         const layout: CminiLayout = {
           layoutId,
           keys: decodeKeys(keysStr),
           boardIds: [],
           metaIds: [],
-          encodedKeys: keysStr
+          encodedKeys: keysStr,
         };
-        this.layouts.set(layoutId, layout)
+        this.layouts.set(layoutId, layout);
       }
-      const ref1 = this.layouts.get(layoutId)
-      ref1!.boardIds.push(boardId)
+      const ref1 = this.layouts.get(layoutId);
+      ref1!.boardIds.push(boardId);
 
-      if (!this.boardLayouts.has(boardId) ) {
+      if (!this.boardLayouts.has(boardId)) {
         const layout: CminiBoardLayout = {
           layoutId,
           boardId,
           board: Number(board) as CminiBoardType,
-          metaIds: []
+          metaIds: [],
         };
-        this.boardLayouts.set(boardId, layout)
+        this.boardLayouts.set(boardId, layout);
       }
     }
   }
 
   protected async loadStats() {
-    const data = await new CsvLoader('stats.csv').load()
+    const data = await new CsvLoader("stats.csv").load();
     if (!data) return;
     for await (const line of data) {
       const [
@@ -244,7 +251,7 @@ class CminiStore {
         rightThumb,
       ] = line.split("|");
       if (!layoutId) {
-        continue
+        continue;
       }
 
       const stats: CminiStats = {
@@ -280,18 +287,18 @@ class CminiStore {
         },
       };
       if (!this.stats.has(boardId)) {
-        this.stats.set(boardId, new Map<string, CminiStats>())
+        this.stats.set(boardId, new Map<string, CminiStats>());
       }
-      const ref = this.stats.get(boardId)
-      ref!.set(corpora, stats)
+      const ref = this.stats.get(boardId);
+      ref!.set(corpora, stats);
 
-      if (!(this.corpora.includes(corpora))) {
-        this.corpora.push(corpora)
+      if (!this.corpora.includes(corpora)) {
+        this.corpora.push(corpora);
       }
     }
   }
 }
 
-const instance = new CminiStore();
-await instance.load();
-export default instance;
+const CminiStore = new CminiStoreClass();
+await CminiStore.load();
+export default CminiStore;

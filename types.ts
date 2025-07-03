@@ -18,3 +18,6 @@ export enum SortOrder {
     Descending = 'desc'
 }
 
+export enum Orientation {
+    Horizontal,Vertical
+}

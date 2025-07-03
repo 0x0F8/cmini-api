@@ -3,7 +3,7 @@ import { isHash } from '@util/crypto'
 import CminiStore from './store'
 import { CminiLayout, CminiBoardLayout } from './types'
 
-class CminiController {
+class CminiControllerClass {
   getCorpora() {
     return CminiStore.corpora
   }
@@ -224,5 +224,5 @@ class CminiController {
   }
 }
 
-const instance = new CminiController();
-export default instance;
+const CminiController = new CminiControllerClass();
+export default CminiController;

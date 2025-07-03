@@ -11,6 +11,10 @@ export const SearchSchema = z.object({
     minSfb: z.number().gte(0).optional(),
     maxSfb: z.number().lte(10).optional(),
     keyQuery: z.string().min(2).max(55).optional(),
+    createdBefore: z.number().gte(1e9).lte(1e10).optional(),
+    createdAfter: z.number().gte(1e9).lte(1e10).optional(),
+    modifiedBefore: z.number().gte(1e9).lte(1e10).optional(),
+    modifiedAfter: z.number().gte(1e9).lte(1e10).optional(),
 
     sortBy: z.enum(['sfb']).optional(),
     sort: z.enum(['asc', 'desc']).optional(),
