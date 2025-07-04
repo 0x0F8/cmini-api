@@ -1,7 +1,7 @@
 .key-search-group
     position: relative
-    min-width: 125px
-    min-height: 125px
+    min-width: 150px
+    min-height: 150px
     
     &.horizontal .key-group-wrapper
         flex-direction: row
@@ -34,15 +34,22 @@
     &:not(.adjacent) .key-search-key
         border-radius: 4px
     
+    &.editing  .key-search-key.selected
+        cursor: pointer
+
     &.editing  .key-search-key
-        opacity: 0.3
+        opacity: 0.2
+        cursor: default
+    &.editing .key-search-group-buttons
+        opacity: 0.2
+        cursor: default
 
 .orientation-button
     position: absolute
     width: 8px
     height: 8px
-    top: 0
-    right: 0
+    top: 20px
+    right: 0px
     transform: rotate(45deg)
 
 .key-search-key

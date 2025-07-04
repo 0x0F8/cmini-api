@@ -70,6 +70,7 @@ function defaultKeyGroupState(): KeySearchKeyGroupProps {
   return {
     values: [defaultKeyState()],
     orientation: Orientation.Horizontal,
+    orient: false,
     adjacent: true,
   };
 }
@@ -79,7 +80,7 @@ const defaultState: KeySearchState = {
   right: [],
   either: [],
   editing: false,
-  valid: false,
+  valid: true,
   query: "",
 
   isProposedEditValid: () => false,
@@ -145,7 +146,7 @@ const forEachKey = (
   }
 };
 
-const transformKeyQuery = (state: KeySearchState) => {
+const keySearchStateToQueryString = (state: KeySearchState) => {
   let output = "";
   let groupTokens: string[] = [];
 
@@ -168,12 +169,14 @@ const transformKeyQuery = (state: KeySearchState) => {
       if (
         groupRef.orientation === Orientation.Horizontal &&
         groupRef.adjacent &&
+        groupRef.orient &&
         !isSingle
       ) {
         command = "h:";
       } else if (
         groupRef.orientation === Orientation.Vertical &&
         groupRef.adjacent &&
+        groupRef.orient &&
         !isSingle
       ) {
         command = "v:";
@@ -210,6 +213,7 @@ const calculateFormValidity = (state: KeySearchState) => {
   let hasBlankCharacter = false;
   let hasError = false;
 
+  let keyLength = 0;
   for (const currentHand of [
     KeySearchHandConstraint.Either,
     KeySearchHandConstraint.Left,
@@ -219,9 +223,13 @@ const calculateFormValidity = (state: KeySearchState) => {
     const hasSpecificity = currentHand !== KeySearchHandConstraint.Either;
 
     for (const groupRef of handRef) {
-      if (groupRef.values.length > 1 && hasSpecificity) {
+      if (
+        (groupRef.values.length > 0 && hasSpecificity) ||
+        (groupRef.values.length > 1 && !hasSpecificity)
+      ) {
         hasNonTrivialSearch = true;
       }
+      keyLength += groupRef.values.length;
       for (const keyRef of groupRef.values) {
         if (keyRef.value === "undefined") {
           hasBlankCharacter = true;
@@ -234,13 +242,23 @@ const calculateFormValidity = (state: KeySearchState) => {
       }
     }
   }
-  return (
-    !hasError && !hasBlankCharacter && hasNonTrivialSearch && !state.editing
-  );
+
+  const isEmpty = keyLength === 0;
+  const isFull = !hasBlankCharacter && hasNonTrivialSearch;
+  return (isEmpty || isFull) && !hasError && !state.editing;
 };
 
-const KeySearchStateProvider = ({ children }: { children: ReactNode }) => {
-  const [keySearchState, setKeySearchState] = useState(defaultState);
+const KeySearchStateProvider = ({
+  injectedState = {},
+  children,
+}: {
+  injectedState?: Partial<KeySearchState>;
+  children: ReactNode;
+}) => {
+  const [keySearchState, setKeySearchState] = useState({
+    ...defaultState,
+    ...injectedState,
+  });
   const setKeySearchStateImmutable = (
     callback: (draft: WritableDraft<KeySearchState>) => void,
   ) => setKeySearchState(produce(callback));
@@ -261,6 +279,7 @@ const KeySearchStateProvider = ({ children }: { children: ReactNode }) => {
     (hand: KeySearchHandConstraint, groupIndex: number) => {
       setKeySearchStateImmutable((draft) => {
         draft[hand].splice(groupIndex, 1);
+        draft.query = keySearchStateToQueryString(draft);
         draft.valid = calculateFormValidity(draft);
       });
     },
@@ -271,6 +290,7 @@ const KeySearchStateProvider = ({ children }: { children: ReactNode }) => {
     (hand: KeySearchHandConstraint, groupIndex: number, keyIndex: number) => {
       setKeySearchStateImmutable((draft) => {
         draft[hand][groupIndex].values.splice(keyIndex, 1);
+        draft.query = keySearchStateToQueryString(draft);
         draft.valid = calculateFormValidity(draft);
       });
     },
@@ -366,13 +386,26 @@ const KeySearchStateProvider = ({ children }: { children: ReactNode }) => {
 
   const deselectKey = useCallback(() => {
     setKeySearchStateImmutable((draft) => {
-      draft.editing = false;
+      let didDeselect = false;
       forEachKey(
         draft,
         (key, currentHand, currentGroupIndex, currentKeyIndex) => {
-          key.selected = false;
+          const keyRef =
+            draft[currentHand][currentGroupIndex].values[currentKeyIndex];
+          if (keyRef.selected) {
+            if (typeof keyRef.value !== "undefined") {
+              key.selected = false;
+              didDeselect = true;
+            } else {
+              key.error = true;
+            }
+          }
         },
       );
+
+      if (didDeselect) {
+        draft.editing = false;
+      }
       draft.valid = calculateFormValidity(draft);
     });
   }, []);
@@ -384,16 +417,20 @@ const KeySearchStateProvider = ({ children }: { children: ReactNode }) => {
       state: Partial<KeySearchKeyGroupProps>,
     ) => {
       setKeySearchStateImmutable((draft) => {
+        const groupRef = draft[hand][groupIndex];
         if (typeof state.orientation !== "undefined") {
-          draft[hand][groupIndex].orientation = state.orientation;
+          groupRef.orientation = state.orientation;
         }
         if (typeof state.adjacent !== "undefined") {
-          draft[hand][groupIndex].adjacent = state.adjacent;
+          groupRef.adjacent = state.adjacent;
         }
         if (typeof state.values !== "undefined") {
-          draft[hand][groupIndex].values = state.values;
+          groupRef.values = state.values;
         }
-        draft.query = transformKeyQuery(draft);
+        if (typeof state.orient !== "undefined") {
+          groupRef.orient = state.orient;
+        }
+        draft.query = keySearchStateToQueryString(draft);
         draft.valid = calculateFormValidity(draft);
       });
     },
@@ -415,7 +452,7 @@ const KeySearchStateProvider = ({ children }: { children: ReactNode }) => {
         if (typeof state.value !== "undefined") {
           keyRef.value = state.value;
           keyRef.error = false;
-          draft.query = transformKeyQuery(draft);
+          draft.query = keySearchStateToQueryString(draft);
         }
         if (typeof state.error !== "undefined") {
           keyRef.error = state.error;

@@ -46,7 +46,7 @@ class CminiStoreClass {
     await this.loadHeatmap();
 
     if (!isAppBuilding()) {
-      const descriptor = isProduction() ? " minimized" : "";
+      const descriptor = isProduction() ? "" : " minimized";
       console.log(`Caching${descriptor} keymap...`);
       await this.loadKeymap(isProduction());
       console.log("Done.");
@@ -128,11 +128,26 @@ class CminiStoreClass {
         continue;
       }
 
+      const ref2 = this.layouts.get(layoutId);
+      if (!ref2?.metaIds.includes(metaId)) {
+        ref2?.metaIds.push(metaId);
+      }
+
+      const ref3 = this.boardLayouts.get(boardId);
+      if (!ref3?.metaIds.includes(metaId)) {
+        ref3?.metaIds.push(metaId);
+      }
+
+      const layoutHash = calculateLayoutHash(ref2!);
+      const boardHash = calculateBoardHash(ref2!, ref3!);
+
       const meta: CminiMeta = {
         name,
         layoutId,
         boardId,
         metaId,
+        layoutHash,
+        boardHash,
         authorId,
         createdAt,
         modifiedAt,
@@ -163,18 +178,6 @@ class CminiStoreClass {
         ref4!.push(boardId);
       }
 
-      const ref2 = this.layouts.get(layoutId);
-      if (!ref2?.metaIds.includes(metaId)) {
-        ref2?.metaIds.push(metaId);
-      }
-
-      const ref3 = this.boardLayouts.get(boardId);
-      if (!ref3?.metaIds.includes(metaId)) {
-        ref3?.metaIds.push(metaId);
-      }
-
-      const layoutHash = calculateLayoutHash(ref2!);
-      const boardHash = calculateBoardHash(ref2!, ref3!);
       this.indexes.layoutHashToId[layoutHash] = ref2!.layoutId;
       this.indexes.boardHashToId[boardHash] = ref3!.boardId;
       this.indexes.layoutHashToId[ref2!.layoutId] = layoutHash;

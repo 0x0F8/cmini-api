@@ -19,6 +19,7 @@ export enum SortOrder {
 }
 
 export enum Orientation {
+  None,
   Horizontal,
   Vertical,
 }

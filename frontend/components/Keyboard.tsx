@@ -201,6 +201,7 @@ export default function Keyboard({
                       : fingerColor,
                     color: theme.text,
                     border: `1px solid ${theme.border}`,
+                    borderRadius: 4,
                   }}
                 >
                   <div className={style["key-text"]}>

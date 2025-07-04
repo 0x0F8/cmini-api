@@ -37,7 +37,10 @@ const AppStateProvider = ({
   injectedState?: Partial<AppState>;
   children: ReactNode;
 }) => {
-  const [appState, setAppState] = useState(defaultState);
+  const [appState, setAppState] = useState({
+    ...defaultState,
+    ...injectedState,
+  });
 
   const setCorpora = (corpora: string) => {
     cookies.set(AppStateCookie.Corpora, corpora);
@@ -49,7 +52,6 @@ const AppStateProvider = ({
       value={{
         ...appState,
         setCorpora,
-        ...injectedState,
       }}
     >
       {children}

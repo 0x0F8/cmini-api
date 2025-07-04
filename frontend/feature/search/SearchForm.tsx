@@ -5,22 +5,22 @@ import { Button, MenuItem, Slider, Stack, TextField } from "@mui/material";
 import Select from "@mui/material/Select";
 import { useState } from "react";
 import { CminiBoardType } from "@backend/cmini/types";
-import transformSearchFormToApiArgs from "./transformSearchFormToApiArgs";
-import { SearchFormState, SearchConstraints, SearchApiArgs } from "./types";
-import KeySearchForm from "./KeySearchForm";
-import useKeySearchState from "@frontend/hooks/useKeySearchState";
+import { SearchFormState, SearchConstraints } from "./types";
 
 export default function SearchForm({
   defaultState,
   constraints,
   onSubmit,
+  keySearchForm,
+  isValid,
 }: {
   defaultState: SearchFormState;
   constraints: SearchConstraints;
-  onSubmit: (args: SearchApiArgs) => void;
+  onSubmit: (args: SearchFormState) => void;
+  keySearchForm: React.ReactElement;
+  isValid: boolean;
 }) {
   const [searchState, setSearchState] = useState<SearchFormState>(defaultState);
-  const { query: keyQuery } = useKeySearchState();
   const { query, board, sfb } = searchState;
 
   const onQueryChange = (e: any) =>
@@ -35,8 +35,7 @@ export default function SearchForm({
     Cookies.set("search-sfb", value.join(","));
   };
 
-  const onSubmitInternal = () =>
-    onSubmit(transformSearchFormToApiArgs({ ...searchState, keyQuery }));
+  const onSubmitInternal = () => onSubmit(searchState);
 
   return (
     <Stack>
@@ -60,8 +59,12 @@ export default function SearchForm({
         min={constraints.sfb[0]}
         max={constraints.sfb[1]}
       />
-      <KeySearchForm />
-      <Button onClick={onSubmitInternal} variant="contained">
+      {keySearchForm}
+      <Button
+        onClick={onSubmitInternal}
+        variant="contained"
+        disabled={!isValid}
+      >
         Submit
       </Button>
     </Stack>

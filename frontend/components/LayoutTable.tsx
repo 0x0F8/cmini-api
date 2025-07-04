@@ -1,10 +1,15 @@
 import { format } from "@util/string";
+import Link from "next/link";
 
 export function LayoutRow({ stats, meta }: any) {
   return (
     <tr>
-      <td>{meta[0].name}</td>
-      <td>{meta[0].author}</td>
+      <td>
+        <Link href={`/layout/${meta[0].layoutHash}`}>{meta[0].name}</Link>
+      </td>
+      <td>
+        <Link href={`/author/${meta[0].authorId}`}>{meta[0].author}</Link>
+      </td>
       <td>{format(stats.sfb)}</td>
       <td>{format(stats.sfs + stats.sfsAlt)}</td>
       <td>{format(stats.fsb, 2)}</td>
@@ -44,7 +49,7 @@ export default function LayoutTable({
           <td>Hand use</td>
         </tr>
         {data.map((row) => (
-          <LayoutRow key={row.layout.boardId} {...row} />
+          <LayoutRow key={row.layout.boardId + row.layout.layoutId} {...row} />
         ))}
       </tbody>
     </table>

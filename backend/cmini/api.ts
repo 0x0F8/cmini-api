@@ -26,7 +26,7 @@ export default class CminiApi {
     } = args;
     let rows = CminiController.getBoardLayoutsByCorpora(corpora);
 
-    const hasKeyQuery = typeof keyQuery !== "undefined";
+    const hasKeyQuery = typeof keyQuery !== "undefined" && keyQuery.length > 0;
     if (hasKeyQuery) {
       const layoutIds = this.keySearch(keyQuery);
       rows = rows.filter((row) => layoutIds.includes(row.layoutId));
@@ -79,6 +79,7 @@ export default class CminiApi {
             if (typeof value === "undefined") continue;
             const target = fromUnixTime(Number(rowDate));
             const comparer = fromUnixTime(Number(value));
+            console.log(target, comparer);
             const isComparerValid = isDate(comparer!);
             const isFiltered =
               isComparerValid && (dateCheck as Function)(target, comparer!);
@@ -102,23 +103,26 @@ export default class CminiApi {
       typeof name !== "undefined" ||
       typeof author !== "undefined";
     if (hasQuery) {
-      if (typeof query !== "undefined" || typeof name !== "undefined") {
+      if (typeof name !== "undefined") {
         const fuse = new Fuse(rows, {
           minMatchCharLength: 2,
           keys: ["meta.name"],
         });
-        rows = fuse
-          .search((query as string) || (name as string))
-          .map((o) => o.item);
+        rows = fuse.search(name as string).map((o) => o.item);
       }
-      if (typeof query !== "undefined" || typeof author !== "undefined") {
+      if (typeof author !== "undefined") {
         const fuse = new Fuse(rows, {
           minMatchCharLength: 2,
           keys: ["meta.author"],
         });
-        rows = fuse
-          .search((query as string) || (author as string))
-          .map((o) => o.item);
+        rows = fuse.search(author as string).map((o) => o.item);
+      }
+      if (typeof query !== "undefined") {
+        const fuse = new Fuse(rows, {
+          minMatchCharLength: 2,
+          keys: ["meta.author", "meta.name"],
+        });
+        rows = fuse.search(query as string).map((o) => o.item);
       }
     }
     if (rows.length === 0) return [];
@@ -143,39 +147,42 @@ export default class CminiApi {
 
   // reserved keys: | + :
   public static parseKeyQuery(query: string) {
-    let hand = CminiHand.Left;
     const commands: string[][] = [];
 
-    const queryTokens = query.split("+");
+    const queryTokens = query.split(/[\s+]/g);
     if (queryTokens.length > 3) {
       return [];
     }
 
     for (const queryToken of queryTokens) {
       if (queryToken === "") continue;
-      const hasHandSyntax = queryToken.includes("|");
-      for (const handToken of queryToken.split("|")) {
-        if (handToken !== "") {
-          for (let token of handToken.split(",")) {
-            if (token === "") {
+      for (let token of queryToken.split(",")) {
+        let hand: CminiHand | undefined = undefined;
+        if (token.startsWith("|")) {
+          hand = CminiHand.Left;
+        } else if (token.endsWith("|")) {
+          hand = CminiHand.Right;
+        }
+
+        for (let handToken of token.split("|")) {
+          if (handToken !== "") {
+            if (handToken === "" || handToken === "|") {
               continue;
             }
 
-            if (!token.includes(":")) {
-              token = ":" + token;
+            if (!handToken.includes(":")) {
+              handToken = ":" + handToken;
             }
-            const [modifier, letters] = token.split(":");
-            if (letters.length < 1 || letters.length > 4) {
+            const [modifier, letters] = handToken.split(":");
+            if (
+              letters.length < 1 ||
+              letters.length > 4 ||
+              (letters.length < 2 && !hand)
+            ) {
               continue;
             }
 
             let key = "";
-            const hasModifier = modifier.length > 0;
-            const shouldExpandHandSyntax = hasModifier && !hasHandSyntax;
-            if (!shouldExpandHandSyntax) {
-              key = hand === CminiHand.Right ? "|" : "";
-            }
-
             switch (modifier) {
               case "h":
                 key += "h–";
@@ -189,21 +196,18 @@ export default class CminiApi {
               default:
                 continue;
             }
-
             key += letters;
-            if (!shouldExpandHandSyntax) {
-              key += hand === CminiHand.Left ? "|" : "";
-            }
 
-            if (shouldExpandHandSyntax) {
+            if (typeof hand === "undefined") {
               // query contains a generic search on both hands
               commands.push(["|" + key, key + "|"]);
             } else {
-              commands.push([key]);
+              const start = hand !== CminiHand.Right ? "|" : "";
+              const end = hand !== CminiHand.Left ? "|" : "";
+              commands.push([start + key + end]);
             }
           }
         }
-        hand = hand === CminiHand.Left ? CminiHand.Right : CminiHand.Left;
       }
     }
     return commands;
@@ -212,6 +216,7 @@ export default class CminiApi {
   public static keySearch(query: string) {
     let ids: string[] = [];
     const commands = this.parseKeyQuery(query);
+
     for (let i = 0; i < commands.length; i++) {
       const commandList = commands[i];
 

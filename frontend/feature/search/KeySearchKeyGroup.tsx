@@ -10,10 +10,13 @@ import useKeySearchState from "@frontend/hooks/useKeySearchState";
 import ClearOutlinedIcon from "@mui/icons-material/ClearOutlined";
 import { useCallback } from "react";
 import SvgIconButton from "@frontend/components/SvgIconButton";
+import HeightOutlinedIcon from "@mui/icons-material/HeightOutlined";
+import ZoomOutMapOutlinedIcon from "@mui/icons-material/ZoomOutMapOutlined";
 
 export type KeySearchKeyGroupProps = {
   values: KeySearchKeyProps[];
   orientation: Orientation;
+  orient: boolean;
   adjacent: boolean;
 };
 
@@ -22,6 +25,7 @@ export default function KeySearchKeyGroup({
   groupIndex,
   values,
   orientation,
+  orient,
   adjacent,
   canAddGroup,
   onDeleteGroup,
@@ -56,6 +60,14 @@ export default function KeySearchKeyGroup({
       }),
     [hand, groupIndex, orientation, values.length],
   );
+  const onToggleEnableOrientation = useCallback(
+    () =>
+      values.length > 1 &&
+      setKeyGroup(hand, groupIndex, {
+        orient: !orient,
+      }),
+    [hand, groupIndex, orient, values.length],
+  );
 
   const onAddGroup = useCallback(() => createKeyGroup(hand), [hand]);
   const onDeleteKey = useCallback(
@@ -79,11 +91,13 @@ export default function KeySearchKeyGroup({
     [isProposedEditValid, hand, groupIndex],
   );
 
-  const canToggleOrientation = values.length > 1;
+  const isMultigram = values.length > 1;
   const canDeleteKey = values.length > 1;
   const canDeleteGroup = values.length <= 1;
   const canAddGroupInternal = canAddGroup && values.length === 0;
   const canAddKey = values.length > 0 && values.length <= 3;
+  const isVertical = orientation === Orientation.Vertical;
+  const isHorizontal = orientation === Orientation.Horizontal;
 
   return (
     <Stack
@@ -92,36 +106,80 @@ export default function KeySearchKeyGroup({
       justifyContent="center"
       className={clsx({
         [style["adjacent"]]: adjacent,
-        [style["horizontal"]]: orientation === Orientation.Horizontal,
-        [style["vertical"]]: orientation === Orientation.Vertical,
+        [style["multigram"]]: isMultigram,
+        [style["horizontal"]]: isHorizontal,
+        [style["vertical"]]: isVertical,
         [style["key-search-group"]]: true,
         [style["editing"]]: editing,
       })}
     >
-      <Stack className={style["key-group-wrapper"]}>
-        {values.map((props, keyIndex) => (
-          <KeySearchKey
-            key={keyIndex}
-            {...props}
-            onSelect={() => selectKey(hand, groupIndex, keyIndex)}
-            onEdit={(value: string) => onEdit(value, keyIndex)}
-          />
-        ))}
+      <Stack
+        flexDirection={isHorizontal ? "column" : "row"}
+        alignItems="center"
+        justifyContent="center"
+        sx={{ minWidth: 80, minHeight: 65 }}
+      >
+        <Stack className={style["key-search-group-buttons"]}>
+          {orient && (
+            <SvgIconButton
+              Icon={HeightOutlinedIcon}
+              show={isMultigram}
+              onClick={onToggleEnableOrientation}
+              enabled={isMultigram && !editing}
+              sx={{
+                transform: isHorizontal ? "rotate(90deg)" : "",
+              }}
+            />
+          )}
+          {!orient && (
+            <SvgIconButton
+              Icon={ZoomOutMapOutlinedIcon}
+              show={isMultigram}
+              onClick={onToggleEnableOrientation}
+              enabled={isMultigram && !editing}
+              sx={{
+                transform: "rotate(45deg) scale(0.8)",
+              }}
+            />
+          )}
+        </Stack>
+        <Stack className={style["key-group-wrapper"]}>
+          {values.map((props, keyIndex) => (
+            <KeySearchKey
+              key={keyIndex}
+              {...props}
+              onSelect={() => selectKey(hand, groupIndex, keyIndex)}
+              onEdit={(value: string) => onEdit(value, keyIndex)}
+              canSelect={props.selected || !editing}
+            />
+          ))}
+        </Stack>
+        {isVertical && (
+          <Stack>
+            <SvgIconButton Icon={HeightOutlinedIcon} show={false} />
+          </Stack>
+        )}
       </Stack>
-      {showButtons && (
-        <Stack flexDirection="row">
-          {canToggleOrientation && (
+      {showButtons && orient && (
+        <Stack
+          flexDirection="row"
+          className={style["key-search-group-buttons"]}
+        >
+          {isMultigram && (
             <SvgIconButton
               Icon={UndoIcon}
               className={style["orientation-button"]}
               onClick={onToggleOrientation}
-              enabled={canToggleOrientation && !editing}
+              enabled={isMultigram && !editing}
             />
           )}
         </Stack>
       )}
       {showButtons && (
-        <Stack flexDirection="row">
+        <Stack
+          flexDirection="row"
+          className={style["key-search-group-buttons"]}
+        >
           {canAddGroupInternal && (
             <SvgIconButton
               Icon={AddIcon}

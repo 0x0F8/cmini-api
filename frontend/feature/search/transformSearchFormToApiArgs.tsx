@@ -1,13 +1,14 @@
 import { SearchApiArgs, SearchFormState } from "./types";
 
 export default function transformSearchFormToApiArgs({
+  corpora = "monkeyracer",
   query,
   board,
   sfb,
   keyQuery,
-}: SearchFormState & { keyQuery: string }): SearchApiArgs {
+}: SearchFormState & { keyQuery: string; corpora: string }): SearchApiArgs {
   return {
-    corpora: "monkeyracer",
+    corpora,
     query: query || undefined,
     board: board === -1 ? undefined : board,
     minSfb: sfb[0],

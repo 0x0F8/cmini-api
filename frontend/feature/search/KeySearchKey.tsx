@@ -22,15 +22,21 @@ export default function KeySearchKey({
   error,
   selected,
   onSelect,
+  canSelect,
   onEdit,
-}: KeySearchKeyProps & { onSelect: Function; onEdit: Function }) {
+}: KeySearchKeyProps & {
+  onSelect: Function;
+  onEdit: Function;
+  canSelect: boolean;
+}) {
   const ref = useRef<HTMLDivElement>(null);
   const onSelectInternal = useCallback(() => {
+    if (!canSelect) return;
     onSelect();
     if (ref.current) {
       ref.current.focus();
     }
-  }, []);
+  }, [canSelect]);
 
   const onEditInternal = useCallback(
     (event: KeyboardEvent<HTMLInputElement>) => {

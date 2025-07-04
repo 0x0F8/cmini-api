@@ -52,6 +52,8 @@ export type CminiMeta = {
   metaId: string;
   author: string;
   authorId: string;
+  layoutHash: string;
+  boardHash: string;
   likes: number;
   link: string;
   createdAt: string;

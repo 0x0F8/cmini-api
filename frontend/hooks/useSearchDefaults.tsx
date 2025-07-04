@@ -1,10 +1,14 @@
 "use server";
 
 import {
+  SearchApiArgs,
   SearchConstraints,
   SearchFormState,
 } from "@frontend/feature/search/types";
 import CminiController from "../../backend/cmini/controller";
+import { KeySearchState } from "@frontend/state/KeySearchStateProvider";
+import transformQueryStringToKeySearchState from "@frontend/feature/search/transformQueryStringToKeySearchState";
+import transformSearchFormToApiArgs from "@frontend/feature/search/transformSearchFormToApiArgs";
 
 const DEFAULT_RANGE = [0, 100];
 
@@ -39,22 +43,41 @@ function parseDefaults(name: string, store): SearchDefaultResult {
     ? Number(sfbMaxStr)
     : sfbConstraint[1];
 
-  const keyQuery = store.keyQuery ?? "";
+  const keyQuery = store.keyQuery?.replace(/\s/g, "+") ?? "";
+  let hasKeyQuery = !!keyQuery;
+  let defaultKeyState: Partial<KeySearchState> = {};
+  if (keyQuery) {
+    defaultKeyState = {
+      ...transformQueryStringToKeySearchState(keyQuery),
+      query: keyQuery,
+    };
+    hasKeyQuery =
+      (defaultKeyState?.left?.length || 0) > 0 ||
+      (defaultKeyState?.right?.length || 0) > 0 ||
+      (defaultKeyState?.either?.length || 0) > 0;
+  }
+
+  const defaultState = {
+    query,
+    board,
+    sfb: [sfbMin, sfbMax],
+  };
 
   return {
     isEmpty:
       query === "" &&
-      keyQuery === "" &&
+      !hasKeyQuery &&
       typeof board === "undefined" &&
       sfbMin === sfbConstraint[0] &&
       sfbMax === sfbConstraint[1],
     source: name,
-    defaultState: {
-      query,
-      board,
-      sfb: [sfbMin, sfbMax],
+    defaultState,
+    defaultKeyState,
+    defaultArgs: transformSearchFormToApiArgs({
+      corpora: "monkeyracer",
+      ...defaultState,
       keyQuery,
-    },
+    }),
     constraints: {
       sfb: sfbConstraint,
     },
@@ -62,7 +85,9 @@ function parseDefaults(name: string, store): SearchDefaultResult {
 }
 
 export type SearchDefaultResult = {
-  defaultState: SearchFormState & { keyQuery: string };
+  defaultState: SearchFormState;
+  defaultKeyState: Partial<KeySearchState>;
+  defaultArgs: SearchApiArgs;
   constraints: SearchConstraints;
   isEmpty: boolean;
   source: string;

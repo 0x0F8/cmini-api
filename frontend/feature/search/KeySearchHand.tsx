@@ -11,12 +11,16 @@ function AddGroup({ onClick, enabled }) {
   return (
     <Stack
       onClick={onClick}
+      alignItems="center"
+      justifyContent="center"
       sx={{
-        opacity: enabled ? 1 : 0.6,
+        opacity: enabled ? 1 : 0.2,
         cursor: enabled ? "pointer" : "default",
+        minWidth: 150,
+        minHeight: 150,
       }}
     >
-      <SvgIconButton Icon={AddIcon} enabled={enabled} />
+      <SvgIconButton Icon={AddIcon} enabled={enabled} clickable />
       <Typography>Add</Typography>
     </Stack>
   );
@@ -56,12 +60,17 @@ export default function KeySearchHand({
   hand: KeySearchHandConstraint;
   groups: KeySearchKeyGroupProps[];
 } & StackProps) {
-  const { createKeyGroup, deleteKeyGroup, editing } = useKeySearchState();
-  const onAddGroup = useCallback(() => createKeyGroup(hand), [hand]);
-  const onDeleteGroup = useCallback(
-    (groupIndex: number) => deleteKeyGroup(hand, groupIndex),
-    [hand],
+  const { createKeyGroup, deleteKeyGroup, deselectKey, editing } =
+    useKeySearchState();
+  const onAddGroup = useCallback(
+    () => !editing && createKeyGroup(hand),
+    [hand, editing],
   );
+  const onDeleteGroup = useCallback(
+    (groupIndex: number) => !editing && deleteKeyGroup(hand, groupIndex),
+    [hand, editing],
+  );
+  const onBackgroundClick = useCallback(() => deselectKey, []);
   const canAddGroup = groups.length <= 3;
 
   return (
@@ -77,11 +86,15 @@ export default function KeySearchHand({
       <Stack
         sx={{ width: "100%" }}
         flex={0.8}
-        minHeight={125}
+        minHeight={150}
         alignItems="center"
-        justifyContent="center"
+        onClick={onBackgroundClick}
       >
-        <Stack flexDirection="row">
+        <Stack
+          flexDirection="row"
+          onClick={onBackgroundClick}
+          justifyContent="space-between"
+        >
           {groups.map((keyGroup, index) => (
             <KeySearchKeyGroup
               key={index}
@@ -104,6 +117,7 @@ export default function KeySearchHand({
         justifyContent="center"
         alignItems="center"
         sx={{ minWidth: 50, minHeight: 50 }}
+        onClick={onBackgroundClick}
       >
         <HandIdentifier hand={hand} />
       </Stack>
