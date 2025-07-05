@@ -28,7 +28,7 @@ export default async function Page({
 
   return (
     <Stack>
-      <LayoutTable data={rows} hasMore={hasMore} />
+      <LayoutTable data={rows} />
     </Stack>
   );
 }

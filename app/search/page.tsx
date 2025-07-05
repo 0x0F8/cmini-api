@@ -4,6 +4,10 @@ import { objectFromCookies } from "@util/nextjs";
 import SearchContainer from "@frontend/feature/search/SearchContainer";
 import CminiApi from "@backend/cmini/api";
 import KeySearchStateProvider from "@frontend/state/KeySearchStateProvider";
+import SearchStateProvider from "@frontend/state/SearchStateProvider";
+import { SearchApiResult } from "app/api/search/route";
+import { meta } from "@util/api";
+import { SWRConfig } from "swr";
 
 type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
 
@@ -18,18 +22,40 @@ export default async function Page({
     ["query", query],
     ["cookies", objectFromCookies(cookieStore, "search")],
   ]);
-  const searchDefaultResult =
-    searchDefaults?.source === "query"
-      ? CminiApi.search(searchDefaults.defaultArgs)
-      : undefined;
+
+  let fallback: { [key: string]: SearchApiResult | undefined } = {};
+  if (searchDefaults.defaultArgs) {
+    const searchDefaultResult = CminiApi.search(searchDefaults.defaultArgs);
+    const { rows, cursor, ...metas } = meta(searchDefaultResult, 1, 25);
+    const path = `/api/search?${searchDefaults.defaultQueryString}&limit=25&page=1`;
+    console.log(path);
+    fallback = searchDefaults.defaultQueryString
+      ? {
+          [path]: {
+            data: rows,
+            meta: metas,
+            success: true,
+          },
+          "/api/search": {
+            data: rows,
+            meta: metas,
+            success: true,
+          },
+        }
+      : {};
+  }
+  console.log(fallback);
 
   return (
-    <KeySearchStateProvider injectedState={searchDefaults.defaultKeyState}>
-      <SearchContainer
-        searchFormDefaultState={searchDefaults.defaultState}
-        searchFormConstraints={searchDefaults.constraints}
-        searchDefaultResult={searchDefaultResult}
-      />
-    </KeySearchStateProvider>
+    <SWRConfig value={{ fallback }}>
+      <SearchStateProvider injectedState={searchDefaults.defaultState}>
+        <KeySearchStateProvider injectedState={searchDefaults.defaultKeyState}>
+          <SearchContainer
+            searchFormConstraints={searchDefaults.constraints}
+            searchDefaultResult={searchDefaults}
+          />
+        </KeySearchStateProvider>
+      </SearchStateProvider>
+    </SWRConfig>
   );
 }

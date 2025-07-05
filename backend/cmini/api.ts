@@ -79,7 +79,6 @@ export default class CminiApi {
             if (typeof value === "undefined") continue;
             const target = fromUnixTime(Number(rowDate));
             const comparer = fromUnixTime(Number(value));
-            console.log(target, comparer);
             const isComparerValid = isDate(comparer!);
             const isFiltered =
               isComparerValid && (dateCheck as Function)(target, comparer!);

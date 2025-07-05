@@ -1,4 +1,5 @@
 import { format } from "@util/string";
+import { SearchApiData, SearchApiResult } from "app/api/search/route";
 import Link from "next/link";
 
 export function LayoutRow({ stats, meta }: any) {
@@ -25,31 +26,34 @@ export function LayoutRow({ stats, meta }: any) {
   );
 }
 
-export default function LayoutTable({
-  data,
-  hasMore = false,
-}: {
-  data: any;
-  hasMore?: boolean;
-}) {
+export function LayoutTableHeader() {
+  return (
+    <tr>
+      <td>Name</td>
+      <td>Author</td>
+      <td>SFB</td>
+      <td>SFS</td>
+      <td>Scissors</td>
+      <td>Alternate</td>
+      <td>Roll</td>
+      <td>Redir</td>
+      <td>In:out-roll</td>
+      <td>Pinky off</td>
+      <td>Hand use</td>
+    </tr>
+  );
+}
+
+export default function LayoutTable({ data }: { data: SearchApiData[] }) {
   return (
     <table>
       <tbody>
-        <tr>
-          <td>Name</td>
-          <td>Author</td>
-          <td>SFB</td>
-          <td>SFS</td>
-          <td>Scissors</td>
-          <td>Alternate</td>
-          <td>Roll</td>
-          <td>Redir</td>
-          <td>In:out-roll</td>
-          <td>Pinky off</td>
-          <td>Hand use</td>
-        </tr>
+        <LayoutTableHeader />
         {data.map((row) => (
-          <LayoutRow key={row.layout.boardId + row.layout.layoutId} {...row} />
+          <LayoutRow
+            key={row.layout.boardIds[0] + row.layout.layoutId}
+            {...row}
+          />
         ))}
       </tbody>
     </table>

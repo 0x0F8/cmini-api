@@ -1,41 +1,24 @@
 "use client";
 
-import Cookies from "@frontend/Cookies";
-import { Button, MenuItem, Slider, Stack, TextField } from "@mui/material";
+import { MenuItem, Slider, Stack, TextField } from "@mui/material";
 import Select from "@mui/material/Select";
-import { useState } from "react";
 import { CminiBoardType } from "@backend/cmini/types";
-import { SearchFormState, SearchConstraints } from "./types";
+import { SearchConstraints } from "./types";
+import useSearchState from "@frontend/hooks/useSearchState";
 
 export default function SearchForm({
-  defaultState,
   constraints,
-  onSubmit,
   keySearchForm,
-  isValid,
 }: {
-  defaultState: SearchFormState;
   constraints: SearchConstraints;
-  onSubmit: (args: SearchFormState) => void;
   keySearchForm: React.ReactElement;
-  isValid: boolean;
 }) {
-  const [searchState, setSearchState] = useState<SearchFormState>(defaultState);
-  const { query, board, sfb } = searchState;
+  const { query, board, sfb, setSfb, setBoard, setQuery, empty, valid } =
+    useSearchState();
 
-  const onQueryChange = (e: any) =>
-    setSearchState((state) => ({ ...state, query: e.target.value }));
-  const onBoardChange = (event: any) => {
-    const value = event.target.value;
-    setSearchState((state) => ({ ...state, board: value }));
-    Cookies.set("search-board", value);
-  };
-  const onSfbChange = (e: any, value: number[]) => {
-    setSearchState((state) => ({ ...state, sfb: value }));
-    Cookies.set("search-sfb", value.join(","));
-  };
-
-  const onSubmitInternal = () => onSubmit(searchState);
+  const onQueryChange = (e: any) => setQuery(e.target.value);
+  const onBoardChange = (e: any) => setBoard(e.target.value);
+  const onSfbChange = (_: any, values: number[]) => setSfb(values);
 
   return (
     <Stack>
@@ -60,13 +43,6 @@ export default function SearchForm({
         max={constraints.sfb[1]}
       />
       {keySearchForm}
-      <Button
-        onClick={onSubmitInternal}
-        variant="contained"
-        disabled={!isValid}
-      >
-        Submit
-      </Button>
     </Stack>
   );
 }

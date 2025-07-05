@@ -1,9 +1,11 @@
 import { Orientation } from "types";
 import { KeySearchKeyProps } from "./KeySearchKey";
 import { KeySearchKeyGroupProps } from "./KeySearchKeyGroup";
-import { KeySearchHandConstraint } from "./types";
+import { KeySearchHandConstraint, KeySearchStateValues } from "./types";
 
-export default function transformQueryStringToKeySearchState(query: string) {
+export default function transformQueryStringToKeySearchState(
+  query: string,
+): KeySearchStateValues {
   const left: KeySearchKeyGroupProps[] = [];
   const either: KeySearchKeyGroupProps[] = [];
   const right: KeySearchKeyGroupProps[] = [];
@@ -63,9 +65,9 @@ export default function transformQueryStringToKeySearchState(query: string) {
               break;
           }
 
-          if (hand === KeySearchHandConstraint.Left) {
+          if (hand === KeySearchHandConstraint.Right) {
             left.push(group);
-          } else if (hand === KeySearchHandConstraint.Right) {
+          } else if (hand === KeySearchHandConstraint.Left) {
             right.push(group);
           } else if (hand === KeySearchHandConstraint.Either) {
             either.push(group);

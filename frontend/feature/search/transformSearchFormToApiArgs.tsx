@@ -1,4 +1,4 @@
-import { SearchApiArgs, SearchFormState } from "./types";
+import { SearchApiArgs, SearchStateValues } from "./types";
 
 export default function transformSearchFormToApiArgs({
   corpora = "monkeyracer",
@@ -6,7 +6,7 @@ export default function transformSearchFormToApiArgs({
   board,
   sfb,
   keyQuery,
-}: SearchFormState & { keyQuery: string; corpora: string }): SearchApiArgs {
+}: SearchStateValues & { keyQuery?: string; corpora?: string }): SearchApiArgs {
   return {
     corpora,
     query: query || undefined,

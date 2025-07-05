@@ -3,7 +3,14 @@ export type Paginated = {
     page: number;
     hasMore: boolean;
     totalPages: number;
+    totalRows: number;
+    currentRows: number;
+    limit: number;
   };
+};
+
+export type PaginatedApiArgs = {
+  limit: number;
 };
 
 export type ApiData<T> = {

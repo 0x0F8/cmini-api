@@ -2,64 +2,86 @@
 
 import LayoutTable from "@frontend/components/LayoutTable";
 import SearchForm from "@frontend/feature/search/SearchForm";
-import useSearch from "@frontend/hooks/useSearch";
-import { Stack } from "@mui/material";
+import { Button, Stack, Typography } from "@mui/material";
 import { SearchApiResult } from "app/api/search/route";
-import { useCallback, useEffect, useState } from "react";
-import { SearchApiArgs, SearchConstraints, SearchFormState } from "./types";
+import { useEffect, useState } from "react";
+import { SearchApiArgs, SearchConstraints } from "./types";
 import KeySearchForm from "./KeySearchForm";
 import useKeySearchState from "@frontend/hooks/useKeySearchState";
 import useAppState from "@frontend/hooks/useAppState";
 import transformSearchFormToApiArgs from "./transformSearchFormToApiArgs";
+import useSearchState from "@frontend/hooks/useSearchState";
+import ScrolledSearchResults from "./ScrolledSearchResults";
+import { SearchDefaultResult } from "@frontend/hooks/useSearchDefaults";
 
 type State = {
   query: SearchApiArgs | undefined;
-  results: SearchApiResult["data"] | undefined;
+  didSubmit: boolean;
 };
 
 export default function SearchContainer({
-  searchFormDefaultState,
-  searchDefaultResult,
   searchFormConstraints,
+  searchDefaultResult,
 }: {
-  searchFormDefaultState: SearchFormState;
   searchFormConstraints: SearchConstraints;
-  searchDefaultResult: SearchApiResult["data"] | undefined;
+  searchDefaultResult: SearchDefaultResult;
 }) {
-  const { valid, query: keyQuery } = useKeySearchState();
+  const {
+    valid: isKeySearchFormValid,
+    empty: isKeySearchFormEmpty,
+    output: keySearchOutput,
+  } = useKeySearchState();
+  const {
+    valid: isSearchFormValid,
+    empty: isSearchFormEmpty,
+    ...searchState
+  } = useSearchState();
   const { corpora } = useAppState();
   const [state, setState] = useState<State>({
-    query: undefined,
-    results: searchDefaultResult,
+    query: searchDefaultResult.defaultArgs,
+    didSubmit: false,
   });
-  const { query, results } = state;
-  const { search, isLoading, error } = useSearch(query);
 
-  const onSubmit = useCallback(
-    (args: SearchFormState) =>
-      setState((state) => ({
-        ...state,
-        query: transformSearchFormToApiArgs({ ...args, corpora, keyQuery }),
-      })),
-    [corpora, keyQuery],
-  );
+  const { query, didSubmit } = state;
+  const canSubmitForm =
+    !didSubmit &&
+    isKeySearchFormValid &&
+    isSearchFormValid &&
+    (!isKeySearchFormEmpty || !isSearchFormEmpty);
+
+  const onSubmit = () => {
+    if (!canSubmitForm) {
+      return;
+    }
+    setState((state) => ({
+      ...state,
+      didSubmit: true,
+      query: transformSearchFormToApiArgs({
+        ...searchState,
+        corpora,
+        keyQuery: keySearchOutput,
+      }),
+    }));
+  };
 
   useEffect(() => {
-    if (!!search && !error) {
-      setState((state) => ({ ...state, results: search.data }));
-    }
-  }, [search, error]);
+    setState((state) => ({ ...state, didSubmit: false }));
+  }, [searchState.board, searchState.query, searchState.sfb, keySearchOutput]);
 
   return (
     <Stack>
       <SearchForm
-        onSubmit={onSubmit}
-        defaultState={searchFormDefaultState}
         constraints={searchFormConstraints}
         keySearchForm={<KeySearchForm />}
-        isValid={valid}
       />
-      {results && <LayoutTable data={results} />}
+      <Button
+        onClick={() => onSubmit()}
+        variant="contained"
+        disabled={!canSubmitForm}
+      >
+        Submit
+      </Button>
+      <ScrolledSearchResults args={query} />
     </Stack>
   );
 }

@@ -1,33 +1,16 @@
 "use client";
 
-import { KeySearchHandConstraint } from "@frontend/feature/search/types";
+import {
+  KeySearchHandConstraint,
+  KeySearchState,
+} from "@frontend/feature/search/types";
 import React, { ReactNode, useCallback } from "react";
 import { createContext, useState } from "react";
 import { Orientation } from "types";
 import { produce, WritableDraft } from "immer";
 import { KeySearchKeyGroupProps } from "@frontend/feature/search/KeySearchKeyGroup";
 import { KeySearchKeyProps } from "@frontend/feature/search/KeySearchKey";
-
-export type KeySearchState = {
-  left: KeySearchKeyGroupProps[];
-  either: KeySearchKeyGroupProps[];
-  right: KeySearchKeyGroupProps[];
-  editing: boolean;
-  valid: boolean;
-  query: string;
-
-  getHandGroups: (hand: KeySearchHandConstraint) => KeySearchKeyGroupProps[];
-  getKeyGroup: (
-    hand: KeySearchHandConstraint,
-    index: number,
-  ) => KeySearchKeyGroupProps;
-  isProposedEditValid: (
-    value: string,
-    hand: KeySearchHandConstraint,
-    groupIndex: number,
-    keyIndex: number,
-  ) => boolean;
-};
+import calculateKeySearchFormEmptiness from "@frontend/feature/search/calculateKeySearchFormEmptiness";
 
 type SetKeySearchState = {
   setKeyGroup: (
@@ -80,8 +63,9 @@ const defaultState: KeySearchState = {
   right: [],
   either: [],
   editing: false,
+  empty: true,
   valid: true,
-  query: "",
+  output: "",
 
   isProposedEditValid: () => false,
   getHandGroups: () => [],
@@ -243,8 +227,8 @@ const calculateFormValidity = (state: KeySearchState) => {
     }
   }
 
-  const isEmpty = keyLength === 0;
   const isFull = !hasBlankCharacter && hasNonTrivialSearch;
+  const isEmpty = keyLength === 0;
   return (isEmpty || isFull) && !hasError && !state.editing;
 };
 
@@ -279,8 +263,9 @@ const KeySearchStateProvider = ({
     (hand: KeySearchHandConstraint, groupIndex: number) => {
       setKeySearchStateImmutable((draft) => {
         draft[hand].splice(groupIndex, 1);
-        draft.query = keySearchStateToQueryString(draft);
+        draft.output = keySearchStateToQueryString(draft);
         draft.valid = calculateFormValidity(draft);
+        draft.empty = calculateKeySearchFormEmptiness(draft);
       });
     },
     [],
@@ -290,8 +275,9 @@ const KeySearchStateProvider = ({
     (hand: KeySearchHandConstraint, groupIndex: number, keyIndex: number) => {
       setKeySearchStateImmutable((draft) => {
         draft[hand][groupIndex].values.splice(keyIndex, 1);
-        draft.query = keySearchStateToQueryString(draft);
+        draft.output = keySearchStateToQueryString(draft);
         draft.valid = calculateFormValidity(draft);
+        draft.empty = calculateKeySearchFormEmptiness(draft);
       });
     },
     [],
@@ -302,6 +288,7 @@ const KeySearchStateProvider = ({
       setKeySearchStateImmutable((draft) => {
         draft[hand][groupIndex].values.push(defaultKeyState());
         draft.valid = calculateFormValidity(draft);
+        draft.empty = calculateKeySearchFormEmptiness(draft);
       });
       selectLastKey(hand, groupIndex);
     },
@@ -407,6 +394,7 @@ const KeySearchStateProvider = ({
         draft.editing = false;
       }
       draft.valid = calculateFormValidity(draft);
+      draft.empty = calculateKeySearchFormEmptiness(draft);
     });
   }, []);
 
@@ -430,8 +418,9 @@ const KeySearchStateProvider = ({
         if (typeof state.orient !== "undefined") {
           groupRef.orient = state.orient;
         }
-        draft.query = keySearchStateToQueryString(draft);
+        draft.output = keySearchStateToQueryString(draft);
         draft.valid = calculateFormValidity(draft);
+        draft.empty = calculateKeySearchFormEmptiness(draft);
       });
     },
     [],
@@ -452,12 +441,13 @@ const KeySearchStateProvider = ({
         if (typeof state.value !== "undefined") {
           keyRef.value = state.value;
           keyRef.error = false;
-          draft.query = keySearchStateToQueryString(draft);
+          draft.output = keySearchStateToQueryString(draft);
         }
         if (typeof state.error !== "undefined") {
           keyRef.error = state.error;
         }
         draft.valid = calculateFormValidity(draft);
+        draft.empty = calculateKeySearchFormEmptiness(draft);
       });
     },
     [],
@@ -472,6 +462,7 @@ const KeySearchStateProvider = ({
         } else {
           draft.valid = calculateFormValidity(draft);
         }
+        draft.empty = calculateKeySearchFormEmptiness(draft);
       }),
     [],
   );

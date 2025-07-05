@@ -1,14 +1,13 @@
 "use client";
 
-import { Box, Stack, Typography } from "@mui/material";
+import { Box, Stack } from "@mui/material";
 import KeySearchHand from "./KeySearchHand";
 import { KeySearchHandConstraint } from "./types";
 import useKeySearchState from "@frontend/hooks/useKeySearchState";
 import { useCallback } from "react";
 
 export default function KeySearchForm() {
-  const { left, right, either, query, valid, editing, deselectKey } =
-    useKeySearchState();
+  const { left, right, either, deselectKey } = useKeySearchState();
   const onBackgroundClick = useCallback(() => deselectKey, []);
   return (
     <Stack sx={{ position: "relative" }}>
@@ -30,9 +29,6 @@ export default function KeySearchForm() {
             flex={0.4}
           />
         </Stack>
-        <Typography>
-          {query} {valid.toString()} {editing.toString()}
-        </Typography>
       </Stack>
       <Box
         sx={{

@@ -10,14 +10,16 @@ import {
   CminiStats,
 } from "@backend/cmini/types";
 
-export type SearchApiResult = ApiDataPaginated<{
+export type SearchApiData = {
   stats: CminiStats;
   meta: CminiMeta[];
   layoutId: string;
   boardId: string;
   board: CminiBoardType;
   layout: CminiLayout;
-}>;
+};
+
+export type SearchApiResult = ApiDataPaginated<SearchApiData>;
 
 export async function GET(req) {
   const queryObj = parseQuery(req.url!);

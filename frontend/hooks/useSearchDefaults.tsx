@@ -1,14 +1,19 @@
 "use server";
 
 import {
+  KeySearchState,
+  KeySearchStateValues,
   SearchApiArgs,
   SearchConstraints,
-  SearchFormState,
+  SearchStateValues,
 } from "@frontend/feature/search/types";
 import CminiController from "../../backend/cmini/controller";
-import { KeySearchState } from "@frontend/state/KeySearchStateProvider";
 import transformQueryStringToKeySearchState from "@frontend/feature/search/transformQueryStringToKeySearchState";
 import transformSearchFormToApiArgs from "@frontend/feature/search/transformSearchFormToApiArgs";
+import {} from "@frontend/state/SearchStateProvider";
+import calculateSearchFormEmptiness from "@frontend/feature/search/calculateSearchFormEmptiness";
+import calculateKeySearchFormEmptiness from "@frontend/feature/search/calculateKeySearchFormEmptiness";
+import { stringifyQuery } from "@util/url";
 
 const DEFAULT_RANGE = [0, 100];
 
@@ -44,50 +49,50 @@ function parseDefaults(name: string, store): SearchDefaultResult {
     : sfbConstraint[1];
 
   const keyQuery = store.keyQuery?.replace(/\s/g, "+") ?? "";
-  let hasKeyQuery = !!keyQuery;
-  let defaultKeyState: Partial<KeySearchState> = {};
-  if (keyQuery) {
-    defaultKeyState = {
+  const defaultKeyState: KeySearchStateValues & Pick<KeySearchState, "output"> =
+    {
       ...transformQueryStringToKeySearchState(keyQuery),
-      query: keyQuery,
+      output: keyQuery,
     };
-    hasKeyQuery =
-      (defaultKeyState?.left?.length || 0) > 0 ||
-      (defaultKeyState?.right?.length || 0) > 0 ||
-      (defaultKeyState?.either?.length || 0) > 0;
-  }
 
-  const defaultState = {
+  const constraints: SearchConstraints = {
+    sfb: sfbConstraint,
+  };
+  const defaultState: SearchStateValues = {
     query,
     board,
     sfb: [sfbMin, sfbMax],
   };
+  const isEmpty =
+    calculateSearchFormEmptiness(defaultState, constraints) &&
+    calculateKeySearchFormEmptiness(defaultKeyState);
+  const defaultArgs = isEmpty
+    ? undefined
+    : transformSearchFormToApiArgs({
+        corpora: "monkeyracer",
+        ...defaultState,
+        keyQuery,
+      });
+  const defaultQueryString = defaultArgs
+    ? stringifyQuery(defaultArgs)
+    : undefined;
 
   return {
-    isEmpty:
-      query === "" &&
-      !hasKeyQuery &&
-      typeof board === "undefined" &&
-      sfbMin === sfbConstraint[0] &&
-      sfbMax === sfbConstraint[1],
+    isEmpty,
     source: name,
     defaultState,
     defaultKeyState,
-    defaultArgs: transformSearchFormToApiArgs({
-      corpora: "monkeyracer",
-      ...defaultState,
-      keyQuery,
-    }),
-    constraints: {
-      sfb: sfbConstraint,
-    },
+    defaultArgs,
+    defaultQueryString,
+    constraints,
   };
 }
 
 export type SearchDefaultResult = {
-  defaultState: SearchFormState;
+  defaultState: SearchStateValues;
   defaultKeyState: Partial<KeySearchState>;
-  defaultArgs: SearchApiArgs;
+  defaultArgs: SearchApiArgs | undefined;
+  defaultQueryString: string | undefined;
   constraints: SearchConstraints;
   isEmpty: boolean;
   source: string;
