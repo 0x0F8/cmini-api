@@ -4,11 +4,7 @@ import cookies from "@frontend/Cookies";
 import React, { ReactNode } from "react";
 import { createContext, useState } from "react";
 
-enum AppStateCookie {
-  Corpora = "app-corpora",
-}
-
-type AppState = {
+export type AppState = {
   corpora: string;
   corporas: string[];
 };
@@ -18,7 +14,7 @@ type SetAppState = {
 };
 
 const defaultState: AppState = {
-  corpora: cookies.get(AppStateCookie.Corpora) || "monkeyracer",
+  corpora: "monkeyracer",
   corporas: [],
 };
 const defaultSetState: SetAppState = {
@@ -42,9 +38,13 @@ const AppStateProvider = ({
     ...injectedState,
   });
 
+  const setCookie = (key: string, value: string) => {
+    cookies.set(`app-${key}`, value);
+  };
+
   const setCorpora = (corpora: string) => {
-    cookies.set(AppStateCookie.Corpora, corpora);
     setAppState((state) => ({ ...state, corpora }));
+    setCookie("corpora", corpora);
   };
 
   return (

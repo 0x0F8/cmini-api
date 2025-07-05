@@ -172,7 +172,7 @@ class CminiControllerClass {
     return this.getBoardLayoutByBoardId(boardId);
   }
 
-  getBoardLayoutsByCorpora(corpora: string) {
+  getBoardLayoutsByCorporaFull(corpora: string) {
     if (!CminiStore.corpora.includes(corpora)) {
       return [];
     }
@@ -184,6 +184,16 @@ class CminiControllerClass {
         ...details,
         stats: stats.get(corpora)!,
       };
+    });
+  }
+
+  getBoardLayoutsByCorporaMinimal(corpora: string) {
+    if (!CminiStore.corpora.includes(corpora)) {
+      return [];
+    }
+    return Array.from(CminiStore.boardLayouts.values()).map((boardLayout) => {
+      const { stats, ...details } = this.getBoardLayoutDetails(boardLayout);
+      return details;
     });
   }
 

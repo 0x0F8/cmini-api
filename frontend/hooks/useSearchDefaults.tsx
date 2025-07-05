@@ -10,7 +10,6 @@ import {
 import CminiController from "../../backend/cmini/controller";
 import transformQueryStringToKeySearchState from "@frontend/feature/search/transformQueryStringToKeySearchState";
 import transformSearchFormToApiArgs from "@frontend/feature/search/transformSearchFormToApiArgs";
-import {} from "@frontend/state/SearchStateProvider";
 import calculateSearchFormEmptiness from "@frontend/feature/search/calculateSearchFormEmptiness";
 import calculateKeySearchFormEmptiness from "@frontend/feature/search/calculateKeySearchFormEmptiness";
 import { stringifyQuery } from "@util/url";

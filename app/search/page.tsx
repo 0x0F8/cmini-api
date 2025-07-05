@@ -28,7 +28,6 @@ export default async function Page({
     const searchDefaultResult = CminiApi.search(searchDefaults.defaultArgs);
     const { rows, cursor, ...metas } = meta(searchDefaultResult, 1, 25);
     const path = `/api/search?${searchDefaults.defaultQueryString}&limit=25&page=1`;
-    console.log(path);
     fallback = searchDefaults.defaultQueryString
       ? {
           [path]: {
@@ -44,7 +43,6 @@ export default async function Page({
         }
       : {};
   }
-  console.log(fallback);
 
   return (
     <SWRConfig value={{ fallback }}>

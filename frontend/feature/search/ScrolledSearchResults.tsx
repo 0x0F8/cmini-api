@@ -1,4 +1,4 @@
-import useSearchInfinite from "@frontend/hooks/useSearchInfinite";
+import useSearchInfiniteApi from "@frontend/hooks/useSearchApiInfinite";
 import { useIntersectionObserver } from "usehooks-ts";
 import { SearchApiArgs } from "./types";
 import { Stack } from "@mui/material";
@@ -24,7 +24,7 @@ export default function ScrolledSearchResults({
     });
   const { ref, isIntersecting } = useIntersectionObserver({ threshold: 0.5 });
   const { data, mutate, size, setSize, isValidating, isLoading } =
-    useSearchInfinite(args, { limit: 25 });
+    useSearchInfiniteApi(args, { limit: 25 });
 
   useEffect(() => {
     const isLoadingMore = Boolean(

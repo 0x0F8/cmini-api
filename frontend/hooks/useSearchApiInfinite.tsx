@@ -6,7 +6,7 @@ import { PaginatedApiArgs } from "types";
 
 const fetcher = (args) => fetch(args).then((res) => res.json());
 
-export default function useSearchInfinite(
+export default function useSearchInfiniteApi(
   args: SearchApiArgs | undefined,
   meta: PaginatedApiArgs,
 ) {

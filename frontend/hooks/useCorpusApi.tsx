@@ -11,7 +11,7 @@ const fetcher = (args) => fetch(args).then((res) => res.json());
 
 export type CorpusArgs = { corpus: Corpus; limit?: number; seed?: string };
 
-export default function useCorpus(
+export default function useCorpusApi(
   { corpus, limit, seed }: CorpusArgs,
   shouldSubmit: boolean,
 ) {

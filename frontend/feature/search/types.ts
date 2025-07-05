@@ -20,6 +20,13 @@ export type SearchApiArgs = {
   modifiedAfter?: string;
 };
 
+export type AutocompleteApiArgs = {
+  corpora: string;
+  query: string;
+  sort?: SortOrder;
+  sortBy?: string;
+};
+
 export type SearchState = {
   query: string;
   board: CminiBoardType | undefined;

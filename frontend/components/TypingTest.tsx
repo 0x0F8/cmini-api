@@ -6,7 +6,7 @@ import { CminiKey } from "@backend/cmini/types";
 import { Box } from "@mui/material";
 import style from "./TypingTest.module.sass";
 import { Corpus } from "@backend/corpus/types";
-import useCorpus from "@frontend/hooks/useCorpus";
+import useCorpusApi from "@frontend/hooks/useCorpusApi";
 import { randomString } from "@util/random";
 
 export default function TypingTest({
@@ -30,7 +30,7 @@ export default function TypingTest({
     defaultWords[0][0],
   );
 
-  const { corpus, error, isLoading } = useCorpus(
+  const { corpus, error, isLoading } = useCorpusApi(
     { corpus: Corpus.MonkeyType1k, limit: 50, seed },
     true,
   );

@@ -5,7 +5,7 @@ import useSWR from "swr";
 
 const fetcher = (args) => fetch(args).then((res) => res.json());
 
-export default function useSearch(args: SearchApiArgs | undefined) {
+export default function useSearchApi(args: SearchApiArgs | undefined) {
   let path: string | null = null;
   if (typeof args !== "undefined") {
     const query = stringifyQuery(args);

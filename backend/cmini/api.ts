@@ -3,7 +3,10 @@ import CminiController from "./controller";
 import { SortOrder } from "../../types";
 import { CminiHand } from "./types";
 import { isBefore, isAfter, isDate, fromUnixTime } from "date-fns";
-import { SearchApiArgs } from "@frontend/feature/search/types";
+import {
+  AutocompleteApiArgs,
+  SearchApiArgs,
+} from "@frontend/feature/search/types";
 
 export default class CminiApi {
   public static search(args: SearchApiArgs) {
@@ -24,7 +27,7 @@ export default class CminiApi {
       createdAfter,
       modifiedAfter,
     } = args;
-    let rows = CminiController.getBoardLayoutsByCorpora(corpora);
+    let rows = CminiController.getBoardLayoutsByCorporaFull(corpora);
 
     const hasKeyQuery = typeof keyQuery !== "undefined" && keyQuery.length > 0;
     if (hasKeyQuery) {
@@ -127,17 +130,83 @@ export default class CminiApi {
     if (rows.length === 0) return [];
 
     const hasSort =
-      !hasQuery && typeof sort !== "undefined" && typeof sortBy !== "undefined";
+      typeof sort !== "undefined" || typeof sortBy !== "undefined";
     if (hasSort) {
       rows = rows.sort((a, b) => {
         const first = sort === SortOrder.Ascending ? a : b;
         const second = sort === SortOrder.Ascending ? b : a;
+        let c1: number | string = 0;
+        let c2: number | string = 0;
         switch (sortBy) {
           case "sfb":
-            return first.stats.sfb - second.stats.sfb;
+            c1 = first.stats.sfb;
+            c2 = second.stats.sfb;
+          case "name":
+            c1 = first.meta[0].name;
+            c2 = second.meta[0].name;
+          case "author":
+            c1 = first.meta[0].author;
+            c2 = second.meta[0].author;
           default:
-            return 0;
+            if (!hasQuery) {
+              c1 = first.stats.sfb;
+              c2 = second.stats.sfb;
+            }
         }
+
+        if (c1 < c2) {
+          return -1;
+        } else if (c1 > c2) {
+          return 1;
+        }
+        return 0;
+      });
+    }
+
+    return rows;
+  }
+
+  public static autoComplete(args: AutocompleteApiArgs) {
+    const {
+      corpora = "monkeyracer",
+      query,
+      sort = SortOrder.Ascending,
+      sortBy = "sfb",
+    } = args;
+    let rows = CminiController.getBoardLayoutsByCorporaMinimal(corpora);
+
+    const fuse = new Fuse(rows, {
+      minMatchCharLength: 2,
+      keys: ["meta.author", "meta.name"],
+    });
+    rows = fuse.search(query as string).map((o) => o.item);
+    if (rows.length === 0) return [];
+
+    const hasSort =
+      typeof sort !== "undefined" || typeof sortBy !== "undefined";
+    if (hasSort) {
+      rows = rows.sort((a, b) => {
+        const first = sort === SortOrder.Ascending ? a : b;
+        const second = sort === SortOrder.Ascending ? b : a;
+        let c1: number | string = 0;
+        let c2: number | string = 0;
+        switch (sortBy) {
+          case "name":
+            c1 = first.meta[0].name;
+            c2 = second.meta[0].name;
+          case "author":
+            c1 = first.meta[0].author;
+            c2 = second.meta[0].author;
+          default:
+          // nop
+        }
+
+        if (c1 < c2) {
+          return -1;
+        } else if (c1 > c2) {
+          return 1;
+        }
+        return 0;
       });
     }
 
