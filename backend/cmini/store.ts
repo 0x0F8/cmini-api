@@ -15,6 +15,7 @@ import {
 } from "@util/layout";
 import { CsvLoader } from "../FileLoader";
 import { isAppBuilding, isProduction } from "@util/nextjs";
+import { unique } from "@util/array";
 
 class CminiStoreClass {
   stats: Map<string, CminiStatsByCorpora> = new Map();
@@ -195,9 +196,16 @@ class CminiStoreClass {
       }
 
       if (!this.layouts.has(layoutId)) {
+        const keys = decodeKeys(keysStr);
+        const fingers = unique(
+          keys.map((k) => {
+            return k.finger;
+          }),
+        );
         const layout: CminiLayout = {
           layoutId,
-          keys: decodeKeys(keysStr),
+          keys,
+          fingers,
           boardIds: [],
           metaIds: [],
           encodedKeys: keysStr,

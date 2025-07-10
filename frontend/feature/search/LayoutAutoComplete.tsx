@@ -1,4 +1,10 @@
-import { Autocomplete, Stack, TextField, Typography } from "@mui/material";
+import {
+  Autocomplete,
+  InputLabel,
+  Stack,
+  TextField,
+  Typography,
+} from "@mui/material";
 import { AutocompleteApiData } from "app/api/search/autocomplete/route";
 import { useCallback, useEffect, useState, useTransition } from "react";
 
@@ -56,6 +62,10 @@ export default function LayoutAutoComplete({
             input: {
               ...params.InputProps,
               type: "search",
+            },
+            inputLabel: {
+              ...params.InputLabelProps,
+              disableAnimation: true,
             },
           }}
         />

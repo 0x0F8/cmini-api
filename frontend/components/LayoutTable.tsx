@@ -1,8 +1,22 @@
 import { format } from "@util/string";
-import { SearchApiData, SearchApiResult } from "app/api/search/route";
+import { SearchApiData } from "app/api/search/route";
 import Link from "next/link";
+import ColoredChip from "./ColoredChip";
+import useAppState from "@frontend/hooks/useAppState";
+import MetricChip from "@frontend/feature/search/MetricChip";
 
-export function LayoutRow({ stats, meta }: any) {
+// const colors = [
+//   "#20de2e",
+//   "#63de6c",
+//   "#dedd20",
+//   "#de6563",
+//   "#de2020",
+// ];
+
+const colors = ["#20de2e", "#dedd20", "#dea020", "#de2020", "#8b1717"];
+
+export function LayoutRow({ stats, meta, metrics }: any) {
+  console.log(metrics);
   return (
     <tr>
       <td>
@@ -11,14 +25,78 @@ export function LayoutRow({ stats, meta }: any) {
       <td>
         <Link href={`/author/${meta[0].authorId}`}>{meta[0].author}</Link>
       </td>
-      <td>{format(stats.sfb)}</td>
-      <td>{format(stats.sfs + stats.sfsAlt)}</td>
-      <td>{format(stats.fsb, 2)}</td>
-      <td>{format(stats.alternate, 1)}</td>
-      <td>{format(stats.rollIn + stats.rollOut, 1)}</td>
-      <td>{format(stats.redirect + stats.badRedirect, 1)}</td>
-      <td>{format(stats.rollIn / stats.rollOut, 1)}</td>
-      <td>{format(stats.pinkyOff, 1)}</td>
+      <td>
+        <MetricChip
+          min={metrics["sfb"][0]}
+          max={metrics["sfb"][1]}
+          colors={colors}
+          decimals={2}
+        >
+          {stats.sfb}
+        </MetricChip>
+      </td>
+      <td>
+        <MetricChip
+          min={metrics["sfs"][0]}
+          max={metrics["sfs"][1]}
+          colors={colors}
+          decimals={2}
+        >
+          {stats.sfs + stats.sfsAlt}
+        </MetricChip>
+      </td>
+      <td>
+        <MetricChip
+          min={metrics["scissors"][0]}
+          max={metrics["scissors"][1]}
+          colors={colors}
+          decimals={2}
+        >
+          {stats.fsb}
+        </MetricChip>
+      </td>
+      <td>
+        <MetricChip
+          min={metrics["alternate"][0]}
+          max={metrics["alternate"][1]}
+          colors={colors}
+          decimals={1}
+        >
+          {stats.alternate}
+        </MetricChip>
+      </td>
+      <td>
+        <MetricChip
+          min={metrics["roll"][0]}
+          max={metrics["roll"][1]}
+          colors={colors}
+          decimals={1}
+        >
+          {stats.rollIn + stats.rollOut}
+        </MetricChip>
+      </td>
+      <td>
+        <MetricChip
+          min={metrics["redirect"][0]}
+          max={metrics["redirect"][1]}
+          colors={colors}
+          decimals={1}
+        >
+          {stats.redirect + stats.badRedirect}
+        </MetricChip>
+      </td>
+
+      <td> {format(stats.rollIn / stats.rollOut, 1)}</td>
+      <td>
+        <MetricChip
+          min={metrics["pinkyOff"][0]}
+          max={metrics["pinkyOff"][1]}
+          colors={colors}
+          decimals={1}
+        >
+          {stats.pinkyOff}
+        </MetricChip>
+      </td>
       <td>
         {format(stats.leftHand, 0)} - {format(stats.rightHand, 0)}
       </td>
@@ -45,6 +123,7 @@ export function LayoutTableHeader() {
 }
 
 export default function LayoutTable({ data }: { data: SearchApiData[] }) {
+  const { metrics } = useAppState();
   return (
     <table>
       <tbody>
@@ -52,6 +131,7 @@ export default function LayoutTable({ data }: { data: SearchApiData[] }) {
         {data.map((row) => (
           <LayoutRow
             key={row.layout.boardIds[0] + row.layout.layoutId}
+            metrics={metrics}
             {...row}
           />
         ))}

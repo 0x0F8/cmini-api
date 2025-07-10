@@ -8,6 +8,7 @@ import SearchStateProvider from "@frontend/state/SearchStateProvider";
 import { SearchApiResult } from "app/api/search/route";
 import { meta } from "@util/api";
 import { SWRConfig } from "swr";
+import useAppDefaults from "@frontend/hooks/useAppDefaults";
 
 type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
 
@@ -18,10 +19,16 @@ export default async function Page({
 }) {
   const query = await searchParams;
   const cookieStore = await cookies();
-  const searchDefaults = await useSearchDefaults([
-    ["query", query],
-    ["cookies", objectFromCookies(cookieStore, "search")],
+  const appDefaults = await useAppDefaults([
+    ["cookies", objectFromCookies(cookieStore, "app")],
   ]);
+  const searchDefaults = await useSearchDefaults(
+    [
+      ["query", query],
+      ["cookies", objectFromCookies(cookieStore, "search")],
+    ],
+    appDefaults.defaultState.metrics,
+  );
 
   let fallback: { [key: string]: SearchApiResult | undefined } = {};
   if (searchDefaults.defaultArgs) {

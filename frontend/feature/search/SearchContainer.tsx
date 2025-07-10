@@ -56,11 +56,14 @@ export default function SearchContainer({
     setState((state) => ({
       ...state,
       didSubmit: true,
-      query: transformSearchFormToApiArgs({
-        ...searchState,
-        corpora,
-        keyQuery: keySearchOutput,
-      }),
+      query: transformSearchFormToApiArgs(
+        {
+          ...searchState,
+          corpora,
+          keyQuery: keySearchOutput,
+        },
+        searchFormConstraints,
+      ),
     }));
   };
 

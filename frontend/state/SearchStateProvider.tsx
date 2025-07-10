@@ -11,20 +11,26 @@ import { SearchState, SearchStateValues } from "@frontend/feature/search/types";
 type SetSearchState = {
   setBoard: (value: CminiBoardType) => void;
   setSfb: (value: number[]) => void;
+  setSfs: (value: number[]) => void;
   setQuery: (value: string) => void;
+  setThumbsOnly: (value: boolean) => void;
 };
 
 const defaultState: SearchState = {
   query: "",
   board: undefined,
   sfb: [],
+  sfs: [],
+  thumbsOnly: undefined,
   valid: true,
   empty: true,
 };
 const defaultSetState: SetSearchState = {
   setBoard: () => {},
   setSfb: () => {},
+  setSfs: () => {},
   setQuery: () => {},
+  setThumbsOnly: () => {},
 };
 
 export const SearchContext = createContext<SearchState & SetSearchState>({
@@ -51,6 +57,10 @@ const SearchStateProvider = ({
     callback: (draft: WritableDraft<SearchState>) => void,
   ) => setSearchState(produce(callback));
 
+  const setCookie = (key: string, value: any) => {
+    Cookies.set(`search-${key}`, value);
+  };
+
   const setQuery = useCallback((value: string) => {
     setSearchStateImmutable((draft) => {
       draft.query = value;
@@ -64,7 +74,7 @@ const SearchStateProvider = ({
       draft.board = value;
       draft.valid = calculateFormValidity(draft);
       draft.empty = calculateSearchFormEmptiness(draft);
-      Cookies.set("search-board", value);
+      setCookie("board", value);
     });
   }, []);
 
@@ -73,7 +83,24 @@ const SearchStateProvider = ({
       draft.sfb = value;
       draft.valid = calculateFormValidity(draft);
       draft.empty = calculateSearchFormEmptiness(draft);
-      Cookies.set("search-sfb", value.join(","));
+      setCookie("sfb", value.join(","));
+    });
+  }, []);
+
+  const setSfs = useCallback((value: number[]) => {
+    setSearchStateImmutable((draft) => {
+      draft.sfs = value;
+      draft.valid = calculateFormValidity(draft);
+      draft.empty = calculateSearchFormEmptiness(draft);
+      setCookie("sfs", value.join(","));
+    });
+  }, []);
+
+  const setThumbsOnly = useCallback((value: boolean) => {
+    setSearchStateImmutable((draft) => {
+      draft.thumbsOnly = value;
+      draft.valid = calculateFormValidity(draft);
+      draft.empty = calculateSearchFormEmptiness(draft);
     });
   }, []);
 
@@ -84,6 +111,8 @@ const SearchStateProvider = ({
         setQuery,
         setBoard,
         setSfb,
+        setSfs,
+        setThumbsOnly,
       }}
     >
       {children}

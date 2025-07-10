@@ -48,7 +48,6 @@ export default function ScrolledSearchResults({
   useEffect(() => {
     if (isIntersecting && !isRefreshing && !hasReachedEnd) {
       setSize((prevSize) => {
-        console.log(prevSize + 1);
         return prevSize + 1;
       });
     }

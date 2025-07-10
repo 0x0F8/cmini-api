@@ -1,7 +1,7 @@
 import { Stack } from "@mui/material";
 import CorporaSelect from "./CorporaSelect";
 import useAppState from "@frontend/hooks/useAppState";
-import useLayoutAutocompleteApi from "@frontend/hooks/useLayoutAutocomplete";
+import useLayoutAutocompleteApi from "@frontend/hooks/useLayoutAutocompleteApi";
 import LayoutAutoComplete from "@frontend/feature/search/LayoutAutoComplete";
 import { useCallback, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";

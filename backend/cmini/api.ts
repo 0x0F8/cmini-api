@@ -1,7 +1,7 @@
 import Fuse from "fuse.js";
 import CminiController from "./controller";
 import { SortOrder } from "../../types";
-import { CminiHand } from "./types";
+import { CminiFinger, CminiHand } from "./types";
 import { isBefore, isAfter, isDate, fromUnixTime } from "date-fns";
 import {
   AutocompleteApiArgs,
@@ -18,11 +18,14 @@ export default class CminiApi {
       sortBy = "sfb",
       minSfb,
       maxSfb,
+      minSfs,
+      maxSfs,
       author,
       name,
       authorId,
       keyQuery,
       createdBefore,
+      hasThumb,
       modifiedBefore,
       createdAfter,
       modifiedAfter,
@@ -38,14 +41,18 @@ export default class CminiApi {
 
     const hasSfb =
       typeof minSfb !== "undefined" || typeof maxSfb !== "undefined";
+    const hasSfs =
+      typeof minSfs !== "undefined" || typeof maxSfs !== "undefined";
     const hasBoard = typeof board !== "undefined";
     const hasAuthorId = typeof board !== "undefined";
+    const hasThumb1 = typeof hasThumb === "undefined";
     const hasDate =
       typeof createdBefore !== "undefined" ||
       typeof modifiedBefore !== "undefined" ||
       typeof createdAfter !== "undefined" ||
       typeof modifiedAfter !== "undefined";
-    const hasFilter = hasBoard || hasSfb || hasAuthorId || hasDate;
+    const hasFilter =
+      hasBoard || hasSfb || hasSfs || hasAuthorId || hasDate || hasThumb1;
 
     if (hasFilter) {
       for (let i = 0; i < rows.length; i++) {
@@ -60,6 +67,17 @@ export default class CminiApi {
             shouldFilter = true;
           }
         }
+        if (hasThumb1 && !shouldFilter) {
+          const rowHasThumb =
+            row.layout.fingers.filter(
+              (f) => f === CminiFinger.RT || f === CminiFinger.LT,
+            ).length > 0;
+          if (hasThumb && !rowHasThumb) {
+            shouldFilter = true;
+          } else if (!hasThumb && rowHasThumb) {
+            shouldFilter = true;
+          }
+        }
         if (hasBoard && row.board !== board && !shouldFilter) {
           shouldFilter = true;
         }
@@ -68,6 +86,15 @@ export default class CminiApi {
             typeof minSfb !== "undefined" ? row.stats.sfb >= minSfb : true;
           const isWithinMax =
             typeof maxSfb !== "undefined" ? row.stats.sfb <= maxSfb : true;
+          if (!isWithinMin || !isWithinMax) {
+            shouldFilter = true;
+          }
+        }
+        if (hasSfs && !shouldFilter) {
+          const isWithinMin =
+            typeof minSfs !== "undefined" ? row.stats.sfs >= minSfs : true;
+          const isWithinMax =
+            typeof maxSfs !== "undefined" ? row.stats.sfs <= maxSfs : true;
           if (!isWithinMin || !isWithinMax) {
             shouldFilter = true;
           }

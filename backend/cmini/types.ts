@@ -36,6 +36,7 @@ export type CminiLayout = {
   metaIds: string[];
   keys: CminiKey[];
   encodedKeys: string;
+  fingers: CminiFinger[];
 };
 
 export type CminiBoardLayout = {

@@ -10,6 +10,8 @@ export type SearchApiArgs = {
   sortBy?: string;
   minSfb?: number;
   maxSfb?: number;
+  minSfs?: number;
+  maxSfs?: number;
   author?: string;
   authorId?: string;
   name?: string;
@@ -18,6 +20,7 @@ export type SearchApiArgs = {
   modifiedBefore?: string;
   createdAfter?: string;
   modifiedAfter?: string;
+  hasThumb?: boolean;
 };
 
 export type AutocompleteApiArgs = {
@@ -31,6 +34,8 @@ export type SearchState = {
   query: string;
   board: CminiBoardType | undefined;
   sfb: number[];
+  sfs: number[];
+  thumbsOnly: boolean | undefined;
   valid: boolean;
   empty: boolean;
 };
@@ -72,6 +77,7 @@ export type KeySearchStateValues = Omit<
 
 export type SearchConstraints = {
   sfb: number[];
+  sfs: number[];
 };
 
 export enum KeySearchHandConstraint {

@@ -1,4 +1,4 @@
-import { rangeProgress } from "./number";
+import { rangeProgress } from "./math";
 
 export function gradientValue(
   progress: number,
@@ -15,6 +15,43 @@ export function gradientValue(
   const g3 = rangeProgress(progress, g1, g2);
   const b3 = rangeProgress(progress, b1, b2);
   return rgbToHex([r3, g3, b3]);
+}
+
+export function gradientValueFromArray(progress: number, colors: string[]) {
+  if (colors.length === 0) {
+    return undefined;
+  }
+  if (colors.length === 1) {
+    return colors[0];
+  }
+
+  let p = progress;
+  if (p > 1) p = 1;
+  if (p < 0) p = 0;
+
+  if (p === 1) {
+    return colors[colors.length - 1];
+  }
+
+  const interval = 1 / (colors.length - 1);
+  let localProgress = 0;
+  let startIndex = 0;
+  let endIndex = 1;
+  for (let i = 0; i < colors.length - 1; i++) {
+    const current = i * interval;
+    const next = (i + 1) * interval;
+
+    if (progress < next && progress >= current) {
+      startIndex = i;
+      endIndex = i + 1;
+      localProgress = (progress - current) / (next - current);
+      break;
+    }
+  }
+
+  const startColor = colors[startIndex];
+  const endColor = colors[endIndex];
+  return gradientValue(localProgress, startColor, endColor);
 }
 
 export function hexToRgb(hex: string) {
