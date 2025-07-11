@@ -7,7 +7,7 @@ export type SearchApiArgs = {
   query?: string;
   board?: CminiBoardType;
   sort?: SortOrder;
-  sortBy?: string;
+  sortBy?: SearchSortField;
   minSfb?: number;
   maxSfb?: number;
   minSfs?: number;
@@ -26,11 +26,20 @@ export type SearchApiArgs = {
 export type AutocompleteApiArgs = {
   corpora: string;
   query: string;
-  sort?: SortOrder;
-  sortBy?: string;
+  sort?: SortOrder | undefined;
+  sortBy?: SearchSortField;
 };
 
+export enum SearchSortField {
+  Sfs = "sfs",
+  Sfb = "sfb",
+  Name = "name",
+  Author = "author",
+}
+
 export type SearchState = {
+  sort: SortOrder | undefined;
+  sortBy: SearchSortField | undefined;
   query: string;
   board: CminiBoardType | undefined;
   sfb: number[];
@@ -38,6 +47,7 @@ export type SearchState = {
   thumbsOnly: boolean | undefined;
   valid: boolean;
   empty: boolean;
+  key: string;
 };
 
 export type KeySearchState = {
@@ -62,7 +72,7 @@ export type KeySearchState = {
   ) => boolean;
 };
 
-export type SearchStateValues = Omit<SearchState, "valid" | "empty">;
+export type SearchStateValues = Omit<SearchState, "valid" | "empty" | "key">;
 
 export type KeySearchStateValues = Omit<
   KeySearchState,

@@ -1,11 +1,12 @@
 import Fuse from "fuse.js";
 import CminiController from "./controller";
 import { SortOrder } from "../../types";
-import { CminiFinger, CminiHand } from "./types";
+import { CminiFinger, CminiHand, CminiMeta, CminiStats } from "./types";
 import { isBefore, isAfter, isDate, fromUnixTime } from "date-fns";
 import {
   AutocompleteApiArgs,
   SearchApiArgs,
+  SearchSortField,
 } from "@frontend/feature/search/types";
 
 export default class CminiApi {
@@ -15,7 +16,7 @@ export default class CminiApi {
       query,
       board,
       sort = SortOrder.Ascending,
-      sortBy = "sfb",
+      sortBy,
       minSfb,
       maxSfb,
       minSfs,
@@ -30,6 +31,7 @@ export default class CminiApi {
       createdAfter,
       modifiedAfter,
     } = args;
+    console.log(args);
     let rows = CminiController.getBoardLayoutsByCorporaFull(corpora);
 
     const hasKeyQuery = typeof keyQuery !== "undefined" && keyQuery.length > 0;
@@ -157,37 +159,9 @@ export default class CminiApi {
     if (rows.length === 0) return [];
 
     const hasSort =
-      typeof sort !== "undefined" || typeof sortBy !== "undefined";
+      typeof sort !== "undefined" && typeof sortBy !== "undefined";
     if (hasSort) {
-      rows = rows.sort((a, b) => {
-        const first = sort === SortOrder.Ascending ? a : b;
-        const second = sort === SortOrder.Ascending ? b : a;
-        let c1: number | string = 0;
-        let c2: number | string = 0;
-        switch (sortBy) {
-          case "sfb":
-            c1 = first.stats.sfb;
-            c2 = second.stats.sfb;
-          case "name":
-            c1 = first.meta[0].name;
-            c2 = second.meta[0].name;
-          case "author":
-            c1 = first.meta[0].author;
-            c2 = second.meta[0].author;
-          default:
-            if (!hasQuery) {
-              c1 = first.stats.sfb;
-              c2 = second.stats.sfb;
-            }
-        }
-
-        if (c1 < c2) {
-          return -1;
-        } else if (c1 > c2) {
-          return 1;
-        }
-        return 0;
-      });
+      rows = this.sortLayouts(sort, sortBy, rows);
     }
 
     return rows;
@@ -198,7 +172,7 @@ export default class CminiApi {
       corpora = "monkeyracer",
       query,
       sort = SortOrder.Ascending,
-      sortBy = "sfb",
+      sortBy,
     } = args;
     let rows = CminiController.getBoardLayoutsByCorporaMinimal(corpora);
 
@@ -210,31 +184,9 @@ export default class CminiApi {
     if (rows.length === 0) return [];
 
     const hasSort =
-      typeof sort !== "undefined" || typeof sortBy !== "undefined";
+      typeof sort !== "undefined" && typeof sortBy !== "undefined";
     if (hasSort) {
-      rows = rows.sort((a, b) => {
-        const first = sort === SortOrder.Ascending ? a : b;
-        const second = sort === SortOrder.Ascending ? b : a;
-        let c1: number | string = 0;
-        let c2: number | string = 0;
-        switch (sortBy) {
-          case "name":
-            c1 = first.meta[0].name;
-            c2 = second.meta[0].name;
-          case "author":
-            c1 = first.meta[0].author;
-            c2 = second.meta[0].author;
-          default:
-          // nop
-        }
-
-        if (c1 < c2) {
-          return -1;
-        } else if (c1 > c2) {
-          return 1;
-        }
-        return 0;
-      });
+      rows = this.sortLayouts(sort, sortBy, rows);
     }
 
     return rows;
@@ -341,5 +293,46 @@ export default class CminiApi {
       }
     }
     return ids;
+  }
+
+  public static sortLayouts<
+    T extends {
+      stats?: CminiStats;
+      meta: CminiMeta[];
+    },
+  >(sort: SortOrder, sortBy: SearchSortField | undefined, rows: T[]): T[] {
+    return rows.sort((a, b) => {
+      const first = sort === SortOrder.Ascending ? a : b;
+      const second = sort === SortOrder.Ascending ? b : a;
+      let c1: number | string = 0;
+      let c2: number | string = 0;
+      switch (sortBy) {
+        case "sfb":
+          c1 = first.stats?.sfb || 0;
+          c2 = second.stats?.sfb || 0;
+          break;
+        case "sfs":
+          c1 = (first.stats && first.stats.sfs + first.stats.sfsAlt) || 0;
+          c2 = (second.stats && second.stats.sfs + second.stats.sfsAlt) || 0;
+          break;
+        case "name":
+          c1 = first.meta[0].name;
+          c2 = second.meta[0].name;
+          break;
+        case "author":
+          c1 = first.meta[0].author;
+          c2 = second.meta[0].author;
+          break;
+        default:
+        // nop
+      }
+
+      if (c1 < c2) {
+        return -1;
+      } else if (c1 > c2) {
+        return 1;
+      }
+      return 0;
+    });
   }
 }

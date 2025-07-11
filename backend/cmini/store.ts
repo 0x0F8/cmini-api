@@ -46,12 +46,13 @@ class CminiStoreClass {
     await this.loadMetrics();
     await this.loadHeatmap();
 
-    if (!isAppBuilding()) {
-      const descriptor = isProduction() ? "" : " minimized";
-      console.log(`Caching${descriptor} keymap...`);
-      await this.loadKeymap(isProduction());
-      console.log("Done.");
-    }
+    // if (!isAppBuilding()) {
+    //   const descriptor = isProduction() ? "" : " minimized";
+    //   console.log(`Caching${descriptor} keymap...`);
+    //   await this.loadKeymap(isProduction());
+    //   console.log("Done.");
+    // }
+    await this.loadKeymap();
   }
 
   protected async loadKeymap(shouldLoadAll = true) {

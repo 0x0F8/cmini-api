@@ -1,13 +1,13 @@
 "use client";
 
 import Header from "@frontend/components/Header";
-import { Stack } from "@mui/material";
+import { Container, Stack } from "@mui/material";
 
 export default function DefaultLayout({ children }) {
   return (
-    <Stack>
+    <Container maxWidth="xl">
       <Header />
-      <Stack>{children}</Stack>
-    </Stack>
+      <Stack mx={8}>{children}</Stack>
+    </Container>
   );
 }

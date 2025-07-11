@@ -6,7 +6,12 @@ import { CminiBoardType } from "@backend/cmini/types";
 import Cookies from "@frontend/Cookies";
 import { produce, WritableDraft } from "immer";
 import calculateSearchFormEmptiness from "@frontend/feature/search/calculateSearchFormEmptiness";
-import { SearchState, SearchStateValues } from "@frontend/feature/search/types";
+import {
+  SearchSortField,
+  SearchState,
+  SearchStateValues,
+} from "@frontend/feature/search/types";
+import { SortOrder } from "types";
 
 type SetSearchState = {
   setBoard: (value: CminiBoardType) => void;
@@ -14,9 +19,15 @@ type SetSearchState = {
   setSfs: (value: number[]) => void;
   setQuery: (value: string) => void;
   setThumbsOnly: (value: boolean) => void;
+  setSort: (
+    sort: SortOrder | undefined,
+    sortBy: SearchSortField | undefined,
+  ) => void;
 };
 
 const defaultState: SearchState = {
+  sort: SortOrder.Ascending,
+  sortBy: SearchSortField.Sfb,
   query: "",
   board: undefined,
   sfb: [],
@@ -24,6 +35,7 @@ const defaultState: SearchState = {
   thumbsOnly: undefined,
   valid: true,
   empty: true,
+  key: "",
 };
 const defaultSetState: SetSearchState = {
   setBoard: () => {},
@@ -31,6 +43,7 @@ const defaultSetState: SetSearchState = {
   setSfs: () => {},
   setQuery: () => {},
   setThumbsOnly: () => {},
+  setSort: () => {},
 };
 
 export const SearchContext = createContext<SearchState & SetSearchState>({
@@ -40,6 +53,18 @@ export const SearchContext = createContext<SearchState & SetSearchState>({
 
 const calculateFormValidity = (state: SearchStateValues) => {
   return true;
+};
+
+const calculateFormKey = (state: SearchStateValues) => {
+  return (
+    state.board +
+    state.query +
+    state.sfb.join("") +
+    state.sfs.join("") +
+    state.sort +
+    state.sortBy +
+    state.thumbsOnly
+  );
 };
 
 const SearchStateProvider = ({
@@ -66,6 +91,7 @@ const SearchStateProvider = ({
       draft.query = value;
       draft.valid = calculateFormValidity(draft);
       draft.empty = calculateSearchFormEmptiness(draft);
+      draft.key = calculateFormKey(draft);
     });
   }, []);
 
@@ -74,6 +100,7 @@ const SearchStateProvider = ({
       draft.board = value;
       draft.valid = calculateFormValidity(draft);
       draft.empty = calculateSearchFormEmptiness(draft);
+      draft.key = calculateFormKey(draft);
       setCookie("board", value);
     });
   }, []);
@@ -83,6 +110,7 @@ const SearchStateProvider = ({
       draft.sfb = value;
       draft.valid = calculateFormValidity(draft);
       draft.empty = calculateSearchFormEmptiness(draft);
+      draft.key = calculateFormKey(draft);
       setCookie("sfb", value.join(","));
     });
   }, []);
@@ -92,6 +120,7 @@ const SearchStateProvider = ({
       draft.sfs = value;
       draft.valid = calculateFormValidity(draft);
       draft.empty = calculateSearchFormEmptiness(draft);
+      draft.key = calculateFormKey(draft);
       setCookie("sfs", value.join(","));
     });
   }, []);
@@ -101,8 +130,22 @@ const SearchStateProvider = ({
       draft.thumbsOnly = value;
       draft.valid = calculateFormValidity(draft);
       draft.empty = calculateSearchFormEmptiness(draft);
+      draft.key = calculateFormKey(draft);
     });
   }, []);
+
+  const setSort = useCallback(
+    (sort: SortOrder | undefined, sortBy: SearchSortField | undefined) => {
+      setSearchStateImmutable((draft) => {
+        draft.sort = sort;
+        draft.sortBy = sortBy;
+        draft.key = calculateFormKey(draft);
+        setCookie("sort", sort);
+        setCookie("sortBy", sortBy);
+      });
+    },
+    [],
+  );
 
   return (
     <SearchContext.Provider
@@ -113,6 +156,7 @@ const SearchStateProvider = ({
         setSfb,
         setSfs,
         setThumbsOnly,
+        setSort,
       }}
     >
       {children}

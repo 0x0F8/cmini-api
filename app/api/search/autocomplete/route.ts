@@ -10,6 +10,7 @@ import {
   CminiStats,
 } from "@backend/cmini/types";
 import CminiController from "@backend/cmini/controller";
+import { SearchSortField } from "@frontend/feature/search/types";
 
 export type AutocompleteApiData = {
   stats: CminiStats;
@@ -25,7 +26,7 @@ export type AutoCompleteApiResult = ApiDataPaginated<AutocompleteApiData>;
 const schema = z.object({
   corpora: z.enum(CminiController.getCorpora()),
   query: z.string().min(1).max(55),
-  sortBy: z.enum(["sfb"]).optional(),
+  sortBy: z.enum([SearchSortField.Author, SearchSortField.Name]).optional(),
   sort: z.enum(["asc", "desc"]).optional(),
 });
 

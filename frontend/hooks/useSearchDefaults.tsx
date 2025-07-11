@@ -12,30 +12,40 @@ import transformSearchFormToApiArgs from "@frontend/feature/search/transformSear
 import calculateSearchFormEmptiness from "@frontend/feature/search/calculateSearchFormEmptiness";
 import calculateKeySearchFormEmptiness from "@frontend/feature/search/calculateKeySearchFormEmptiness";
 import { stringifyQuery } from "@util/url";
+import { CminiBoardType } from "@backend/cmini/types";
 
 function parseDefaults(name: string, store, metrics): SearchDefaultResult {
   const query = store.query ?? "";
-  const board = !Number.isNaN(Number(store.board))
-    ? Number(store.board)
-    : undefined;
+  const sort = store.sort ?? undefined;
+  const sortBy = store.sortBy ?? undefined;
+  const board =
+    !Number.isNaN(Number(store.board)) &&
+    Number(store.board) !== CminiBoardType.None
+      ? Number(store.board)
+      : undefined;
 
   const sfbConstraint = metrics["sfb"];
   const [sfbMinStr, sfbMaxStr] = (store.sfb ?? "").split(",");
-  let sfbMin = !Number.isNaN(Number(sfbMinStr))
-    ? Number(sfbMinStr)
-    : sfbConstraint[0];
-  let sfbMax = !Number.isNaN(Number(sfbMaxStr))
-    ? Number(sfbMaxStr)
-    : sfbConstraint[1];
+
+  let sfbMin =
+    sfbMinStr && sfbMinStr.length > 0 && !Number.isNaN(Number(sfbMinStr))
+      ? Number(sfbMinStr)
+      : sfbConstraint[0];
+  let sfbMax =
+    sfbMaxStr && sfbMaxStr.length > 0 && !Number.isNaN(Number(sfbMaxStr))
+      ? Number(sfbMaxStr)
+      : sfbConstraint[1];
 
   const sfsConstraint = metrics["sfs"];
   const [sfsMinStr, sfsMaxStr] = (store.sfs ?? "").split(",");
-  let sfsMin = !Number.isNaN(Number(sfsMinStr))
-    ? Number(sfsMinStr)
-    : sfsConstraint[0];
-  let sfsMax = !Number.isNaN(Number(sfsMaxStr))
-    ? Number(sfsMaxStr)
-    : sfsConstraint[1];
+  let sfsMin =
+    sfsMinStr && sfsMinStr.length > 0 && !Number.isNaN(Number(sfsMinStr))
+      ? Number(sfsMinStr)
+      : sfsConstraint[0];
+  let sfsMax =
+    sfsMaxStr && sfsMaxStr.length > 0 && !Number.isNaN(Number(sfsMaxStr))
+      ? Number(sfsMaxStr)
+      : sfsConstraint[1];
 
   const keyQuery = store.keyQuery?.replace(/\s/g, "+") ?? "";
   const defaultKeyState: KeySearchStateValues & Pick<KeySearchState, "output"> =
@@ -50,14 +60,17 @@ function parseDefaults(name: string, store, metrics): SearchDefaultResult {
   };
   const defaultState: SearchStateValues = {
     query,
+    sort,
+    sortBy,
     board,
     sfb: [sfbMin, sfbMax],
     sfs: [sfsMin, sfsMax],
-    thumbsOnly: false,
+    thumbsOnly: undefined,
   };
   const isEmpty =
     calculateSearchFormEmptiness(defaultState, constraints) &&
     calculateKeySearchFormEmptiness(defaultKeyState);
+
   const defaultArgs = isEmpty
     ? undefined
     : transformSearchFormToApiArgs(

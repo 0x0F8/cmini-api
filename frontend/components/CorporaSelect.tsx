@@ -13,7 +13,12 @@ export default function CorporaSelect({ corporas }: { corporas: string[] }) {
   );
 
   return (
-    <Select value={corpora} label="Corpora" onChange={onCorporaChange}>
+    <Select
+      value={corpora}
+      label="Corpora"
+      onChange={onCorporaChange}
+      size="small"
+    >
       {corporas.sort().map((c) => (
         <MenuItem value={c}>{c}</MenuItem>
       ))}

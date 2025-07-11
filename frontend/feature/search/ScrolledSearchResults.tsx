@@ -1,9 +1,11 @@
 import useSearchInfiniteApi from "@frontend/hooks/useSearchApiInfinite";
 import { useIntersectionObserver } from "usehooks-ts";
 import { SearchApiArgs } from "./types";
-import { Stack } from "@mui/material";
-import LayoutTable from "@frontend/components/LayoutTable";
+import { CircularProgress, Stack, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
+import AutorenewIcon from "@mui/icons-material/Autorenew";
+import LayoutTable from "@frontend/components/LayoutTable";
+import SearchResulsTableHeader from "./SearchResultsTableHeader";
 
 export default function ScrolledSearchResults({
   args,
@@ -54,11 +56,38 @@ export default function ScrolledSearchResults({
   }, [isIntersecting, isRefreshing, setSize, hasReachedEnd]);
 
   return (
-    !isEmpty && (
-      <Stack>
-        <LayoutTable data={data?.map((d) => d.data).flat() || []} />
-        <div ref={ref}></div>
+    <Stack>
+      {!isEmpty && !isLoading && (
+        <Stack>
+          <LayoutTable
+            data={data?.map((d) => d.data).flat() || []}
+            Header={SearchResulsTableHeader}
+          />
+          <div ref={ref}></div>
+        </Stack>
+      )}
+      <Stack m={8} justifyContent="center" alignItems="center">
+        {isEmpty && !isLoading && (
+          <Stack justifyContent="center" alignItems="center">
+            <Typography textAlign="center">Nothing to see here</Typography>
+          </Stack>
+        )}
+        {!hasReachedEnd && (!isEmpty || isLoading) && (
+          <Stack justifyContent="center" alignItems="center">
+            <CircularProgress />
+            <Typography textAlign="center">Loading...</Typography>
+          </Stack>
+        )}
+        {!isEmpty && hasReachedEnd && (
+          <Stack
+            justifyContent="center"
+            alignItems="center"
+            flexDirection="column"
+          >
+            <Typography textAlign="center">You've reached the end</Typography>
+          </Stack>
+        )}
       </Stack>
-    )
+    </Stack>
   );
 }

@@ -1,5 +1,7 @@
 import { Stack } from "@mui/material";
-import LayoutTable from "@frontend/components/LayoutTable";
+import LayoutTable, {
+  LayoutTableHeader,
+} from "@frontend/components/LayoutTable";
 import CminiApi from "@backend/cmini/api";
 import { convertQuery } from "@util/url";
 import { SearchSchema } from "@backend/cmini/validators";
@@ -28,7 +30,7 @@ export default async function Page({
 
   return (
     <Stack>
-      <LayoutTable data={rows} />
+      <LayoutTable data={rows} Header={LayoutTableHeader} />
     </Stack>
   );
 }

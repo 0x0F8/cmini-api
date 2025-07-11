@@ -32,7 +32,10 @@ export default async function Page({
 
   let fallback: { [key: string]: SearchApiResult | undefined } = {};
   if (searchDefaults.defaultArgs) {
-    const searchDefaultResult = CminiApi.search(searchDefaults.defaultArgs);
+    const searchDefaultResult = CminiApi.search({
+      ...searchDefaults.defaultArgs,
+      corpora: appDefaults.defaultState.corpora,
+    });
     const { rows, cursor, ...metas } = meta(searchDefaultResult, 1, 25);
     const path = `/api/search?${searchDefaults.defaultQueryString}&limit=25&page=1`;
     fallback = searchDefaults.defaultQueryString

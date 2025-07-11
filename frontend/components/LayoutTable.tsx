@@ -1,9 +1,9 @@
 import { format } from "@util/string";
 import { SearchApiData } from "app/api/search/route";
 import Link from "next/link";
-import ColoredChip from "./ColoredChip";
 import useAppState from "@frontend/hooks/useAppState";
 import MetricChip from "@frontend/feature/search/MetricChip";
+import { Typography } from "@mui/material";
 
 // const colors = [
 //   "#20de2e",
@@ -16,14 +16,17 @@ import MetricChip from "@frontend/feature/search/MetricChip";
 const colors = ["#20de2e", "#dedd20", "#dea020", "#de2020", "#8b1717"];
 
 export function LayoutRow({ stats, meta, metrics }: any) {
-  console.log(metrics);
   return (
     <tr>
       <td>
-        <Link href={`/layout/${meta[0].layoutHash}`}>{meta[0].name}</Link>
+        <Typography>
+          <Link href={`/layout/${meta[0].layoutHash}`}>{meta[0].name}</Link>
+        </Typography>
       </td>
       <td>
-        <Link href={`/author/${meta[0].authorId}`}>{meta[0].author}</Link>
+        <Typography>
+          <Link href={`/author/${meta[0].authorId}`}>{meta[0].author}</Link>
+        </Typography>
       </td>
       <td>
         <MetricChip
@@ -61,6 +64,7 @@ export function LayoutRow({ stats, meta, metrics }: any) {
           max={metrics["alternate"][1]}
           colors={colors}
           decimals={1}
+          reverse
         >
           {stats.alternate}
         </MetricChip>
@@ -86,7 +90,9 @@ export function LayoutRow({ stats, meta, metrics }: any) {
         </MetricChip>
       </td>
 
-      <td> {format(stats.rollIn / stats.rollOut, 1)}</td>
+      <td>
+        <Typography>{format(stats.rollIn / stats.rollOut, 1)}</Typography>
+      </td>
       <td>
         <MetricChip
           min={metrics["pinkyOff"][0]}
@@ -98,7 +104,9 @@ export function LayoutRow({ stats, meta, metrics }: any) {
         </MetricChip>
       </td>
       <td>
-        {format(stats.leftHand, 0)} - {format(stats.rightHand, 0)}
+        <Typography>
+          {format(stats.leftHand, 0)} - {format(stats.rightHand, 0)}
+        </Typography>
       </td>
     </tr>
   );
@@ -107,27 +115,55 @@ export function LayoutRow({ stats, meta, metrics }: any) {
 export function LayoutTableHeader() {
   return (
     <tr>
-      <td>Name</td>
-      <td>Author</td>
-      <td>SFB</td>
-      <td>SFS</td>
-      <td>Scissors</td>
-      <td>Alternate</td>
-      <td>Roll</td>
-      <td>Redir</td>
-      <td>In:out-roll</td>
-      <td>Pinky off</td>
-      <td>Hand use</td>
+      <td>
+        <Typography>Name</Typography>
+      </td>
+      <td>
+        <Typography>Author</Typography>
+      </td>
+      <td>
+        <Typography>SFB</Typography>
+      </td>
+      <td>
+        <Typography>SFS</Typography>
+      </td>
+      <td>
+        <Typography>Scissors</Typography>
+      </td>
+      <td>
+        <Typography>Alternate</Typography>
+      </td>
+      <td>
+        <Typography>Roll</Typography>
+      </td>
+      <td>
+        <Typography>Redir</Typography>
+      </td>
+      <td>
+        <Typography>In:out-roll</Typography>
+      </td>
+      <td>
+        <Typography>Pinky off</Typography>
+      </td>
+      <td>
+        <Typography>Hand use</Typography>
+      </td>
     </tr>
   );
 }
 
-export default function LayoutTable({ data }: { data: SearchApiData[] }) {
+export default function LayoutTable({
+  data,
+  Header,
+}: {
+  data: SearchApiData[];
+  Header: () => React.ReactElement;
+}) {
   const { metrics } = useAppState();
   return (
     <table>
       <tbody>
-        <LayoutTableHeader />
+        <Header />
         {data.map((row) => (
           <LayoutRow
             key={row.layout.boardIds[0] + row.layout.layoutId}

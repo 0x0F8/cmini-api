@@ -43,6 +43,7 @@ export default function LayoutAutoComplete({
   useEffect(() => console.log(value), [value]);
   return (
     <Autocomplete
+      size="small"
       freeSolo
       filterOptions={(x) => x}
       blurOnSelect
