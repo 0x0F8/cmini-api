@@ -8,12 +8,14 @@ import {
   SearchApiArgs,
   SearchSortField,
 } from "@frontend/feature/search/types";
+import { prng, randomValues } from "@/util/random";
 
 export default class CminiApi {
   public static search(args: SearchApiArgs) {
     const {
       corpora = "monkeyracer",
       query,
+      randomize,
       board,
       sort = SortOrder.Ascending,
       sortBy,
@@ -27,8 +29,8 @@ export default class CminiApi {
       maxRedirect,
       minPinkyOff,
       maxPinkyOff,
-      minAlternate: minAlternation,
-      maxAlternate: maxAlternation,
+      minAlternate,
+      maxAlternate,
       minRoll,
       maxRoll,
       minRollRatio,
@@ -67,8 +69,8 @@ export default class CminiApi {
     const hasPinkyOff =
       typeof minPinkyOff !== "undefined" || typeof maxPinkyOff !== "undefined";
     const hasAlternation =
-      typeof minAlternation !== "undefined" ||
-      typeof maxAlternation !== "undefined";
+      typeof minAlternate !== "undefined" ||
+      typeof maxAlternate !== "undefined";
     const hasRoll =
       typeof minRoll !== "undefined" || typeof maxRoll !== "undefined";
     const hasRollRatio =
@@ -141,7 +143,7 @@ export default class CminiApi {
             maxRedirect,
           ],
           [hasPinkyOff, row.stats.pinkyOff, minPinkyOff, maxPinkyOff],
-          [hasAlternation, row.stats.alternate, minAlternation, maxAlternation],
+          [hasAlternation, row.stats.alternate, minAlternate, maxAlternate],
           [hasRoll, row.stats.rollIn + row.stats.rollOut, minRoll, maxRoll],
           [
             hasRollRatio,
@@ -220,9 +222,14 @@ export default class CminiApi {
     if (rows.length === 0) return [];
 
     const hasSort =
-      typeof sort !== "undefined" && typeof sortBy !== "undefined";
+      (typeof sort !== "undefined" && typeof sortBy !== "undefined") ||
+      typeof randomize !== "undefined";
     if (hasSort) {
-      rows = this.sortLayouts(sort, sortBy, rows);
+      if (randomize) {
+        rows = randomValues(rows, rows.length, prng(randomize));
+      } else {
+        rows = this.sortLayouts(sort, sortBy, rows);
+      }
     }
 
     return rows;

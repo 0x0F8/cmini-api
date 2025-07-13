@@ -45,8 +45,13 @@ function SortHeader({
   return (
     <Stack justifyItems="center" onClick={onClick} sx={{ cursor: "pointer" }}>
       <Stack flexDirection="row" justifyContent="space-between">
-        <Typography>{children}</Typography>
-        <Typography>{symbol}</Typography>
+        <Typography
+          textAlign={sorted ? "left" : "center"}
+          flex={sorted ? "" : 1}
+        >
+          {children}
+        </Typography>
+        {sorted && <Typography>{symbol}</Typography>}
       </Stack>
     </Stack>
   );
@@ -144,7 +149,7 @@ export default function SearchResulsTableHeader() {
         </SortHeader>
       </td>
       <td>
-        <Typography>Hand Use</Typography>
+        <Typography textAlign="center">Hand Use</Typography>
       </td>
     </tr>
   );

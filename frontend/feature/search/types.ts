@@ -4,6 +4,7 @@ import { KeySearchKeyGroupProps } from "./KeySearchKeyGroup";
 
 export type SearchApiArgs = {
   corpora: string;
+  randomize?: string;
   query?: string;
   board?: CminiBoardType;
   sort?: SortOrder;
@@ -77,6 +78,7 @@ export type SearchState = {
 
   thumbsOnly: boolean | undefined;
 
+  randomize: string;
   sort: SortOrder | undefined;
   sortBy: SearchSortField | undefined;
   valid: boolean;
@@ -100,6 +102,7 @@ export enum SearchStateQueryKeys {
   rollRatio,
   handUse,
   thumbsOnly,
+  randomize,
 }
 export enum AppStateQueryKeys {
   corpora,

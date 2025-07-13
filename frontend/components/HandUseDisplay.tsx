@@ -1,48 +1,50 @@
-import { Box, Stack, Typography } from "@mui/material";
-import { format } from "@util/string";
+import { progressRange } from "@/util/math";
+import ColoredProgressChip from "./ColoredProgressChip";
+
+function getLeanText(value: number) {
+  if (value >= -2 && value <= 2) {
+    return "even";
+  } else if (value < 0) {
+    return "left";
+  }
+  return "right";
+}
+
+function getIntensityText(value: number) {
+  const abs = Math.abs(value);
+  if (abs <= 2) {
+    return "";
+  } else if (abs <= 4) {
+    return "leans";
+  } else if (abs <= 8) {
+    return "heavy";
+  }
+  return "mostly";
+}
 
 export default function HandUseDisplay({
+  colors,
+  min,
+  max,
   left,
   right,
-  width = 50,
 }: {
+  colors: string[];
   left: number;
   right: number;
-  width?: number;
+  min: number;
+  max: number;
 }) {
-  const ratio = right - left;
+  const v = right - left;
+  const p = progressRange(v, min, max);
+  const intensity = getIntensityText(v);
+  const lean = getLeanText(v);
+  const space = Boolean(intensity) ? " " : "";
   return (
-    <Stack flexDirection="row" alignItems="center">
-      <Typography>{format(left, 0)}</Typography>
-      <Box
-        sx={{
-          position: "relative",
-          width,
-          height: 10,
-        }}
-      >
-        <Box
-          sx={{
-            position: "absolute",
-            background: "#000",
-            height: "100%",
-            width: `${Math.abs(ratio)}%`,
-            top: 0,
-            left: ratio < 0 ? `calc(${50 - Math.abs(ratio)}%)` : "50%",
-          }}
-        />
-        <Box
-          sx={{
-            position: "absolute",
-            background: "#000",
-            height: `calc(100% + 10px)`,
-            left: "50%",
-            top: "-5px",
-            width: "1px",
-          }}
-        ></Box>
-      </Box>
-      <Typography>{format(right, 0)}</Typography>
-    </Stack>
+    <ColoredProgressChip colors={colors} progress={p} invert>
+      {intensity}
+      {space}
+      {lean}
+    </ColoredProgressChip>
   );
 }

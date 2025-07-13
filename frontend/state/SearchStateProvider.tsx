@@ -12,6 +12,7 @@ import {
   SearchStateValues,
 } from "@frontend/feature/search/types";
 import { SortOrder } from "types";
+import { randomString } from "@/util/random";
 
 type SetSearchState = {
   setBoard: (value: CminiBoardType) => void;
@@ -27,6 +28,7 @@ type SetSearchState = {
   setRightHand: (value: number[]) => void;
   setQuery: (value: string) => void;
   setThumbsOnly: (value: boolean) => void;
+  setRandomize: (value: boolean) => void;
   setSort: (
     sort: SortOrder | undefined,
     sortBy: SearchSortField | undefined,
@@ -36,6 +38,7 @@ type SetSearchState = {
 const defaultState: SearchState = {
   sort: SortOrder.Ascending,
   sortBy: SearchSortField.Sfb,
+  randomize: "",
   query: "",
   board: undefined,
   sfb: [],
@@ -67,6 +70,7 @@ const defaultSetState: SetSearchState = {
   setRightHand: () => {},
   setQuery: () => {},
   setThumbsOnly: () => {},
+  setRandomize: () => {},
   setSort: () => {},
 };
 
@@ -112,6 +116,9 @@ const SearchStateProvider = ({
 
   const setCookie = (key: string, value: any) => {
     Cookies.set(`search-${key}`, value);
+  };
+  const deleteCookie = (key: string) => {
+    Cookies.remove(`search-${key}`);
   };
 
   const setQuery = useCallback((value: string) => {
@@ -175,6 +182,9 @@ const SearchStateProvider = ({
       setSearchStateImmutable((draft) => {
         draft.sort = sort;
         draft.sortBy = sortBy;
+        if (sort !== undefined) {
+          draft.randomize = "";
+        }
         draft.valid = calculateFormValidity(draft);
         draft.empty = calculateSearchFormEmptiness(draft);
         draft.key = calculateFormKey(draft);
@@ -185,6 +195,19 @@ const SearchStateProvider = ({
     },
     [],
   );
+
+  const setRandomize = useCallback((randomize: boolean) => {
+    setSearchStateImmutable((draft) => {
+      const seed = randomString(5);
+      draft.randomize = randomize ? seed : "";
+      draft.sort = undefined;
+      draft.valid = calculateFormValidity(draft);
+      draft.empty = calculateSearchFormEmptiness(draft);
+      draft.key = calculateFormKey(draft);
+      draft.dirty = true;
+      deleteCookie("sort");
+    });
+  }, []);
 
   return (
     <SearchContext.Provider
@@ -203,6 +226,7 @@ const SearchStateProvider = ({
         setLeftHand,
         setRightHand,
         setThumbsOnly,
+        setRandomize,
         setSort,
       }}
     >

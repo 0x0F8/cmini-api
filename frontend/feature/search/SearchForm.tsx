@@ -25,6 +25,7 @@ export default function SearchForm({
   const {
     query,
     board,
+    randomize,
     sfb,
     sfs,
     fsb,
@@ -47,6 +48,7 @@ export default function SearchForm({
     setRightHand,
     setBoard,
     setQuery,
+    setRandomize,
     setThumbsOnly,
   } = useSearchState();
 
@@ -63,6 +65,7 @@ export default function SearchForm({
   // const onLeftHandChange = (_: any, values: number[]) => setLeftHand(values);
   // const onRightChange = (_: any, values: number[]) => setRightHand(values);
   const onThumbsChange = (_: any, values: boolean) => setThumbsOnly(values);
+  const onRandomizeChange = (_: any, values: boolean) => setRandomize(values);
 
   return (
     <Stack {...props}>
@@ -254,9 +257,20 @@ export default function SearchForm({
           </Stack>
 
           <Stack alignItems="center">
+            <Switch onChange={onThumbsChange} checked={thumbsOnly || false} />
+          </Stack>
+        </Stack>
+      </Stack>
+      <Stack my={1}>
+        <Stack flexDirection="row">
+          <Stack alignItems="center" justifyContent="center">
+            <Typography>Randomize</Typography>
+          </Stack>
+
+          <Stack alignItems="center">
             <Switch
-              onChange={onThumbsChange}
-              defaultChecked={thumbsOnly || false}
+              onChange={onRandomizeChange}
+              checked={randomize.length > 0}
             />
           </Stack>
         </Stack>

@@ -11,6 +11,7 @@ export default function transformSearchFormToApiArgs(
     sfs,
     fsb,
     redirect,
+    randomize,
     pinkyOff,
     alternate,
     roll,
@@ -52,5 +53,6 @@ export default function transformSearchFormToApiArgs(
     sortBy,
     keyQuery,
     hasThumb: thumbsOnly ? true : undefined,
+    randomize: randomize || undefined,
   };
 }

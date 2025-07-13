@@ -32,7 +32,7 @@ export function randomInt(
 
 export function randomValues<T>(
   input: Array<T>,
-  count: number,
+  count: number = input.length,
   randomizer: () => number = Math.random,
 ): T[] {
   const result: number[] = [];
@@ -52,7 +52,7 @@ export function randomValues<T>(
 
 export function prng(seed: string) {
   let iv: number = parseInt(
-    seed
+    String(seed)
       .split("")
       .map((c) => c.charCodeAt(0))
       .join(""),

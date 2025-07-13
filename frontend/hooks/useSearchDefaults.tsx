@@ -25,6 +25,7 @@ function parseDefaults(
   const sort = store.sort ?? undefined;
   const sortBy = store.sortBy ?? undefined;
   const thumbsOnly = store.thumbsOnly ?? undefined;
+  const randomize = store.randomize ?? undefined;
 
   const board =
     !Number.isNaN(Number(store.board)) &&
@@ -42,6 +43,7 @@ function parseDefaults(
   const defaultState: SearchStateValues = {
     query,
     sort,
+    randomize,
     sortBy,
     board,
     thumbsOnly,
