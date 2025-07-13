@@ -21,6 +21,22 @@ export default class CminiApi {
       maxSfb,
       minSfs,
       maxSfs,
+      minFsb,
+      maxFsb,
+      minRedirect,
+      maxRedirect,
+      minPinkyOff,
+      maxPinkyOff,
+      minAlternate: minAlternation,
+      maxAlternate: maxAlternation,
+      minRoll,
+      maxRoll,
+      minRollRatio,
+      maxRollRatio,
+      minLeftHand,
+      maxLeftHand,
+      minRightHand,
+      maxRightHand,
       author,
       name,
       authorId,
@@ -31,7 +47,6 @@ export default class CminiApi {
       createdAfter,
       modifiedAfter,
     } = args;
-    console.log(args);
     let rows = CminiController.getBoardLayoutsByCorporaFull(corpora);
 
     const hasKeyQuery = typeof keyQuery !== "undefined" && keyQuery.length > 0;
@@ -45,8 +60,27 @@ export default class CminiApi {
       typeof minSfb !== "undefined" || typeof maxSfb !== "undefined";
     const hasSfs =
       typeof minSfs !== "undefined" || typeof maxSfs !== "undefined";
+    const hasFsb =
+      typeof minFsb !== "undefined" || typeof maxFsb !== "undefined";
+    const hasRedirect =
+      typeof minRedirect !== "undefined" || typeof maxRedirect !== "undefined";
+    const hasPinkyOff =
+      typeof minPinkyOff !== "undefined" || typeof maxPinkyOff !== "undefined";
+    const hasAlternation =
+      typeof minAlternation !== "undefined" ||
+      typeof maxAlternation !== "undefined";
+    const hasRoll =
+      typeof minRoll !== "undefined" || typeof maxRoll !== "undefined";
+    const hasRollRatio =
+      typeof minRollRatio !== "undefined" ||
+      typeof maxRollRatio !== "undefined";
+    const hasLeftHand =
+      typeof minLeftHand !== "undefined" || typeof maxLeftHand !== "undefined";
+    const hasRightHand =
+      typeof minRightHand !== "undefined" ||
+      typeof maxRightHand !== "undefined";
     const hasBoard = typeof board !== "undefined";
-    const hasAuthorId = typeof board !== "undefined";
+    const hasAuthorId = typeof authorId !== "undefined";
     const hasThumb1 = typeof hasThumb === "undefined";
     const hasDate =
       typeof createdBefore !== "undefined" ||
@@ -54,7 +88,20 @@ export default class CminiApi {
       typeof createdAfter !== "undefined" ||
       typeof modifiedAfter !== "undefined";
     const hasFilter =
-      hasBoard || hasSfb || hasSfs || hasAuthorId || hasDate || hasThumb1;
+      hasBoard ||
+      hasSfb ||
+      hasSfs ||
+      hasAuthorId ||
+      hasDate ||
+      hasThumb1 ||
+      hasFsb ||
+      hasRedirect ||
+      hasPinkyOff ||
+      hasAlternation ||
+      hasRoll ||
+      hasRollRatio ||
+      hasLeftHand ||
+      hasRightHand;
 
     if (hasFilter) {
       for (let i = 0; i < rows.length; i++) {
@@ -83,22 +130,36 @@ export default class CminiApi {
         if (hasBoard && row.board !== board && !shouldFilter) {
           shouldFilter = true;
         }
-        if (hasSfb && !shouldFilter) {
-          const isWithinMin =
-            typeof minSfb !== "undefined" ? row.stats.sfb >= minSfb : true;
-          const isWithinMax =
-            typeof maxSfb !== "undefined" ? row.stats.sfb <= maxSfb : true;
+        for (let [has, stat, min, max] of [
+          [hasSfb, row.stats.sfb, minSfb, maxSfb],
+          [hasSfs, row.stats.sfs, minSfs, maxSfs],
+          [hasFsb, row.stats.fsb, minFsb, maxFsb],
+          [
+            hasRedirect,
+            row.stats.redirect + row.stats.badRedirect,
+            minRedirect,
+            maxRedirect,
+          ],
+          [hasPinkyOff, row.stats.pinkyOff, minPinkyOff, maxPinkyOff],
+          [hasAlternation, row.stats.alternate, minAlternation, maxAlternation],
+          [hasRoll, row.stats.rollIn + row.stats.rollOut, minRoll, maxRoll],
+          [
+            hasRollRatio,
+            row.stats.rollIn / row.stats.rollOut,
+            minRollRatio,
+            maxRollRatio,
+          ],
+          [hasLeftHand, row.stats.leftHand, minLeftHand, maxLeftHand],
+          [hasRightHand, row.stats.rightHand, minRightHand, maxRightHand],
+        ]) {
+          if (shouldFilter) break;
+          if (!has) continue;
+
+          const isWithinMin = typeof min !== "undefined" ? stat! >= min : true;
+          const isWithinMax = typeof max !== "undefined" ? stat! <= max : true;
           if (!isWithinMin || !isWithinMax) {
             shouldFilter = true;
-          }
-        }
-        if (hasSfs && !shouldFilter) {
-          const isWithinMin =
-            typeof minSfs !== "undefined" ? row.stats.sfs >= minSfs : true;
-          const isWithinMax =
-            typeof maxSfs !== "undefined" ? row.stats.sfs <= maxSfs : true;
-          if (!isWithinMin || !isWithinMax) {
-            shouldFilter = true;
+            break;
           }
         }
         if (hasDate && !shouldFilter) {
@@ -307,21 +368,60 @@ export default class CminiApi {
       let c1: number | string = 0;
       let c2: number | string = 0;
       switch (sortBy) {
-        case "sfb":
+        case SearchSortField.Sfb:
           c1 = first.stats?.sfb || 0;
           c2 = second.stats?.sfb || 0;
           break;
-        case "sfs":
+        case SearchSortField.Sfs:
           c1 = (first.stats && first.stats.sfs + first.stats.sfsAlt) || 0;
           c2 = (second.stats && second.stats.sfs + second.stats.sfsAlt) || 0;
           break;
-        case "name":
+        case SearchSortField.Name:
           c1 = first.meta[0].name;
           c2 = second.meta[0].name;
           break;
-        case "author":
+        case SearchSortField.Author:
           c1 = first.meta[0].author;
           c2 = second.meta[0].author;
+          break;
+        case SearchSortField.Fsb:
+          c1 = first.stats?.fsb || 0;
+          c2 = second.stats?.fsb || 0;
+          break;
+        case SearchSortField.Redirect:
+          c1 =
+            (first.stats && first.stats.redirect + first.stats.badRedirect) ||
+            0;
+          c2 =
+            (second.stats &&
+              second.stats.redirect + second.stats.badRedirect) ||
+            0;
+          break;
+        case SearchSortField.PinkyOff:
+          c1 = first.stats?.pinkyOff || 0;
+          c2 = second.stats?.pinkyOff || 0;
+          break;
+        case SearchSortField.Alternate:
+          c1 = first.stats?.alternate || 0;
+          c2 = second.stats?.alternate || 0;
+          break;
+        case SearchSortField.Roll:
+          c1 = (first.stats && first.stats.rollIn + first.stats.rollOut) || 0;
+          c2 =
+            (second.stats && second.stats.rollIn + second.stats.rollOut) || 0;
+          break;
+        case SearchSortField.RollRatio:
+          c1 = (first.stats && first.stats.rollIn / first.stats.rollOut) || 0;
+          c2 =
+            (second.stats && second.stats.rollIn / second.stats.rollOut) || 0;
+          break;
+        case SearchSortField.LeftHand:
+          c1 = first.stats?.leftHand || 0;
+          c2 = second.stats?.leftHand || 0;
+          break;
+        case SearchSortField.RightHand:
+          c1 = first.stats?.rightHand || 0;
+          c2 = second.stats?.rightHand || 0;
           break;
         default:
         // nop

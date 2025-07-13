@@ -29,6 +29,7 @@ export function stringifyQuery(
 ) {
   return Object.entries(obj).reduce((prev, [key, value]) => {
     let strValue = "";
+    if (typeof value === "function") return prev;
     if (typeof value !== "undefined" && value !== null) {
       strValue = String(value);
     }

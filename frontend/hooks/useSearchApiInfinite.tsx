@@ -3,8 +3,7 @@ import { stringifyQuery } from "@util/url";
 import { SearchApiResult } from "app/api/search/route";
 import useSWRInfinite from "swr/infinite";
 import { PaginatedApiArgs } from "types";
-
-const fetcher = (args) => fetch(args).then((res) => res.json());
+import fetcher from "../api/fetcher";
 
 export default function useSearchInfiniteApi(
   args: SearchApiArgs | undefined,

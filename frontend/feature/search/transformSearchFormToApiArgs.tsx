@@ -9,6 +9,12 @@ export default function transformSearchFormToApiArgs(
     board,
     sfb,
     sfs,
+    fsb,
+    redirect,
+    pinkyOff,
+    alternate,
+    roll,
+    rollRatio,
     keyQuery,
     thumbsOnly,
   }: SearchStateValues & { keyQuery?: string; corpora?: string },
@@ -18,10 +24,30 @@ export default function transformSearchFormToApiArgs(
     corpora,
     query: query || undefined,
     board: board === -1 ? undefined : board,
-    minSfb: sfb[0] === constraints.sfb[0] ? undefined : sfb[0],
-    maxSfb: sfb[1] === constraints.sfb[1] ? undefined : sfb[1],
-    minSfs: sfs[0] === constraints.sfs[0] ? undefined : sfs[0],
-    maxSfs: sfs[1] === constraints.sfs[1] ? undefined : sfs[1],
+    minSfb: sfb[0] === constraints.sfb.min ? undefined : sfb[0],
+    maxSfb: sfb[1] === constraints.sfb.max ? undefined : sfb[1],
+    minSfs: sfs[0] === constraints.sfs.min ? undefined : sfs[0],
+    maxSfs: sfs[1] === constraints.sfs.max ? undefined : sfs[1],
+    minFsb: fsb[0] === constraints.fsb.min ? undefined : fsb[0],
+    maxFsb: fsb[1] === constraints.fsb.max ? undefined : fsb[1],
+    minRedirect:
+      redirect[0] === constraints.redirect.min ? undefined : redirect[0],
+    maxRedirect:
+      redirect[1] === constraints.redirect.max ? undefined : redirect[1],
+    minPinkyOff:
+      pinkyOff[0] === constraints.pinkyOff.min ? undefined : pinkyOff[0],
+    maxPinkyOff:
+      pinkyOff[1] === constraints.pinkyOff.max ? undefined : pinkyOff[1],
+    minAlternate:
+      alternate[0] === constraints.alternate.min ? undefined : alternate[0],
+    maxAlternate:
+      alternate[1] === constraints.alternate.max ? undefined : alternate[1],
+    minRoll: roll[0] === constraints.roll.min ? undefined : roll[0],
+    maxRoll: roll[1] === constraints.roll.max ? undefined : roll[1],
+    minRollRatio:
+      rollRatio[0] === constraints.rollRatio.min ? undefined : rollRatio[0],
+    maxRollRatio:
+      rollRatio[1] === constraints.rollRatio.max ? undefined : rollRatio[1],
     sort,
     sortBy,
     keyQuery,

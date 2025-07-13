@@ -9,6 +9,8 @@ import { SearchApiResult } from "app/api/search/route";
 import { meta } from "@util/api";
 import { SWRConfig } from "swr";
 import useAppDefaults from "@frontend/hooks/useAppDefaults";
+import { convertQuery } from "@util/url";
+import { PAGE_LIMIT } from "@/constants";
 
 type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
 
@@ -20,12 +22,13 @@ export default async function Page({
   const query = await searchParams;
   const cookieStore = await cookies();
   const appDefaults = await useAppDefaults([
-    ["cookies", objectFromCookies(cookieStore, "app")],
+    ["query", convertQuery(query)],
+    ["cookies", convertQuery(objectFromCookies(cookieStore, "app"))],
   ]);
   const searchDefaults = await useSearchDefaults(
     [
-      ["query", query],
-      ["cookies", objectFromCookies(cookieStore, "search")],
+      ["query", convertQuery(query)],
+      ["cookies", convertQuery(objectFromCookies(cookieStore, "search"))],
     ],
     appDefaults.defaultState.metrics,
   );
@@ -36,22 +39,23 @@ export default async function Page({
       ...searchDefaults.defaultArgs,
       corpora: appDefaults.defaultState.corpora,
     });
-    const { rows, cursor, ...metas } = meta(searchDefaultResult, 1, 25);
-    const path = `/api/search?${searchDefaults.defaultQueryString}&limit=25&page=1`;
-    fallback = searchDefaults.defaultQueryString
-      ? {
-          [path]: {
-            data: rows,
-            meta: metas,
-            success: true,
-          },
-          "/api/search": {
-            data: rows,
-            meta: metas,
-            success: true,
-          },
-        }
-      : {};
+    if (searchDefaultResult.length > 0) {
+      const { rows, cursor, ...metas } = meta(
+        searchDefaultResult,
+        1,
+        PAGE_LIMIT,
+      );
+      fallback = searchDefaults.defaultQueryString
+        ? {
+            [`/api/search?${searchDefaults.defaultQueryString}&limit=${PAGE_LIMIT}&page=1`]:
+              {
+                data: rows,
+                meta: metas,
+                success: true,
+              },
+          }
+        : {};
+    }
   }
 
   return (

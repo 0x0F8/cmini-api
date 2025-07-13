@@ -2,8 +2,7 @@ import { SearchApiArgs } from "@frontend/feature/search/types";
 import { stringifyQuery } from "@util/url";
 import { SearchApiResult } from "app/api/search/route";
 import useSWR from "swr";
-
-const fetcher = (args) => fetch(args).then((res) => res.json());
+import fetcher from "../api/fetcher";
 
 export default function useSearchApi(args: SearchApiArgs | undefined) {
   let path: string | null = null;

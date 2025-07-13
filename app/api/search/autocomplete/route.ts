@@ -11,6 +11,7 @@ import {
 } from "@backend/cmini/types";
 import CminiController from "@backend/cmini/controller";
 import { SearchSortField } from "@frontend/feature/search/types";
+import { PAGE_LIMIT } from "@/constants";
 
 export type AutocompleteApiData = {
   stats: CminiStats;
@@ -41,7 +42,7 @@ export async function GET(req) {
   }
 
   const result = CminiApi.autoComplete(queryObj as any);
-  const { rows, cursor, ...metas } = meta(result, 1, 25);
+  const { rows, cursor, ...metas } = meta(result, 1, PAGE_LIMIT);
 
   return Response.json({
     data: rows,

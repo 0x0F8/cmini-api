@@ -103,7 +103,7 @@ export default function TypingInput({
     for (const { row, column, key } of keys) {
       const translatedCharCode = physicalKeyMap[column + ":" + row];
       if (translatedCharCode === undefined) {
-        console.error(`${String.fromCharCode(key)} could not be translated`);
+        console.warn(`${String.fromCharCode(key)} could not be translated`);
       }
       nextKeymap[String(translatedCharCode)] = key;
     }

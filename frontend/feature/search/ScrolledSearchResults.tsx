@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import AutorenewIcon from "@mui/icons-material/Autorenew";
 import LayoutTable from "@frontend/components/LayoutTable";
 import SearchResulsTableHeader from "./SearchResultsTableHeader";
+import { PAGE_LIMIT } from "@/constants";
 
 export default function ScrolledSearchResults({
   args,
@@ -25,17 +26,17 @@ export default function ScrolledSearchResults({
       isRefreshing: false,
     });
   const { ref, isIntersecting } = useIntersectionObserver({ threshold: 0.5 });
-  const { data, mutate, size, setSize, isValidating, isLoading } =
-    useSearchInfiniteApi(args, { limit: 25 });
+  const { data, mutate, size, setSize, isValidating, isLoading, error } =
+    useSearchInfiniteApi(args, { limit: PAGE_LIMIT });
 
   useEffect(() => {
     const isLoadingMore = Boolean(
       isLoading || (size > 0 && data && typeof data[size - 1] === "undefined"),
     );
     const isEmpty =
-      !data || data.length === 0 || data[0].meta.currentRows === 0;
+      !data || data.length === 0 || data[0].meta?.currentRows === 0;
     const hasReachedEnd = Boolean(
-      data && data.length > 0 && !data[data.length - 1].meta.hasMore,
+      data && data.length > 0 && !data[data.length - 1].meta?.hasMore,
     );
     const isRefreshing = Boolean(isValidating && data && data.length === size);
     setState((state) => ({
@@ -55,6 +56,22 @@ export default function ScrolledSearchResults({
     }
   }, [isIntersecting, isRefreshing, setSize, hasReachedEnd]);
 
+  if (error) {
+    return (
+      <Stack>
+        <Stack
+          justifyContent="center"
+          alignItems="center"
+          flexDirection="column"
+        >
+          <Typography textAlign="center">
+            I don't know how, but you broke it
+          </Typography>
+        </Stack>
+      </Stack>
+    );
+  }
+
   return (
     <Stack>
       {!isEmpty && !isLoading && (
@@ -73,8 +90,8 @@ export default function ScrolledSearchResults({
           </Stack>
         )}
         {!hasReachedEnd && (!isEmpty || isLoading) && (
-          <Stack justifyContent="center" alignItems="center">
-            <CircularProgress />
+          <Stack justifyContent="center" alignItems="center" gap={2}>
+            <CircularProgress size={20} />
             <Typography textAlign="center">Loading...</Typography>
           </Stack>
         )}

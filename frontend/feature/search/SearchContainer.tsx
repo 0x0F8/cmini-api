@@ -11,6 +11,7 @@ import transformSearchFormToApiArgs from "./transformSearchFormToApiArgs";
 import useSearchState from "@frontend/hooks/useSearchState";
 import ScrolledSearchResults from "./ScrolledSearchResults";
 import { SearchDefaultResult } from "@frontend/hooks/useSearchDefaults";
+import useSetQueryParams from "@frontend/hooks/useSetQueryParams";
 
 type State = {
   query: SearchApiArgs | undefined;
@@ -27,11 +28,13 @@ export default function SearchContainer({
 }) {
   const {
     valid: isKeySearchFormValid,
+    dirty: isKeySearchFormDirty,
     empty: isKeySearchFormEmpty,
     output: keySearchOutput,
   } = useKeySearchState();
   const {
     valid: isSearchFormValid,
+    dirty: isSearchFormDirty,
     key,
     empty: isSearchFormEmpty,
     ...searchState
@@ -42,8 +45,35 @@ export default function SearchContainer({
     canSubmit: false,
     didSubmit: false,
   });
+  const setQuery = useSetQueryParams(false);
 
   const { query, didSubmit, canSubmit } = state;
+
+  useEffect(() => {
+    setState((state) => ({
+      ...state,
+      canSubmit:
+        isKeySearchFormValid &&
+        isSearchFormValid &&
+        (isSearchFormDirty || isKeySearchFormDirty) &&
+        (!isKeySearchFormEmpty || !isSearchFormEmpty),
+    }));
+  }, [
+    isKeySearchFormValid,
+    isSearchFormValid,
+    isKeySearchFormEmpty,
+    isSearchFormEmpty,
+    isKeySearchFormDirty,
+    isSearchFormDirty,
+  ]);
+
+  useEffect(() => {
+    setState((state) => ({ ...state, didSubmit: false }));
+  }, [key, keySearchOutput, corpora]);
+
+  useEffect(() => {
+    onSubmit(true);
+  }, [searchState.sort, searchState.sortBy]);
 
   const onSubmit = (ignoreDidSubmit = false) => {
     if (!canSubmit || (!ignoreDidSubmit && didSubmit)) {
@@ -61,30 +91,9 @@ export default function SearchContainer({
         searchFormConstraints,
       ),
     }));
+
+    setQuery({ ...searchState, corpora, keyQuery: keySearchOutput });
   };
-
-  useEffect(() => {
-    setState((state) => ({
-      ...state,
-      canSubmit:
-        isKeySearchFormValid &&
-        isSearchFormValid &&
-        (!isKeySearchFormEmpty || !isSearchFormEmpty),
-    }));
-  }, [
-    isKeySearchFormValid,
-    isSearchFormValid,
-    isKeySearchFormEmpty,
-    isSearchFormEmpty,
-  ]);
-
-  useEffect(() => {
-    onSubmit(true);
-  }, [searchState.sort, searchState.sortBy]);
-
-  useEffect(() => {
-    setState((state) => ({ ...state, didSubmit: false }));
-  }, [key, keySearchOutput]);
 
   return (
     <Stack>

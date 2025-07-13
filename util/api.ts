@@ -1,4 +1,6 @@
-export function meta<T>(rows: Array<T>, page = 1, limit = 25) {
+import { PAGE_LIMIT } from "@/constants";
+
+export function meta<T>(rows: Array<T>, page = 1, limit = PAGE_LIMIT) {
   const totalRows = rows.length;
   const cursor = limit * (page - 1);
   const quotient = Math.floor(totalRows / limit);

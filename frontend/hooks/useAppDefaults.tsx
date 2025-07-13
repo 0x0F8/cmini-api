@@ -2,62 +2,90 @@
 
 import CminiController from "@backend/cmini/controller";
 import { AppState } from "@frontend/state/AppStateProvider";
+import { SearchSortField } from "../feature/search/types";
 
-const DEFAULT_RANGE = [0, 100];
-
-function getCombinedMetric(name: string): number[] {
+function getCombinedMetric(name: string): { min: number; max: number } {
+  let min = 0;
+  let max = 100;
   switch (name) {
-    case "sfb": {
+    case SearchSortField.Sfb: {
       const metric = CminiController.getMetric("sfb");
-      return [metric!.min, metric!.max];
+      min = metric!.min;
+      max = metric!.max;
+      break;
     }
-    case "sfs": {
+    case SearchSortField.Sfs: {
       const metric1 = CminiController.getMetric("dsfb-red");
       const metric2 = CminiController.getMetric("dsfb-alt");
-      return [metric1!.min + metric2!.min, metric1!.max + metric2!.max];
+      min = metric1!.min + metric2!.min;
+      max = metric1!.max + metric2!.max;
+      break;
     }
-    case "alternate": {
+    case SearchSortField.Alternate: {
       const metric1 = CminiController.getMetric("alternate");
-      return [metric1!.min, metric1!.max];
+      min = metric1!.min;
+      max = metric1!.max;
+      break;
     }
-    case "roll": {
+    case SearchSortField.Roll: {
       const metric1 = CminiController.getMetric("roll-in");
       const metric2 = CminiController.getMetric("roll-out");
-      return [metric1!.min + metric2!.min, metric1!.max + metric2!.max];
+      min = metric1!.min + metric2!.min;
+      max = metric1!.max + metric2!.max;
+      break;
     }
-    case "redirect": {
+    case SearchSortField.Redirect: {
       const metric1 = CminiController.getMetric("redirect");
       const metric2 = CminiController.getMetric("bad-redirect");
-      return [metric1!.min + metric2!.min, metric1!.max + metric2!.max];
+      min = metric1!.min + metric2!.min;
+      max = metric1!.max + metric2!.max;
+      break;
     }
-    case "pinkyOff": {
+    case SearchSortField.PinkyOff: {
       const metric1 = CminiController.getMetric("pinky-off");
-      return [metric1!.min, metric1!.max];
+      min = metric1!.min;
+      max = metric1!.max;
+      break;
     }
-    case "scissors": {
+    case SearchSortField.Fsb: {
       const metric1 = CminiController.getMetric("fsb");
-      return [metric1!.min, metric1!.max];
+      min = metric1!.min;
+      max = metric1!.max;
+      break;
+    }
+    case SearchSortField.RollRatio: {
+      const metric1 = CminiController.getMetric("roll-in");
+      const metric2 = CminiController.getMetric("roll-out");
+      min = metric1!.min / metric2!.min;
+      max = metric1!.max / metric2!.max;
+      break;
+    }
+    case SearchSortField.LeftHand: {
+      const metric1 = CminiController.getMetric("LH");
+      min = metric1!.min;
+      max = metric1!.max;
+      break;
+    }
+    case SearchSortField.RightHand: {
+      const metric1 = CminiController.getMetric("RH");
+      min = metric1!.min;
+      max = metric1!.max;
+      break;
     }
     default:
-      return DEFAULT_RANGE;
+    // nop
   }
+
+  return { min, max };
 }
 
 function parseDefaults(name: string, store): AppDefaultResult {
   const defaultState: AppState = {
     corpora: store.corpora ?? "monkeyracer",
-    metrics: [
-      "sfb",
-      "sfs",
-      "alternate",
-      "roll",
-      "redirect",
-      "pinkyOff",
-      "scissors",
-    ].reduce((prev, key) => {
-      prev[key] = getCombinedMetric(key);
+    metrics: Object.values(SearchSortField).reduce((prev, key) => {
+      prev.set(key, getCombinedMetric(key));
       return prev;
-    }, {}),
+    }, new Map()),
     corporas: [],
   };
 

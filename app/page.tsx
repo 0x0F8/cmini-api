@@ -6,6 +6,7 @@ import CminiApi from "@backend/cmini/api";
 import { convertQuery } from "@util/url";
 import { SearchSchema } from "@backend/cmini/validators";
 import { meta } from "@util/api";
+import { PAGE_LIMIT } from "@/constants";
 
 type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
 
@@ -21,7 +22,7 @@ export default async function Page({
   }
 
   let data = CminiApi.search(queryObj as any);
-  const { page = 1, limit = 25 } = queryObj;
+  const { page = 1, limit = PAGE_LIMIT } = queryObj;
   const { totalPages, rows, hasMore, cursor } = meta(
     data,
     page as number,

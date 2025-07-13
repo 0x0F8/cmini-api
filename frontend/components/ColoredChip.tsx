@@ -14,7 +14,7 @@ export default function ColoredChip({
   reverse?: boolean;
 }) {
   const color = reverse
-    ? gradientValueFromArray(progress, colors.reverse())
+    ? gradientValueFromArray(progress, colors.slice().reverse())
     : gradientValueFromArray(progress, colors);
   const theme = useTheme();
   return (

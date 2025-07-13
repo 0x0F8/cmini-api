@@ -2,8 +2,7 @@ import { AutocompleteApiArgs } from "@frontend/feature/search/types";
 import { stringifyQuery } from "@util/url";
 import { AutoCompleteApiResult } from "app/api/search/autocomplete/route";
 import useSWR from "swr";
-
-const fetcher = (args) => fetch(args).then((res) => res.json());
+import fetcher from "../api/fetcher";
 
 export default function useLayoutAutocompleteApi(
   args: AutocompleteApiArgs | undefined,

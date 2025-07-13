@@ -65,6 +65,7 @@ const defaultState: KeySearchState = {
   editing: false,
   empty: true,
   valid: true,
+  dirty: false,
   output: "",
 
   isProposedEditValid: () => false,
@@ -239,9 +240,13 @@ const KeySearchStateProvider = ({
   injectedState?: Partial<KeySearchState>;
   children: ReactNode;
 }) => {
-  const [keySearchState, setKeySearchState] = useState({
+  const combinedState = {
     ...defaultState,
     ...injectedState,
+  };
+  const [keySearchState, setKeySearchState] = useState({
+    ...combinedState,
+    empty: calculateKeySearchFormEmptiness(combinedState),
   });
   const setKeySearchStateImmutable = (
     callback: (draft: WritableDraft<KeySearchState>) => void,
@@ -255,6 +260,7 @@ const KeySearchStateProvider = ({
     setKeySearchStateImmutable((draft) => {
       draft[hand].push(defaultKeyGroupState());
       draft.valid = calculateFormValidity(draft);
+      draft.dirty = true;
     });
     selectLastKey(hand);
   }, []);
@@ -266,6 +272,7 @@ const KeySearchStateProvider = ({
         draft.output = keySearchStateToQueryString(draft);
         draft.valid = calculateFormValidity(draft);
         draft.empty = calculateKeySearchFormEmptiness(draft);
+        draft.dirty = true;
       });
     },
     [],
@@ -278,6 +285,7 @@ const KeySearchStateProvider = ({
         draft.output = keySearchStateToQueryString(draft);
         draft.valid = calculateFormValidity(draft);
         draft.empty = calculateKeySearchFormEmptiness(draft);
+        draft.dirty = true;
       });
     },
     [],
@@ -289,6 +297,7 @@ const KeySearchStateProvider = ({
         draft[hand][groupIndex].values.push(defaultKeyState());
         draft.valid = calculateFormValidity(draft);
         draft.empty = calculateKeySearchFormEmptiness(draft);
+        draft.dirty = true;
       });
       selectLastKey(hand, groupIndex);
     },
@@ -300,6 +309,7 @@ const KeySearchStateProvider = ({
       setKeySearchStateImmutable((draft) => {
         draft.editing = true;
         draft.valid = false;
+        draft.dirty = true;
         forEachKey(
           draft,
           (
@@ -337,6 +347,7 @@ const KeySearchStateProvider = ({
       setKeySearchStateImmutable((draft) => {
         draft.editing = true;
         draft.valid = false;
+        draft.dirty = true;
         forEachKey(
           draft,
           (key, currentHand, currentGroupIndex, currentKeyIndex) => {
@@ -395,6 +406,7 @@ const KeySearchStateProvider = ({
       }
       draft.valid = calculateFormValidity(draft);
       draft.empty = calculateKeySearchFormEmptiness(draft);
+      draft.dirty = true;
     });
   }, []);
 
@@ -421,6 +433,7 @@ const KeySearchStateProvider = ({
         draft.output = keySearchStateToQueryString(draft);
         draft.valid = calculateFormValidity(draft);
         draft.empty = calculateKeySearchFormEmptiness(draft);
+        draft.dirty = true;
       });
     },
     [],
@@ -448,6 +461,7 @@ const KeySearchStateProvider = ({
         }
         draft.valid = calculateFormValidity(draft);
         draft.empty = calculateKeySearchFormEmptiness(draft);
+        draft.dirty = true;
       });
     },
     [],
@@ -463,6 +477,7 @@ const KeySearchStateProvider = ({
           draft.valid = calculateFormValidity(draft);
         }
         draft.empty = calculateKeySearchFormEmptiness(draft);
+        draft.dirty = true;
       }),
     [],
   );

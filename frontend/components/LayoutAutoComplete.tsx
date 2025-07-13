@@ -40,7 +40,6 @@ export default function LayoutAutoComplete({
     });
   }, [setValue]);
 
-  useEffect(() => console.log(value), [value]);
   return (
     <Autocomplete
       size="small"

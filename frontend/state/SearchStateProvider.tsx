@@ -17,6 +17,14 @@ type SetSearchState = {
   setBoard: (value: CminiBoardType) => void;
   setSfb: (value: number[]) => void;
   setSfs: (value: number[]) => void;
+  setFsb: (value: number[]) => void;
+  setRedirect: (value: number[]) => void;
+  setPinkyOff: (value: number[]) => void;
+  setAlternate: (value: number[]) => void;
+  setRoll: (value: number[]) => void;
+  setRollRatio: (value: number[]) => void;
+  setLeftHand: (value: number[]) => void;
+  setRightHand: (value: number[]) => void;
   setQuery: (value: string) => void;
   setThumbsOnly: (value: boolean) => void;
   setSort: (
@@ -32,15 +40,31 @@ const defaultState: SearchState = {
   board: undefined,
   sfb: [],
   sfs: [],
+  fsb: [],
+  redirect: [],
+  pinkyOff: [],
+  alternate: [],
+  roll: [],
+  rollRatio: [],
+  handUse: [],
   thumbsOnly: undefined,
   valid: true,
   empty: true,
+  dirty: false,
   key: "",
 };
 const defaultSetState: SetSearchState = {
   setBoard: () => {},
   setSfb: () => {},
   setSfs: () => {},
+  setFsb: () => {},
+  setRedirect: () => {},
+  setPinkyOff: () => {},
+  setAlternate: () => {},
+  setRoll: () => {},
+  setRollRatio: () => {},
+  setLeftHand: () => {},
+  setRightHand: () => {},
   setQuery: () => {},
   setThumbsOnly: () => {},
   setSort: () => {},
@@ -74,9 +98,13 @@ const SearchStateProvider = ({
   injectedState?: Partial<SearchState>;
   children: ReactNode;
 }) => {
-  const [searchState, setSearchState] = useState({
+  const combinedState = {
     ...defaultState,
     ...injectedState,
+  };
+  const [searchState, setSearchState] = useState({
+    ...combinedState,
+    empty: calculateSearchFormEmptiness(combinedState),
   });
   const setSearchStateImmutable = (
     callback: (draft: WritableDraft<SearchState>) => void,
@@ -92,6 +120,7 @@ const SearchStateProvider = ({
       draft.valid = calculateFormValidity(draft);
       draft.empty = calculateSearchFormEmptiness(draft);
       draft.key = calculateFormKey(draft);
+      draft.dirty = true;
     });
   }, []);
 
@@ -101,29 +130,35 @@ const SearchStateProvider = ({
       draft.valid = calculateFormValidity(draft);
       draft.empty = calculateSearchFormEmptiness(draft);
       draft.key = calculateFormKey(draft);
+      draft.dirty = true;
       setCookie("board", value);
     });
   }, []);
 
-  const setSfb = useCallback((value: number[]) => {
-    setSearchStateImmutable((draft) => {
-      draft.sfb = value;
-      draft.valid = calculateFormValidity(draft);
-      draft.empty = calculateSearchFormEmptiness(draft);
-      draft.key = calculateFormKey(draft);
-      setCookie("sfb", value.join(","));
-    });
-  }, []);
+  const setRange = useCallback(
+    (key: string) => (value: number[]) => {
+      setSearchStateImmutable((draft) => {
+        draft[key] = value;
+        draft.valid = calculateFormValidity(draft);
+        draft.empty = calculateSearchFormEmptiness(draft);
+        draft.key = calculateFormKey(draft);
+        draft.dirty = true;
+        setCookie(key, value.join(","));
+      });
+    },
+    [],
+  );
 
-  const setSfs = useCallback((value: number[]) => {
-    setSearchStateImmutable((draft) => {
-      draft.sfs = value;
-      draft.valid = calculateFormValidity(draft);
-      draft.empty = calculateSearchFormEmptiness(draft);
-      draft.key = calculateFormKey(draft);
-      setCookie("sfs", value.join(","));
-    });
-  }, []);
+  const setSfb = useCallback(setRange("sfb"), []);
+  const setSfs = useCallback(setRange("sfs"), []);
+  const setFsb = useCallback(setRange("fsb"), []);
+  const setRedirect = useCallback(setRange("redirect"), []);
+  const setPinkyOff = useCallback(setRange("pinkyOff"), []);
+  const setAlternate = useCallback(setRange("alternate"), []);
+  const setRoll = useCallback(setRange("roll"), []);
+  const setRollRatio = useCallback(setRange("rollRatio"), []);
+  const setLeftHand = useCallback(setRange("leftHand"), []);
+  const setRightHand = useCallback(setRange("rightHand"), []);
 
   const setThumbsOnly = useCallback((value: boolean) => {
     setSearchStateImmutable((draft) => {
@@ -131,6 +166,7 @@ const SearchStateProvider = ({
       draft.valid = calculateFormValidity(draft);
       draft.empty = calculateSearchFormEmptiness(draft);
       draft.key = calculateFormKey(draft);
+      draft.dirty = true;
     });
   }, []);
 
@@ -139,7 +175,10 @@ const SearchStateProvider = ({
       setSearchStateImmutable((draft) => {
         draft.sort = sort;
         draft.sortBy = sortBy;
+        draft.valid = calculateFormValidity(draft);
+        draft.empty = calculateSearchFormEmptiness(draft);
         draft.key = calculateFormKey(draft);
+        draft.dirty = true;
         setCookie("sort", sort);
         setCookie("sortBy", sortBy);
       });
@@ -155,6 +194,14 @@ const SearchStateProvider = ({
         setBoard,
         setSfb,
         setSfs,
+        setFsb,
+        setRedirect,
+        setPinkyOff,
+        setAlternate,
+        setRoll,
+        setRollRatio,
+        setLeftHand,
+        setRightHand,
         setThumbsOnly,
         setSort,
       }}

@@ -5,6 +5,7 @@ import {
   KeySearchStateValues,
   SearchApiArgs,
   SearchConstraints,
+  SearchSortField,
   SearchStateValues,
 } from "@frontend/feature/search/types";
 import transformQueryStringToKeySearchState from "@frontend/feature/search/transformQueryStringToKeySearchState";
@@ -13,39 +14,75 @@ import calculateSearchFormEmptiness from "@frontend/feature/search/calculateSear
 import calculateKeySearchFormEmptiness from "@frontend/feature/search/calculateKeySearchFormEmptiness";
 import { stringifyQuery } from "@util/url";
 import { CminiBoardType } from "@backend/cmini/types";
+import { AppState } from "../state/AppStateProvider";
 
-function parseDefaults(name: string, store, metrics): SearchDefaultResult {
+function parseDefaults(
+  name: string,
+  store: Record<string, any>,
+  metrics: AppState["metrics"],
+): SearchDefaultResult {
   const query = store.query ?? "";
   const sort = store.sort ?? undefined;
   const sortBy = store.sortBy ?? undefined;
+  const thumbsOnly = store.thumbsOnly ?? undefined;
+
   const board =
     !Number.isNaN(Number(store.board)) &&
     Number(store.board) !== CminiBoardType.None
       ? Number(store.board)
       : undefined;
 
-  const sfbConstraint = metrics["sfb"];
-  const [sfbMinStr, sfbMaxStr] = (store.sfb ?? "").split(",");
+  const constraints: SearchConstraints = Object.values(SearchSortField).reduce(
+    (prev, k) => {
+      prev[k] = { min: 0, max: 0 };
+      return prev;
+    },
+    {} as SearchConstraints,
+  );
+  const defaultState: SearchStateValues = {
+    query,
+    sort,
+    sortBy,
+    board,
+    thumbsOnly,
+    sfb: [],
+    sfs: [],
+    fsb: [],
+    redirect: [],
+    pinkyOff: [],
+    alternate: [],
+    roll: [],
+    rollRatio: [],
+    handUse: [],
+  };
 
-  let sfbMin =
-    sfbMinStr && sfbMinStr.length > 0 && !Number.isNaN(Number(sfbMinStr))
-      ? Number(sfbMinStr)
-      : sfbConstraint[0];
-  let sfbMax =
-    sfbMaxStr && sfbMaxStr.length > 0 && !Number.isNaN(Number(sfbMaxStr))
-      ? Number(sfbMaxStr)
-      : sfbConstraint[1];
+  for (let [key, value] of [
+    [SearchSortField.Sfb, store.sfb],
+    [SearchSortField.Sfs, store.sfs],
+    [SearchSortField.Fsb, store.fsb],
+    [SearchSortField.Redirect, store.redirect],
+    [SearchSortField.PinkyOff, store.pinkyOff],
+    [SearchSortField.Alternate, store.alternate],
+    [SearchSortField.Roll, store.roll],
+    [SearchSortField.RollRatio, store.rollRatio],
+    [SearchSortField.LeftHand, store.leftHand],
+    [SearchSortField.RightHand, store.rightHand],
+  ]) {
+    const constraint = metrics.get(key)!;
+    const [minStr, maxStr] = (value ?? "").split(",");
 
-  const sfsConstraint = metrics["sfs"];
-  const [sfsMinStr, sfsMaxStr] = (store.sfs ?? "").split(",");
-  let sfsMin =
-    sfsMinStr && sfsMinStr.length > 0 && !Number.isNaN(Number(sfsMinStr))
-      ? Number(sfsMinStr)
-      : sfsConstraint[0];
-  let sfsMax =
-    sfsMaxStr && sfsMaxStr.length > 0 && !Number.isNaN(Number(sfsMaxStr))
-      ? Number(sfsMaxStr)
-      : sfsConstraint[1];
+    let min =
+      minStr && minStr.length > 0 && !Number.isNaN(Number(minStr))
+        ? Number(minStr)
+        : constraint?.min;
+    let max =
+      maxStr && maxStr.length > 0 && !Number.isNaN(Number(maxStr))
+        ? Number(maxStr)
+        : constraint?.max;
+
+    constraints[key] = constraint;
+    defaultState[key] = [min, max];
+  }
 
   const keyQuery = store.keyQuery?.replace(/\s/g, "+") ?? "";
   const defaultKeyState: KeySearchStateValues & Pick<KeySearchState, "output"> =
@@ -54,19 +91,6 @@ function parseDefaults(name: string, store, metrics): SearchDefaultResult {
       output: keyQuery,
     };
 
-  const constraints: SearchConstraints = {
-    sfb: sfbConstraint,
-    sfs: sfsConstraint,
-  };
-  const defaultState: SearchStateValues = {
-    query,
-    sort,
-    sortBy,
-    board,
-    sfb: [sfbMin, sfbMax],
-    sfs: [sfsMin, sfsMax],
-    thumbsOnly: undefined,
-  };
   const isEmpty =
     calculateSearchFormEmptiness(defaultState, constraints) &&
     calculateKeySearchFormEmptiness(defaultKeyState);

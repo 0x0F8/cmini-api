@@ -23,7 +23,7 @@ export default function Header() {
 
   return (
     <Stack flexDirection="row" justifyContent="space-between">
-      <Stack>Logo</Stack>
+      <Stack></Stack>
       <Stack flexDirection="row" flex={0.4} gap={2}>
         <CorporaSelect corporas={corporas} />
         <Stack flex={1}>
