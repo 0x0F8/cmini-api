@@ -7,14 +7,18 @@ import Cookies from "@frontend/Cookies";
 import { produce, WritableDraft } from "immer";
 import calculateSearchFormEmptiness from "@frontend/feature/search/calculateSearchFormEmptiness";
 import {
+  SearchConstraints,
+  SearchRangeField,
   SearchSortField,
   SearchState,
   SearchStateValues,
 } from "@frontend/feature/search/types";
-import { SortOrder } from "types";
+import { SortOrder, Toggle } from "types";
 import { randomString } from "@/util/random";
+import { Metrics } from "./AppStateProvider";
 
 type SetSearchState = {
+  setConstraints: (metrics: Metrics) => void;
   setBoard: (value: CminiBoardType) => void;
   setSfb: (value: number[]) => void;
   setSfs: (value: number[]) => void;
@@ -27,7 +31,7 @@ type SetSearchState = {
   setLeftHand: (value: number[]) => void;
   setRightHand: (value: number[]) => void;
   setQuery: (value: string) => void;
-  setThumbsOnly: (value: boolean) => void;
+  setThumbsOnly: (value: Toggle) => void;
   setRandomize: (value: boolean) => void;
   setSort: (
     sort: SortOrder | undefined,
@@ -36,6 +40,10 @@ type SetSearchState = {
 };
 
 const defaultState: SearchState = {
+  constraints: Object.values(SearchSortField).reduce((prev, k) => {
+    prev[k] = { min: 0, max: 0 };
+    return prev;
+  }, {} as SearchConstraints),
   sort: SortOrder.Ascending,
   sortBy: SearchSortField.Sfb,
   randomize: "",
@@ -50,13 +58,14 @@ const defaultState: SearchState = {
   roll: [],
   rollRatio: [],
   handUse: [],
-  thumbsOnly: undefined,
+  thumbsOnly: Toggle.None,
   valid: true,
   empty: true,
   dirty: false,
   key: "",
 };
 const defaultSetState: SetSearchState = {
+  setConstraints: () => {},
   setBoard: () => {},
   setSfb: () => {},
   setSfs: () => {},
@@ -121,6 +130,25 @@ const SearchStateProvider = ({
     Cookies.remove(`search-${key}`);
   };
 
+  const setConstraints = useCallback((metrics: Metrics) => {
+    setSearchStateImmutable((draft) => {
+      for (const key of Object.values(SearchRangeField)) {
+        const constraint = metrics.get(key)!;
+        const [min, max] = draft[key] as number[];
+        const isDefaultMin = draft.constraints[key].min === min;
+        const isDefaultMax = draft.constraints[key].max === max;
+        draft.constraints[key] = constraint;
+        if (min < constraint.min || isDefaultMin) {
+          draft[key][0] = constraint.min;
+        }
+        if (max > constraint.max || isDefaultMax) {
+          draft[key][1] = constraint.max;
+        }
+      }
+      draft.empty = calculateSearchFormEmptiness(draft);
+    });
+  }, []);
+
   const setQuery = useCallback((value: string) => {
     setSearchStateImmutable((draft) => {
       draft.query = value;
@@ -167,7 +195,7 @@ const SearchStateProvider = ({
   const setLeftHand = useCallback(setRange("leftHand"), []);
   const setRightHand = useCallback(setRange("rightHand"), []);
 
-  const setThumbsOnly = useCallback((value: boolean) => {
+  const setThumbsOnly = useCallback((value: Toggle) => {
     setSearchStateImmutable((draft) => {
       draft.thumbsOnly = value;
       draft.valid = calculateFormValidity(draft);
@@ -213,6 +241,7 @@ const SearchStateProvider = ({
     <SearchContext.Provider
       value={{
         ...searchState,
+        setConstraints,
         setQuery,
         setBoard,
         setSfb,

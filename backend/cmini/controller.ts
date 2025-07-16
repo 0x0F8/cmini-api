@@ -7,8 +7,16 @@ class CminiControllerClass {
     return CminiStore.corpora;
   }
 
-  getMetric(name: string) {
-    return CminiStore.metrics.get(name);
+  getMetrics(corpora: string) {
+    return CminiStore.metrics.get(corpora);
+  }
+
+  getMetric(corpora: string, name: string) {
+    const ref = this.getMetrics(corpora);
+    if (!ref) {
+      return undefined;
+    }
+    return ref.get(name);
   }
 
   getHeatmap(corpora: string) {

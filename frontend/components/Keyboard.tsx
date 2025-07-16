@@ -132,11 +132,13 @@ export default function Keyboard({
   keys,
   heatmap,
   theme = defaultTheme,
+  size = "full",
 }: {
   keys: CminiKey[];
   heatmap: { [key: string]: number };
   theme?: KeyboardTheme;
   config: KeyboardConfig;
+  size?: "full" | "homerow";
 }) {
   const [keyboard, setKeyboard] = useState<KeyboardKey[][]>([]);
   const [display, setDisplay] = useState<"fingermap" | "heatmap">(

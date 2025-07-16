@@ -4,7 +4,6 @@ import { Roboto } from "next/font/google";
 import { ThemeProvider } from "@mui/material/styles";
 import theme from "../theme";
 import AppStateProvider from "@frontend/state/AppStateProvider";
-import CminiController from "@backend/cmini/controller";
 import DefaultLayout from "@frontend/layout/DefaultLayout";
 import useAppDefaults from "@frontend/hooks/useAppDefaults";
 import { objectFromCookies } from "@util/nextjs";
@@ -22,7 +21,6 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
   const cookieStore = await cookies();
-  const corporas = CminiController.getCorpora();
   const appDefaults = await useAppDefaults([
     ["cookies", objectFromCookies(cookieStore, "app")],
   ]);
@@ -32,9 +30,7 @@ export default async function RootLayout({
       <body>
         <AppRouterCacheProvider>
           <ThemeProvider theme={theme}>
-            <AppStateProvider
-              injectedState={{ ...appDefaults.defaultState, corporas }}
-            >
+            <AppStateProvider injectedState={appDefaults.defaultState}>
               <DefaultLayout>{children}</DefaultLayout>
             </AppStateProvider>
           </ThemeProvider>

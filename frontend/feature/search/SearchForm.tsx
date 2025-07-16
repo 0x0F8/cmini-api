@@ -13,6 +13,8 @@ import {
 } from "@mui/material";
 import { SearchConstraints } from "./types";
 import useSearchState from "@frontend/hooks/useSearchState";
+import TripleToggle from "@/frontend/components/TripleToggle";
+import { Toggle } from "@/types";
 
 export default function SearchForm({
   constraints,
@@ -64,7 +66,7 @@ export default function SearchForm({
   const onRollRatioChange = (_: any, values: number[]) => setRollRatio(values);
   // const onLeftHandChange = (_: any, values: number[]) => setLeftHand(values);
   // const onRightChange = (_: any, values: number[]) => setRightHand(values);
-  const onThumbsChange = (_: any, values: boolean) => setThumbsOnly(values);
+  const onThumbsChange = (_: any, values: Toggle) => setThumbsOnly(values);
   const onRandomizeChange = (_: any, values: boolean) => setRandomize(values);
 
   return (
@@ -250,28 +252,35 @@ export default function SearchForm({
         />
       </Stack>
       {/* TODO: hand use */}
-      <Stack my={1}>
-        <Stack flexDirection="row">
-          <Stack alignItems="center" justifyContent="center">
-            <Typography>Uses Thumbs</Typography>
-          </Stack>
+      <Stack
+        flexDirection="row"
+        gap={4}
+        alignItems="center"
+        justifyContent="center"
+      >
+        <Stack my={1}>
+          <Stack flexDirection="row">
+            <Stack alignItems="center" justifyContent="center">
+              <Typography>Uses Thumbs</Typography>
+            </Stack>
 
-          <Stack alignItems="center">
-            <Switch onChange={onThumbsChange} checked={thumbsOnly || false} />
+            <Stack alignItems="center">
+              <TripleToggle onChange={onThumbsChange} value={thumbsOnly} />
+            </Stack>
           </Stack>
         </Stack>
-      </Stack>
-      <Stack my={1}>
-        <Stack flexDirection="row">
-          <Stack alignItems="center" justifyContent="center">
-            <Typography>Randomize</Typography>
-          </Stack>
+        <Stack my={1}>
+          <Stack flexDirection="row">
+            <Stack alignItems="center" justifyContent="center">
+              <Typography>Randomize</Typography>
+            </Stack>
 
-          <Stack alignItems="center">
-            <Switch
-              onChange={onRandomizeChange}
-              checked={randomize.length > 0}
-            />
+            <Stack alignItems="center">
+              <Switch
+                onChange={onRandomizeChange}
+                checked={randomize.length > 0}
+              />
+            </Stack>
           </Stack>
         </Stack>
       </Stack>

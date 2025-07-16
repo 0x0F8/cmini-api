@@ -5,6 +5,7 @@ import {
   KeySearchStateValues,
   SearchApiArgs,
   SearchConstraints,
+  SearchRangeField,
   SearchSortField,
   SearchStateValues,
 } from "@frontend/feature/search/types";
@@ -14,18 +15,21 @@ import calculateSearchFormEmptiness from "@frontend/feature/search/calculateSear
 import calculateKeySearchFormEmptiness from "@frontend/feature/search/calculateKeySearchFormEmptiness";
 import { stringifyQuery } from "@util/url";
 import { CminiBoardType } from "@backend/cmini/types";
-import { AppState } from "../state/AppStateProvider";
+import { Metrics } from "../state/AppStateProvider";
+import { Toggle } from "@/types";
 
 function parseDefaults(
   name: string,
   store: Record<string, any>,
-  metrics: AppState["metrics"],
+  metrics: Metrics,
 ): SearchDefaultResult {
   const query = store.query ?? "";
   const sort = store.sort ?? undefined;
   const sortBy = store.sortBy ?? undefined;
-  const thumbsOnly = store.thumbsOnly ?? undefined;
   const randomize = store.randomize ?? undefined;
+  const thumbsOnly = !Number.isNaN(Number(store.thumbsOnly))
+    ? Number(store.thumbsOnly)
+    : Toggle.None;
 
   const board =
     !Number.isNaN(Number(store.board)) &&
@@ -59,16 +63,16 @@ function parseDefaults(
   };
 
   for (let [key, value] of [
-    [SearchSortField.Sfb, store.sfb],
-    [SearchSortField.Sfs, store.sfs],
-    [SearchSortField.Fsb, store.fsb],
-    [SearchSortField.Redirect, store.redirect],
-    [SearchSortField.PinkyOff, store.pinkyOff],
-    [SearchSortField.Alternate, store.alternate],
-    [SearchSortField.Roll, store.roll],
-    [SearchSortField.RollRatio, store.rollRatio],
-    [SearchSortField.LeftHand, store.leftHand],
-    [SearchSortField.RightHand, store.rightHand],
+    [SearchRangeField.Sfb, store.sfb],
+    [SearchRangeField.Sfs, store.sfs],
+    [SearchRangeField.Fsb, store.fsb],
+    [SearchRangeField.Redirect, store.redirect],
+    [SearchRangeField.PinkyOff, store.pinkyOff],
+    [SearchRangeField.Alternate, store.alternate],
+    [SearchRangeField.Roll, store.roll],
+    [SearchRangeField.RollRatio, store.rollRatio],
+    [SearchRangeField.LeftHand, store.leftHand],
+    [SearchRangeField.RightHand, store.rightHand],
   ]) {
     const constraint = metrics.get(key)!;
     const [minStr, maxStr] = (value ?? "").split(",");
@@ -118,7 +122,6 @@ function parseDefaults(
     defaultKeyState,
     defaultArgs,
     defaultQueryString,
-    constraints,
   };
 }
 
@@ -127,7 +130,6 @@ export type SearchDefaultResult = {
   defaultKeyState: Partial<KeySearchState>;
   defaultArgs: SearchApiArgs | undefined;
   defaultQueryString: string | undefined;
-  constraints: SearchConstraints;
   isEmpty: boolean;
   source: string;
 };

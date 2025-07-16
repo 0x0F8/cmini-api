@@ -37,6 +37,9 @@ export type CminiLayout = {
   keys: CminiKey[];
   encodedKeys: string;
   fingers: CminiFinger[];
+  columns: number;
+  rows: number;
+  homerow: number;
 };
 
 export type CminiBoardLayout = {
@@ -95,6 +98,7 @@ export type CminiStats = {
 };
 
 export type CminiStatsByCorpora = Map<string, CminiStats>;
+export type CminiMetricsByCorpora = Map<string, CminiMetric>;
 
 export type CminiMetric = {
   min: number;

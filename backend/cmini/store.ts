@@ -7,6 +7,7 @@ import {
   CminiHeatmap,
   CminiBoardLayout,
   CminiBoardType,
+  CminiMetricsByCorpora,
 } from "./types";
 import {
   calculateBoardHash,
@@ -23,7 +24,7 @@ class CminiStoreClass {
   boardLayouts: Map<string, CminiBoardLayout> = new Map();
   meta: Map<string, CminiMeta> = new Map();
   heatmaps: Map<string, CminiHeatmap> = new Map();
-  metrics: Map<string, CminiMetric> = new Map();
+  metrics: Map<string, CminiMetricsByCorpora> = new Map();
   keymap: Map<string, string[]> = new Map();
   corpora: string[] = [];
 
@@ -46,13 +47,12 @@ class CminiStoreClass {
     await this.loadMetrics();
     await this.loadHeatmap();
 
-    // if (!isAppBuilding()) {
-    //   const descriptor = isProduction() ? "" : " minimized";
-    //   console.log(`Caching${descriptor} keymap...`);
-    //   await this.loadKeymap(isProduction());
-    //   console.log("Done.");
-    // }
-    await this.loadKeymap();
+    if (!isAppBuilding()) {
+      const descriptor = isProduction() ? "" : " minimized";
+      console.log(`Caching${descriptor} keymap...`);
+      await this.loadKeymap(isProduction());
+      console.log("Done.");
+    }
   }
 
   protected async loadKeymap(shouldLoadAll = true) {
@@ -70,9 +70,9 @@ class CminiStoreClass {
         ref!.push(id);
       }
 
-      if (!shouldLoadAll) {
-        break;
-      }
+      // if (!shouldLoadAll) {
+      //   break;
+      // }
     }
   }
 
@@ -99,14 +99,19 @@ class CminiStoreClass {
     const data = await new CsvLoader("metrics.csv").load();
     if (!data) return;
     for await (const line of data) {
-      const [name, min, max] = line.split("|");
+      const [corpora, name, min, max] = line.split("|");
 
       const metric: CminiMetric = {
         min: Number(min),
         max: Number(max),
         name,
       };
-      this.metrics.set(name, metric);
+
+      if (!this.metrics.has(corpora)) {
+        this.metrics.set(corpora, new Map<string, CminiMetric>());
+      }
+      const ref = this.metrics.get(corpora)!;
+      ref.set(name, metric);
     }
   }
 
@@ -203,6 +208,27 @@ class CminiStoreClass {
             return k.finger;
           }),
         );
+        let columns = 0;
+        let rows = 0;
+        let homerow = 0;
+
+        const nextKeyboard: number[] = [];
+        for (const key of keys) {
+          while (key.row + 1 > nextKeyboard.length) {
+            nextKeyboard.push(0);
+          }
+          if (key.column > nextKeyboard[key.row])
+            nextKeyboard[key.row] = key.column;
+          if (key.column + 1 > columns) columns = key.column + 1;
+          if (key.row + 1 > rows) rows = key.row + 1;
+        }
+        for (let n = nextKeyboard.length - 1; n >= 0; n--) {
+          if (nextKeyboard[n] >= 8) {
+            homerow = n - 1;
+            break;
+          }
+        }
+
         const layout: CminiLayout = {
           layoutId,
           keys,
@@ -210,6 +236,9 @@ class CminiStoreClass {
           boardIds: [],
           metaIds: [],
           encodedKeys: keysStr,
+          columns,
+          rows,
+          homerow,
         };
         this.layouts.set(layoutId, layout);
       }

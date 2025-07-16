@@ -1,3 +1,4 @@
+import { Toggle } from "@/types";
 import { SearchApiArgs, SearchConstraints, SearchStateValues } from "./types";
 
 export default function transformSearchFormToApiArgs(
@@ -52,7 +53,7 @@ export default function transformSearchFormToApiArgs(
     sort,
     sortBy,
     keyQuery,
-    hasThumb: thumbsOnly ? true : undefined,
+    hasThumb: thumbsOnly === Toggle.None ? undefined : Boolean(thumbsOnly),
     randomize: randomize || undefined,
   };
 }

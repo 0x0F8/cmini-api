@@ -1,5 +1,6 @@
 import {
   CminiBoardLayout,
+  CminiFinger,
   CminiKey,
   CminiLayout,
 } from "../backend/cmini/types";
@@ -60,4 +61,54 @@ export function calculateBoardHash(
 
 export function calculateLayoutHash(layout: CminiLayout) {
   return md5(layout.encodedKeys);
+}
+
+export function homerow(layout: CminiLayout) {
+  const keys: (CminiKey | undefined)[] = [
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+  ];
+  const fingers = [
+    CminiFinger.LT,
+    CminiFinger.LP,
+    CminiFinger.LR,
+    CminiFinger.LM,
+    CminiFinger.LI,
+    CminiFinger.RI,
+    CminiFinger.RM,
+    CminiFinger.RR,
+    CminiFinger.RP,
+    CminiFinger.RT,
+  ];
+  for (const k of layout.keys) {
+    if (k.row !== layout.homerow && k.row !== layout.rows - 1) continue;
+    if (k.row === layout.homerow) {
+      const isLeft = k.finger <= 4;
+
+      const i = fingers.indexOf(k.finger);
+      if (
+        !keys[i] ||
+        (isLeft && k.column < keys[i]!.column) ||
+        (!isLeft && k.column > keys[i]!.column)
+      ) {
+        keys[i] = k;
+      }
+    } else {
+      if (k.finger === CminiFinger.LT || k.finger === CminiFinger.RT) {
+        const i = fingers.indexOf(k.finger);
+        if (typeof keys[i] === "undefined") {
+          keys[i] = k;
+        }
+      }
+    }
+  }
+  return keys;
 }

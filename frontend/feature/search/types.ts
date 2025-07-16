@@ -1,5 +1,5 @@
 import { CminiBoardType } from "@backend/cmini/types";
-import { SortOrder } from "types";
+import { SortOrder, Toggle } from "types";
 import { KeySearchKeyGroupProps } from "./KeySearchKeyGroup";
 
 export type SearchApiArgs = {
@@ -47,11 +47,25 @@ export type AutocompleteApiArgs = {
   sortBy?: SearchSortField;
 };
 
-export enum SearchSortField {
+export enum SearchRangeField {
   Sfs = "sfs",
   Sfb = "sfb",
+  Fsb = "fsb",
+  Redirect = "redirect",
+  PinkyOff = "pinkyOff",
+  Alternate = "alternate",
+  Roll = "roll",
+  RollRatio = "rollRatio",
+  LeftHand = "leftHand",
+  RightHand = "rightHand",
+}
+
+export enum SearchSortField {
   Name = "name",
   Author = "author",
+
+  Sfs = "sfs",
+  Sfb = "sfb",
   Fsb = "fsb",
   Redirect = "redirect",
   PinkyOff = "pinkyOff",
@@ -63,6 +77,7 @@ export enum SearchSortField {
 }
 
 export type SearchState = {
+  constraints: SearchConstraints;
   query: string;
   board: CminiBoardType | undefined;
 
@@ -76,7 +91,7 @@ export type SearchState = {
   rollRatio: number[];
   handUse: number[];
 
-  thumbsOnly: boolean | undefined;
+  thumbsOnly: Toggle;
 
   randomize: string;
   sort: SortOrder | undefined;
@@ -133,7 +148,7 @@ export type KeySearchState = {
 
 export type SearchStateValues = Omit<
   SearchState,
-  "valid" | "empty" | "key" | "dirty"
+  "constraints" | "valid" | "empty" | "key" | "dirty"
 >;
 
 export type KeySearchStateValues = Omit<
@@ -149,7 +164,7 @@ export type KeySearchStateValues = Omit<
 >;
 
 export type SearchConstraints = Record<
-  Exclude<SearchSortField, SearchSortField.Name | SearchSortField.Author>,
+  SearchRangeField,
   { min: number; max: number }
 >;
 

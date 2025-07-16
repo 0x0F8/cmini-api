@@ -1,5 +1,6 @@
 import { CminiBoardType } from "@backend/cmini/types";
 import { SearchConstraints, SearchStateValues } from "./types";
+import { Toggle } from "@/types";
 
 export default function calculateSearchFormEmptiness(
   state: SearchStateValues,
@@ -64,7 +65,7 @@ export default function calculateSearchFormEmptiness(
       state.rollRatio[0] === constraints.rollRatio.min &&
       state.rollRatio[1] === constraints.rollRatio.max
     );
-  const isThumbsOnlyEmpty = state.thumbsOnly === undefined;
+  const isThumbsOnlyEmpty = state.thumbsOnly === Toggle.None;
   return (
     isQueryEmpty &&
     isBoardEmpty &&

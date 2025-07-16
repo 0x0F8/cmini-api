@@ -3,15 +3,17 @@
 import SearchForm from "@frontend/feature/search/SearchForm";
 import { Button, Stack } from "@mui/material";
 import { useEffect, useState } from "react";
-import { SearchApiArgs, SearchConstraints } from "./types";
-import KeySearchForm from "./KeySearchForm";
+import { SearchApiArgs, SearchConstraints } from "../feature/search/types";
+import KeySearchForm from "../feature/search/KeySearchForm";
 import useKeySearchState from "@frontend/hooks/useKeySearchState";
 import useAppState from "@frontend/hooks/useAppState";
-import transformSearchFormToApiArgs from "./transformSearchFormToApiArgs";
+import transformSearchFormToApiArgs from "../feature/search/transformSearchFormToApiArgs";
 import useSearchState from "@frontend/hooks/useSearchState";
-import ScrolledSearchResults from "./ScrolledSearchResults";
+import ScrolledSearchResults from "../feature/search/ScrolledSearchResults";
 import { SearchDefaultResult } from "@frontend/hooks/useSearchDefaults";
 import useSetQueryParams from "@frontend/hooks/useSetQueryParams";
+import BackToTop from "@/frontend/components/BackToTop";
+import useGlobalStateSync from "../hooks/useGlobalStateSync";
 
 type State = {
   query: SearchApiArgs | undefined;
@@ -20,12 +22,11 @@ type State = {
 };
 
 export default function SearchContainer({
-  searchFormConstraints,
   searchDefaultResult,
 }: {
-  searchFormConstraints: SearchConstraints;
   searchDefaultResult: SearchDefaultResult;
 }) {
+  useGlobalStateSync();
   const {
     valid: isKeySearchFormValid,
     dirty: isKeySearchFormDirty,
@@ -33,6 +34,7 @@ export default function SearchContainer({
     output: keySearchOutput,
   } = useKeySearchState();
   const {
+    constraints,
     valid: isSearchFormValid,
     dirty: isSearchFormDirty,
     key,
@@ -88,7 +90,7 @@ export default function SearchContainer({
           corpora,
           keyQuery: keySearchOutput,
         },
-        searchFormConstraints,
+        constraints,
       ),
     }));
 
@@ -97,10 +99,11 @@ export default function SearchContainer({
 
   return (
     <Stack>
+      <BackToTop />
       <Stack mb={8}>
         <SearchForm
           mb={4}
-          constraints={searchFormConstraints}
+          constraints={constraints}
           keySearchForm={<KeySearchForm />}
         />
         <Button

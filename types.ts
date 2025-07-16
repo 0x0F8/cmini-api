@@ -30,3 +30,9 @@ export enum Orientation {
   Horizontal,
   Vertical,
 }
+
+export enum Toggle {
+  Off,
+  On,
+  None,
+}

@@ -2,19 +2,25 @@ import { SearchApiData } from "app/api/search/route";
 import Link from "next/link";
 import useAppState from "@frontend/hooks/useAppState";
 import MetricChip from "@frontend/components/MetricChip";
-import { Typography } from "@mui/material";
+import {
+  Box,
+  Stack,
+  Table,
+  TableBody,
+  TableCell,
+  TableCellProps,
+  TableHead,
+  TableHeadProps,
+  TableRow,
+  TableRowProps,
+  Typography,
+} from "@mui/material";
 import HandUseDisplay from "./HandUseDisplay";
 import { AppState } from "../state/AppStateProvider";
-import { SearchSortField } from "../feature/search/types";
+import { SearchRangeField } from "../feature/search/types";
 import RollRatioDisplay from "./RollRatioDisplay";
-
-// const colors = [
-//   "#20de2e",
-//   "#63de6c",
-//   "#dedd20",
-//   "#de6563",
-//   "#de2020",
-// ];
+import { homerow } from "@/util/layout";
+import Homerow from "./Homerow";
 
 const colors = ["#20de2e", "#dedd20", "#dea020", "#de2020", "#8b1717"];
 const centeredColors = [
@@ -36,220 +42,258 @@ const centeredColors = [
 export function LayoutRow({
   stats,
   meta,
+  layout,
   metrics,
+  showText = false,
+  ...props
 }: {
   stats: any;
   meta: any;
+  layout: any;
   metrics: AppState["metrics"];
-}) {
+  showText?: boolean;
+} & TableRowProps) {
   const handMin =
-    metrics.get(SearchSortField.RightHand)!.min /
-    metrics.get(SearchSortField.LeftHand)!.max;
+    metrics.get(SearchRangeField.RightHand)!.min /
+    metrics.get(SearchRangeField.LeftHand)!.max;
   const handMax =
-    metrics.get(SearchSortField.RightHand)!.max /
-    metrics.get(SearchSortField.LeftHand)!.min;
+    metrics.get(SearchRangeField.RightHand)!.max /
+    metrics.get(SearchRangeField.LeftHand)!.min;
   return (
-    <tr>
-      <td>
-        <Typography sx={{ minWidth: 220 }}>
+    <TableRow {...props}>
+      <TableCell>
+        <Typography sx={{ width: 250 }} noWrap>
           <Link prefetch={false} href={`/layout/${meta[0].layoutHash}`}>
             {meta[0].name}
           </Link>
-        </Typography>
-        <Typography>&nbsp;</Typography>
-      </td>
-      <td>
-        <Typography sx={{ minWidth: 170 }}>
+          &nbsp;
+          {showText && <br />}
+          by&nbsp;
           <Link prefetch={false} href={`/author/${meta[0].authorId}`}>
             {meta[0].author}
           </Link>
         </Typography>
-        <Typography>&nbsp;</Typography>
-      </td>
-      <td>
+      </TableCell>
+      <TableCell>
+        <Homerow layout={layout} />{" "}
+        {showText && <Typography>&nbsp;</Typography>}
+      </TableCell>
+      <TableCell>
         <MetricChip
-          min={metrics.get(SearchSortField.Sfb)!.min}
-          max={metrics.get(SearchSortField.Sfb)!.max}
+          min={metrics.get(SearchRangeField.Sfb)!.min}
+          max={metrics.get(SearchRangeField.Sfb)!.max}
           colors={colors}
           decimals={2}
         >
           {stats.sfb}
         </MetricChip>
-        <Typography>&nbsp;</Typography>
-      </td>
-      <td>
+        {showText && <Typography>&nbsp;</Typography>}
+      </TableCell>
+      <TableCell>
         <MetricChip
-          min={metrics.get(SearchSortField.Sfs)!.min}
-          max={metrics.get(SearchSortField.Sfs)!.max}
+          min={metrics.get(SearchRangeField.Sfs)!.min}
+          max={metrics.get(SearchRangeField.Sfs)!.max}
           colors={colors}
           decimals={2}
         >
           {stats.sfs + stats.sfsAlt}
         </MetricChip>
-        <Typography>&nbsp;</Typography>
-      </td>
-      <td>
+        {showText && <Typography>&nbsp;</Typography>}
+      </TableCell>
+      <TableCell>
         <MetricChip
-          min={metrics.get(SearchSortField.Fsb)!.min}
-          max={metrics.get(SearchSortField.Fsb)!.max}
+          min={metrics.get(SearchRangeField.Fsb)!.min}
+          max={metrics.get(SearchRangeField.Fsb)!.max}
           colors={colors}
           decimals={2}
         >
           {stats.fsb}
         </MetricChip>
-        <Typography>&nbsp;</Typography>
-      </td>
-      <td>
+        {showText && <Typography>&nbsp;</Typography>}
+      </TableCell>
+      <TableCell>
         <MetricChip
-          min={metrics.get(SearchSortField.Redirect)!.min}
-          max={metrics.get(SearchSortField.Redirect)!.max}
+          min={metrics.get(SearchRangeField.Redirect)!.min}
+          max={metrics.get(SearchRangeField.Redirect)!.max}
           colors={colors}
           decimals={1}
         >
           {stats.redirect + stats.badRedirect}
         </MetricChip>
-        <Typography>&nbsp;</Typography>
-      </td>
-      <td>
+        {showText && <Typography>&nbsp;</Typography>}
+      </TableCell>
+      <TableCell>
         <MetricChip
-          min={metrics.get(SearchSortField.PinkyOff)!.min}
-          max={metrics.get(SearchSortField.PinkyOff)!.max}
+          min={metrics.get(SearchRangeField.PinkyOff)!.min}
+          max={metrics.get(SearchRangeField.PinkyOff)!.max}
           colors={colors}
           decimals={1}
         >
           {stats.pinkyOff}
         </MetricChip>
-        <Typography>&nbsp;</Typography>
-      </td>
-      <td>&nbsp;</td>
-      <td>
+        {showText && <Typography>&nbsp;</Typography>}
+      </TableCell>
+      <TableCell>&nbsp;</TableCell>
+      <TableCell>
         <MetricChip
-          min={metrics.get(SearchSortField.Alternate)!.min}
-          max={metrics.get(SearchSortField.Alternate)!.max}
+          min={metrics.get(SearchRangeField.Alternate)!.min}
+          max={metrics.get(SearchRangeField.Alternate)!.max}
           colors={colors}
           decimals={1}
           reverse
         >
           {stats.alternate}
         </MetricChip>
-        <Typography>&nbsp;</Typography>
-      </td>
-      <td>
+        {showText && <Typography>&nbsp;</Typography>}
+      </TableCell>
+      <TableCell>
         <MetricChip
-          min={metrics.get(SearchSortField.Roll)!.min}
-          max={metrics.get(SearchSortField.Roll)!.max}
+          min={metrics.get(SearchRangeField.Roll)!.min}
+          max={metrics.get(SearchRangeField.Roll)!.max}
           colors={colors}
           decimals={1}
           reverse
         >
           {stats.rollIn + stats.rollOut}
         </MetricChip>
-        <Typography>&nbsp;</Typography>
-      </td>
+        {showText && <Typography>&nbsp;</Typography>}
+      </TableCell>
 
-      <td>
-        <MetricChip
-          min={metrics.get(SearchSortField.RollRatio)!.min}
-          max={metrics.get(SearchSortField.RollRatio)!.max}
-          colors={colors}
-          decimals={2}
-          center={1}
-          reverse
-        >
-          {stats.rollIn / stats.rollOut}
-        </MetricChip>
+      <TableCell>
         <RollRatioDisplay
           colors={colors}
           ratio={stats.rollIn / stats.rollOut}
-          min={metrics.get(SearchSortField.RollRatio)!.min}
-          max={metrics.get(SearchSortField.RollRatio)!.max}
+          min={metrics.get(SearchRangeField.RollRatio)!.min}
+          max={metrics.get(SearchRangeField.RollRatio)!.max}
           reverse
+          showText={showText}
         />
-      </td>
+      </TableCell>
 
-      <td>
-        <MetricChip
-          min={Math.max(handMin, handMax) * -1}
-          max={Math.max(handMin, handMax)}
-          colors={centeredColors}
-          decimals={0}
-        >
-          {stats.rightHand - stats.leftHand}
-        </MetricChip>
+      <TableCell>
         <HandUseDisplay
           colors={centeredColors}
           left={stats.leftHand}
           right={stats.rightHand}
           min={Math.max(handMin, handMax) * -1}
           max={Math.max(handMin, handMax)}
+          showText={showText}
         />
-      </td>
-    </tr>
+      </TableCell>
+    </TableRow>
   );
 }
 
-export function LayoutTableHeader() {
+export function LayoutTableHeader(props?: TableHeadProps) {
   return (
-    <tr>
-      <td>
-        <Typography>Name</Typography>
-      </td>
-      <td>
-        <Typography>Author</Typography>
-      </td>
-      <td>
-        <Typography>SFB</Typography>
-      </td>
-      <td>
-        <Typography>SFS</Typography>
-      </td>
-      <td>
-        <Typography>Scissors</Typography>
-      </td>
-      <td>
-        <Typography>Redirects</Typography>
-      </td>
-      <td>
-        <Typography>Pinky Off</Typography>
-      </td>
-      <td></td>
-      <td>
-        <Typography>Alternation</Typography>
-      </td>
-      <td>
-        <Typography>Roll Ratio</Typography>
-      </td>
-
-      <td>
-        <Typography>Roll Ratio</Typography>
-      </td>
-      <td>
-        <Typography>Hand Use</Typography>
-      </td>
-    </tr>
+    <TableHead {...props}>
+      <TableRow>
+        <TableCell>
+          <Typography></Typography>
+        </TableCell>
+        <TableCell>
+          <Stack flexDirection="row" justifyContent="space-between">
+            <Box minWidth={0.1}>
+              <Typography textAlign="center">LT</Typography>
+            </Box>
+            <Box minWidth={0.1}>
+              <Typography textAlign="center">LI</Typography>
+            </Box>
+            <Box minWidth={0.1}>
+              <Typography textAlign="center">LM</Typography>
+            </Box>
+            <Box minWidth={0.1}>
+              <Typography textAlign="center">LR</Typography>
+            </Box>
+            <Box minWidth={0.1}>
+              <Typography textAlign="center">LP</Typography>
+            </Box>
+            <Box minWidth={0.1}>
+              <Typography textAlign="center">RT</Typography>
+            </Box>
+            <Box minWidth={0.1}>
+              <Typography textAlign="center">RI</Typography>
+            </Box>
+            <Box minWidth={0.1}>
+              <Typography textAlign="center">RM</Typography>
+            </Box>
+            <Box minWidth={0.1}>
+              <Typography textAlign="center">RR</Typography>
+            </Box>
+            <Box minWidth={0.1}>
+              <Typography textAlign="center">RP</Typography>
+            </Box>
+          </Stack>
+        </TableCell>
+        <TableCell>
+          <Typography textAlign="center">SFB</Typography>
+        </TableCell>
+        <TableCell>
+          <Typography textAlign="center">SFS</Typography>
+        </TableCell>
+        <TableCell>
+          <Typography textAlign="center">Scissors</Typography>
+        </TableCell>
+        <TableCell>
+          <Typography textAlign="center">Redirects</Typography>
+        </TableCell>
+        <TableCell>
+          <Typography textAlign="center">Pinky Off</Typography>
+        </TableCell>
+        <TableCell></TableCell>
+        <TableCell>
+          <Typography textAlign="center">Alternation</Typography>
+        </TableCell>
+        <TableCell>
+          <Typography textAlign="center">Roll Ratio</Typography>
+        </TableCell>
+        <TableCell>
+          <Typography textAlign="center">Roll Ratio</Typography>
+        </TableCell>
+        <TableCell>
+          <Typography textAlign="center">Hand Use</Typography>
+        </TableCell>
+      </TableRow>
+    </TableHead>
   );
 }
 
 export default function LayoutTable({
   data,
   Header,
+  showText,
 }: {
   data: SearchApiData[];
-  Header: () => React.ReactElement;
+  Header: (props?: TableHeadProps) => React.ReactElement;
+  showText?: boolean;
 }) {
   const { metrics } = useAppState();
   return (
-    <table>
-      <tbody>
-        <Header />
+    <Table
+      stickyHeader
+      padding="none"
+      size="small"
+      sx={{
+        ".MuiTableCell-root": {
+          borderBottom: "none",
+          px: 0.25,
+        },
+        minHeight: 400,
+      }}
+    >
+      <Header />
+      <TableBody>
         {data.map((row) => (
           <LayoutRow
             key={row.layout.boardIds[0] + row.layout.layoutId}
             metrics={metrics}
-            {...row}
+            showText={showText}
+            stats={row.stats}
+            meta={row.meta}
+            layout={row.layout}
           />
         ))}
-      </tbody>
-    </table>
+      </TableBody>
+    </Table>
   );
 }

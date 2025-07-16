@@ -3,7 +3,15 @@ import { SortOrder } from "types";
 import { useCallback } from "react";
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
-import { Stack, Typography } from "@mui/material";
+import {
+  Box,
+  Stack,
+  TableCell,
+  TableHead,
+  TableHeadProps,
+  TableRow,
+  Typography,
+} from "@mui/material";
 import { SearchSortField } from "./types";
 
 function SortHeader({
@@ -19,7 +27,7 @@ function SortHeader({
     sortBy: SearchSortField | undefined,
   ) => void;
   sort: SortOrder | undefined;
-  sortBy: SearchSortField | undefined;
+  sortBy: SearchSortField;
   sorted: boolean;
 }) {
   const onClick = useCallback(() => {
@@ -57,100 +65,133 @@ function SortHeader({
   );
 }
 
-export default function SearchResulsTableHeader() {
+export default function SearchResulsTableHeader(props?: TableHeadProps) {
   const { setSort, sort, sortBy } = useSearchState();
   return (
-    <tr>
-      <td>
-        <Typography>Name</Typography>
-      </td>
-      <td>
-        <Typography>Author</Typography>
-      </td>
-      <td>
-        <SortHeader
-          setSort={setSort}
-          sort={sort}
-          sortBy={SearchSortField.Sfb}
-          sorted={sortBy === SearchSortField.Sfb}
-        >
-          SFB
-        </SortHeader>
-      </td>
-      <td>
-        <SortHeader
-          setSort={setSort}
-          sort={sort}
-          sortBy={SearchSortField.Sfs}
-          sorted={sortBy === SearchSortField.Sfs}
-        >
-          SFS
-        </SortHeader>
-      </td>
-      <td>
-        <SortHeader
-          setSort={setSort}
-          sort={sort}
-          sortBy={SearchSortField.Fsb}
-          sorted={sortBy === SearchSortField.Fsb}
-        >
-          FSB
-        </SortHeader>
-      </td>
-      <td>
-        <SortHeader
-          setSort={setSort}
-          sort={sort}
-          sortBy={SearchSortField.Redirect}
-          sorted={sortBy === SearchSortField.Redirect}
-        >
-          Redirects
-        </SortHeader>
-      </td>
-      <td>
-        <SortHeader
-          setSort={setSort}
-          sort={sort}
-          sortBy={SearchSortField.PinkyOff}
-          sorted={sortBy === SearchSortField.PinkyOff}
-        >
-          Pinky Off
-        </SortHeader>
-      </td>
-      <td>&nbsp;</td>
-      <td>
-        <SortHeader
-          setSort={setSort}
-          sort={sort}
-          sortBy={SearchSortField.Alternate}
-          sorted={sortBy === SearchSortField.Alternate}
-        >
-          Alternation
-        </SortHeader>
-      </td>
-      <td>
-        <SortHeader
-          setSort={setSort}
-          sort={sort}
-          sortBy={SearchSortField.Roll}
-          sorted={sortBy === SearchSortField.Roll}
-        >
-          Roll
-        </SortHeader>
-      </td>
-      <td>
-        <SortHeader
-          setSort={setSort}
-          sort={sort}
-          sortBy={SearchSortField.RollRatio}
-          sorted={sortBy === SearchSortField.RollRatio}
-        >
-          Roll Ratio
-        </SortHeader>
-      </td>
-      <td>
-        <Typography textAlign="center">Hand Use</Typography>
-      </td>
-    </tr>
+    <TableHead {...props}>
+      <TableRow>
+        <TableCell>
+          <Typography></Typography>
+        </TableCell>
+        <TableCell>
+          <Stack flexDirection="row" justifyContent="space-evenly">
+            <Box minWidth={0.1}>
+              <Typography textAlign="center">LT</Typography>
+            </Box>
+            <Box minWidth={0.1}>
+              <Typography textAlign="center">LI</Typography>
+            </Box>
+            <Box minWidth={0.1}>
+              <Typography textAlign="center">LM</Typography>
+            </Box>
+            <Box minWidth={0.1}>
+              <Typography textAlign="center">LR</Typography>
+            </Box>
+            <Box minWidth={0.1}>
+              <Typography textAlign="center">LP</Typography>
+            </Box>
+            <Box minWidth={0.1}>
+              <Typography textAlign="center">RT</Typography>
+            </Box>
+            <Box minWidth={0.1}>
+              <Typography textAlign="center">RI</Typography>
+            </Box>
+            <Box minWidth={0.1}>
+              <Typography textAlign="center">RM</Typography>
+            </Box>
+            <Box minWidth={0.1}>
+              <Typography textAlign="center">RR</Typography>
+            </Box>
+            <Box minWidth={0.1}>
+              <Typography textAlign="center">RP</Typography>
+            </Box>
+          </Stack>
+        </TableCell>
+        <TableCell>
+          <SortHeader
+            setSort={setSort}
+            sort={sort}
+            sortBy={SearchSortField.Sfb}
+            sorted={sortBy === SearchSortField.Sfb}
+          >
+            SFB
+          </SortHeader>
+        </TableCell>
+        <TableCell>
+          <SortHeader
+            setSort={setSort}
+            sort={sort}
+            sortBy={SearchSortField.Sfs}
+            sorted={sortBy === SearchSortField.Sfs}
+          >
+            SFS
+          </SortHeader>
+        </TableCell>
+        <TableCell>
+          <SortHeader
+            setSort={setSort}
+            sort={sort}
+            sortBy={SearchSortField.Fsb}
+            sorted={sortBy === SearchSortField.Fsb}
+          >
+            FSB
+          </SortHeader>
+        </TableCell>
+        <TableCell>
+          <SortHeader
+            setSort={setSort}
+            sort={sort}
+            sortBy={SearchSortField.Redirect}
+            sorted={sortBy === SearchSortField.Redirect}
+          >
+            Redirects
+          </SortHeader>
+        </TableCell>
+        <TableCell>
+          <SortHeader
+            setSort={setSort}
+            sort={sort}
+            sortBy={SearchSortField.PinkyOff}
+            sorted={sortBy === SearchSortField.PinkyOff}
+          >
+            Pinky Off
+          </SortHeader>
+        </TableCell>
+        <TableCell>&nbsp;</TableCell>
+        <TableCell>
+          <SortHeader
+            setSort={setSort}
+            sort={sort}
+            sortBy={SearchSortField.Alternate}
+            sorted={sortBy === SearchSortField.Alternate}
+          >
+            Alternation
+          </SortHeader>
+        </TableCell>
+        <TableCell>
+          <SortHeader
+            setSort={setSort}
+            sort={sort}
+            sortBy={SearchSortField.Roll}
+            sorted={sortBy === SearchSortField.Roll}
+          >
+            Roll
+          </SortHeader>
+        </TableCell>
+        <TableCell>
+          <SortHeader
+            setSort={setSort}
+            sort={sort}
+            sortBy={SearchSortField.RollRatio}
+            sorted={sortBy === SearchSortField.RollRatio}
+          >
+            Roll Ratio
+          </SortHeader>
+        </TableCell>
+        <TableCell>
+          <Typography textAlign="center">Hand Use</Typography>
+        </TableCell>
+      </TableRow>
+    </TableHead>
   );
 }

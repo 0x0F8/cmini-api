@@ -83,7 +83,7 @@ export default class CminiApi {
       typeof maxRightHand !== "undefined";
     const hasBoard = typeof board !== "undefined";
     const hasAuthorId = typeof authorId !== "undefined";
-    const hasThumb1 = typeof hasThumb === "undefined";
+    const hasThumb1 = typeof hasThumb !== "undefined";
     const hasDate =
       typeof createdBefore !== "undefined" ||
       typeof modifiedBefore !== "undefined" ||
@@ -134,7 +134,7 @@ export default class CminiApi {
         }
         for (let [has, stat, min, max] of [
           [hasSfb, row.stats.sfb, minSfb, maxSfb],
-          [hasSfs, row.stats.sfs, minSfs, maxSfs],
+          [hasSfs, row.stats.sfs + row.stats.sfsAlt, minSfs, maxSfs],
           [hasFsb, row.stats.fsb, minFsb, maxFsb],
           [
             hasRedirect,
@@ -159,6 +159,7 @@ export default class CminiApi {
 
           const isWithinMin = typeof min !== "undefined" ? stat! >= min : true;
           const isWithinMax = typeof max !== "undefined" ? stat! <= max : true;
+          console.log(has, stat, min, max, isWithinMin, isWithinMax);
           if (!isWithinMin || !isWithinMax) {
             shouldFilter = true;
             break;

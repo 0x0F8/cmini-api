@@ -3,13 +3,15 @@
 import cookies from "@frontend/Cookies";
 import React, { ReactNode } from "react";
 import { createContext, useState } from "react";
-import { SearchSortField } from "../feature/search/types";
+import { SearchRangeField } from "../feature/search/types";
 
-type Metrics = Map<SearchSortField, { min: number; max: number }>;
+export type Metrics = Map<SearchRangeField, { min: number; max: number }>;
+export type AllMetrics = Map<string, Metrics>;
 export type AppState = {
   corpora: string;
   corporas: string[];
   metrics: Metrics;
+  allMetrics: AllMetrics;
 };
 
 type SetAppState = {
@@ -21,6 +23,7 @@ const defaultState: AppState = {
   corpora: "monkeyracer",
   corporas: [],
   metrics: new Map(),
+  allMetrics: new Map(),
 };
 const defaultSetState: SetAppState = {
   setCorpora: (_: string) => {},
@@ -49,7 +52,11 @@ const AppStateProvider = ({
   };
 
   const setCorpora = (corpora: string) => {
-    setAppState((state) => ({ ...state, corpora }));
+    setAppState((state) => ({
+      ...state,
+      corpora,
+      metrics: state.allMetrics.get(corpora)!,
+    }));
     setCookie("corpora", corpora);
   };
 

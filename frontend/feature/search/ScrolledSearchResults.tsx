@@ -25,7 +25,7 @@ export default function ScrolledSearchResults({
       hasReachedEnd: false,
       isRefreshing: false,
     });
-  const { ref, isIntersecting } = useIntersectionObserver({ threshold: 0.5 });
+  const { ref, isIntersecting } = useIntersectionObserver({ threshold: 0 });
   const { data, mutate, size, setSize, isValidating, isLoading, error } =
     useSearchInfiniteApi(args, { limit: PAGE_LIMIT });
 
@@ -79,6 +79,7 @@ export default function ScrolledSearchResults({
           <LayoutTable
             data={data?.map((d) => d.data).flat() || []}
             Header={SearchResulsTableHeader}
+            showText
           />
           <div ref={ref}></div>
         </Stack>
